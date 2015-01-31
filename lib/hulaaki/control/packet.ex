@@ -18,6 +18,10 @@ defmodule Hulaaki.Control.Packet do
                          ], HashSet.new)
 
   def valid?(packet) do
+    valid_type?(packet)
+  end
+
+  defp valid_type?(packet) do
     Set.member?(@valid_types, packet.type)
   end
 end

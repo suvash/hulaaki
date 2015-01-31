@@ -9,38 +9,45 @@ defmodule Hulaaki.Control.Codec do
       bit_1::size(1), bit_0::size(1)>>
   end
 
-  "As described in Table 2.2.1 in MQTT-3.1.1-os specification"
+  "As described in Fig 2.2/Table 2.1/Section 2.2.1 in MQTT-3.1.1-os specification"
   # def encode_type_value(:reserved_0),     do: 0
-  defp encode_fixed_header_type_value(:CONNECT),     do: 1
-  defp encode_fixed_header_type_value(:CONNACK),     do: 2
-  defp encode_fixed_header_type_value(:PUBLISH),     do: 3
-  defp encode_fixed_header_type_value(:PUBACK),      do: 4
-  defp encode_fixed_header_type_value(:PUBREC),      do: 5
-  defp encode_fixed_header_type_value(:PUBREL),      do: 6
-  defp encode_fixed_header_type_value(:PUBCOMP),     do: 7
-  defp encode_fixed_header_type_value(:SUBSCRIBE),   do: 8
-  defp encode_fixed_header_type_value(:SUBACK),      do: 9
-  defp encode_fixed_header_type_value(:UNSUBSCRIBE), do: 10
-  defp encode_fixed_header_type_value(:UNSUBACK),    do: 11
-  defp encode_fixed_header_type_value(:PINGREC),     do: 12
-  defp encode_fixed_header_type_value(:PINGRESP),    do: 13
-  defp encode_fixed_header_type_value(:DISCONNECT),  do: 14
-  # def encode_type_value(:reserved_15),  do: 15
+  # def encode_type_value(:reserved_15),    do: 15
+  defp encode_fixed_header_type_value(type) do
+    case type do
+      :CONNECT     -> 1
+      :CONNACK     -> 2
+      :PUBLISH     -> 3
+      :PUBACK      -> 4
+      :PUBREC      -> 5
+      :PUBREL      -> 6
+      :PUBCOMP     -> 7
+      :SUBSCRIBE   -> 8
+      :SUBACK      -> 9
+      :UNSUBSCRIBE -> 10
+      :UNSUBACK    -> 11
+      :PINGREC     -> 12
+      :PINGRESP    -> 13
+      :DISCONNECT  -> 14
+    end
+  end
 
-
-  "As described in Table 2.2 in MQTT-3.1.1-os specification"
-  defp encode_fixed_header_flag_bits(:CONNECT),     do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:CONNACK),     do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:PUBLISH),     do: [0,0,0,0] # FIX THIS
-  defp encode_fixed_header_flag_bits(:PUBACK),      do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:PUBREC),      do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:PUBREL),      do: [0,0,1,0]
-  defp encode_fixed_header_flag_bits(:PUBCOMP),     do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:SUBSCRIBE),   do: [0,0,1,0]
-  defp encode_fixed_header_flag_bits(:SUBACK),      do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:UNSUBSCRIBE), do: [0,0,1,0]
-  defp encode_fixed_header_flag_bits(:UNSUBACK),    do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:PINGREC),     do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:PINGRESP),    do: [0,0,0,0]
-  defp encode_fixed_header_flag_bits(:DISCONNECT),  do: [0,0,0,0]
+  "As described in Fig 2.2/Table 2.2/Section 2.2.2 in MQTT-3.1.1-os specification"
+  defp encode_fixed_header_flag_bits(type) do
+    case type do
+      :CONNECT     -> [0,0,0,0]
+      :CONNACK     -> [0,0,0,0]
+      :PUBLISH     -> [0,0,0,0] # FIX THIS
+      :PUBACK      -> [0,0,0,0]
+      :PUBREC      -> [0,0,0,0]
+      :PUBREL      -> [0,0,1,0]
+      :PUBCOMP     -> [0,0,0,0]
+      :SUBSCRIBE   -> [0,0,1,0]
+      :SUBACK      -> [0,0,0,0]
+      :UNSUBSCRIBE -> [0,0,1,0]
+      :UNSUBACK    -> [0,0,0,0]
+      :PINGREC     -> [0,0,0,0]
+      :PINGRESP    -> [0,0,0,0]
+      :DISCONNECT  -> [0,0,0,0]
+    end
+  end
 end
