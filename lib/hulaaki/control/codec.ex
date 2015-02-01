@@ -11,8 +11,8 @@ defmodule Hulaaki.Control.Codec do
   end
 
   "As described in Fig 2.2/Table 2.1/Section 2.2.1 in MQTT-3.1.1-os specification"
-  # def encode_type_value(:reserved_0),     do: 0
-  # def encode_type_value(:reserved_15),    do: 15
+  #defp encode_type_value(:reserved_0),     do: 0
+  #defp encode_type_value(:reserved_15),    do: 15
   defp encode_fixed_header_type_value(type) do
     case type do
       :CONNECT     -> 1
@@ -73,6 +73,4 @@ defmodule Hulaaki.Control.Codec do
       accumulator <> encodedValue
     end
   end
-
-
 end

@@ -4,6 +4,13 @@ defmodule Hulaaki.Control.CodecTest do
   alias Hulaaki.Control.Codec, as: Codec
 
 
+  test "control packet fixed header for NONSENSE" do
+    assert_raise CaseClauseError, fn ->
+      packet = %Packet{type: :NONSENSE}
+      Codec.encode_fixed_header(packet)
+    end
+  end
+
   test "control packet fixed header for CONNECT" do
     packet = %Packet{type: :CONNECT}
     received = Codec.encode_fixed_header(packet)
@@ -120,6 +127,10 @@ defmodule Hulaaki.Control.CodecTest do
     received = Codec.encode_fixed_header_remaining_length(321)
     expected = <<193, 2>>
     assert expected == received
+
+    assert_raise FunctionClauseError, fn ->
+      Codec.encode_fixed_header_remaining_length(-321)
+    end
 
     received = Codec.encode_fixed_header_remaining_length(0)
     expected = <<0>>
