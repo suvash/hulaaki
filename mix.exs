@@ -25,6 +25,6 @@ defmodule Hulaaki.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [{:dialyze, "~> 0.1.3"}]
   end
 end
