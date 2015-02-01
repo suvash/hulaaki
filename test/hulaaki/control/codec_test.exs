@@ -115,4 +115,42 @@ defmodule Hulaaki.Control.CodecTest do
 
     assert expected == received
   end
+
+  test "encode fixed header remaining length number to bytes" do
+    received = Codec.encode_fixed_header_remaining_length(321)
+    expected = <<193, 2>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(0)
+    expected = <<0>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(127)
+    expected = <<127>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(128)
+    expected = <<128, 1>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(16_383)
+    expected = <<255, 127>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(16_384)
+    expected = <<128, 128, 1>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(2_097_151)
+    expected = <<255, 255, 127>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(2_097_152)
+    expected = <<128, 128, 128, 1>>
+    assert expected == received
+
+    received = Codec.encode_fixed_header_remaining_length(268_435_455)
+    expected = <<255, 255, 255, 127>>
+    assert expected == received
+  end
 end

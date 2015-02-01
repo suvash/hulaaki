@@ -1,4 +1,5 @@
 defmodule Hulaaki.Control.Codec do
+  require Bitwise
 
   @doc "As described in Figure 2.2 in MQTT-3.1.1-os specification"
   def encode_fixed_header(packet) do
@@ -50,4 +51,28 @@ defmodule Hulaaki.Control.Codec do
       :DISCONNECT  -> [0,0,0,0]
     end
   end
+
+  "As described in Fig 2.2/Section 2.2.3 in MQTT-3.1.1-os specification"
+  def encode_fixed_header_remaining_length(0), do: <<0>>
+
+  def encode_fixed_header_remaining_length(number) when number > 0 do
+    encode_fixed_header_remaining_length(number, <<>>)
+  end
+
+  defp encode_fixed_header_remaining_length(number, accumulator) do
+    divisor = 128
+    dividend = div(number, divisor )
+    remainder = rem(number, divisor)
+
+    if dividend > 0 do
+      encodedValue = <<Bitwise.bor(remainder, divisor)>>
+      accumulatedValue = accumulator <> encodedValue
+      encode_fixed_header_remaining_length(dividend, accumulatedValue)
+    else
+      encodedValue = <<remainder::size(8)>>
+      accumulator <> encodedValue
+    end
+  end
+
+
 end
