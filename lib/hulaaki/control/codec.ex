@@ -2,6 +2,7 @@ defmodule Hulaaki.Control.Codec do
   require Bitwise
 
   @doc "As described in Figure 2.2 in MQTT-3.1.1-os specification"
+  @spec encode_fixed_header(Packet.t) :: binary
   def encode_fixed_header(packet) do
     [bit_3, bit_2, bit_1, bit_0] = encode_fixed_header_flag_bits(packet.type)
     bitstring_7_4 = encode_fixed_header_type_value(packet.type)
@@ -13,6 +14,7 @@ defmodule Hulaaki.Control.Codec do
   "As described in Fig 2.2/Table 2.1/Section 2.2.1 in MQTT-3.1.1-os specification"
   #defp encode_type_value(:reserved_0),     do: 0
   #defp encode_type_value(:reserved_15),    do: 15
+  @spec encode_fixed_header_type_value(atom) :: number
   defp encode_fixed_header_type_value(type) do
     case type do
       :CONNECT     -> 1
@@ -33,6 +35,7 @@ defmodule Hulaaki.Control.Codec do
   end
 
   "As described in Fig 2.2/Table 2.2/Section 2.2.2 in MQTT-3.1.1-os specification"
+  @spec encode_fixed_header_flag_bits(atom) :: list(number)
   defp encode_fixed_header_flag_bits(type) do
     case type do
       :CONNECT     -> [0,0,0,0]
@@ -53,12 +56,14 @@ defmodule Hulaaki.Control.Codec do
   end
 
   "As described in Fig 2.2/Section 2.2.3 in MQTT-3.1.1-os specification"
+  @spec encode_fixed_header_remaining_length(number) :: binary
   def encode_fixed_header_remaining_length(0), do: <<0>>
 
   def encode_fixed_header_remaining_length(number) when number > 0 do
     encode_fixed_header_remaining_length(number, <<>>)
   end
 
+  @spec encode_fixed_header_remaining_length(number, binary) :: binary
   defp encode_fixed_header_remaining_length(number, accumulator) do
     divisor = 128
     dividend = div(number, divisor )
