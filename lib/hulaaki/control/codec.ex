@@ -1,61 +1,78 @@
 defmodule Hulaaki.Control.Codec do
+  alias Hulaaki.Control.Message, as: Message
   require Bitwise
 
-  @doc "As described in Figure 2.2 in MQTT-3.1.1-os specification"
-  @spec encode_fixed_header(Packet.t) :: binary
-  def encode_fixed_header(packet) do
-    [bit_3, bit_2, bit_1, bit_0] = encode_fixed_header_flag_bits(packet.type)
-    bitstring_7_4 = encode_fixed_header_type_value(packet.type)
+  @type dup :: 0|1
+  @type qos :: 0|1|2
+  @type retain :: 0|1
+  @type packet_value :: 1|2|3|4|5|6|7|8|9|10|11|12|13|14
 
-    <<bitstring_7_4::size(4), bit_3::size(1), bit_2::size(1),
-      bit_1::size(1), bit_0::size(1)>>
+  def encode_fixed_header(%Message.Connect{}) do
+    encode_generic_fixed_header(1, 0, 0, 0)
   end
 
-  "As described in Fig 2.2/Table 2.1/Section 2.2.1 in MQTT-3.1.1-os specification"
-  #defp encode_type_value(:reserved_0),     do: 0
-  #defp encode_type_value(:reserved_15),    do: 15
-  @spec encode_fixed_header_type_value(atom) :: number
-  defp encode_fixed_header_type_value(type) do
-    case type do
-      :CONNECT     -> 1
-      :CONNACK     -> 2
-      :PUBLISH     -> 3
-      :PUBACK      -> 4
-      :PUBREC      -> 5
-      :PUBREL      -> 6
-      :PUBCOMP     -> 7
-      :SUBSCRIBE   -> 8
-      :SUBACK      -> 9
-      :UNSUBSCRIBE -> 10
-      :UNSUBACK    -> 11
-      :PINGREC     -> 12
-      :PINGRESP    -> 13
-      :DISCONNECT  -> 14
-    end
+  def encode_fixed_header(%Message.ConnAck{}) do
+    encode_generic_fixed_header(2, 0, 0, 0)
   end
 
-  "As described in Fig 2.2/Table 2.2/Section 2.2.2 in MQTT-3.1.1-os specification"
-  @spec encode_fixed_header_flag_bits(atom) :: list(number)
-  defp encode_fixed_header_flag_bits(type) do
-    case type do
-      :CONNECT     -> [0,0,0,0]
-      :CONNACK     -> [0,0,0,0]
-      :PUBLISH     -> [0,0,0,0] # FIX THIS
-      :PUBACK      -> [0,0,0,0]
-      :PUBREC      -> [0,0,0,0]
-      :PUBREL      -> [0,0,1,0]
-      :PUBCOMP     -> [0,0,0,0]
-      :SUBSCRIBE   -> [0,0,1,0]
-      :SUBACK      -> [0,0,0,0]
-      :UNSUBSCRIBE -> [0,0,1,0]
-      :UNSUBACK    -> [0,0,0,0]
-      :PINGREC     -> [0,0,0,0]
-      :PINGRESP    -> [0,0,0,0]
-      :DISCONNECT  -> [0,0,0,0]
-    end
+  def encode_fixed_header(%Message.Publish{dup: dup, qos: qos, retain: retain}) do
+    encode_generic_fixed_header(3, dup, qos, retain)
   end
 
-  "As described in Fig 2.2/Section 2.2.3 in MQTT-3.1.1-os specification"
+  def encode_fixed_header(%Message.PubAck{}) do
+    encode_generic_fixed_header(4, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.PubRec{}) do
+    encode_generic_fixed_header(5, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.PubRel{}) do
+    encode_generic_fixed_header(6, 0, 1, 0)
+  end
+
+  def encode_fixed_header(%Message.PubComp{}) do
+    encode_generic_fixed_header(7, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.Subscribe{}) do
+    encode_generic_fixed_header(8, 0, 1, 0)
+  end
+
+  def encode_fixed_header(%Message.SubAck{}) do
+    encode_generic_fixed_header(9, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.Unsubscribe{}) do
+    encode_generic_fixed_header(10, 0, 1, 0)
+  end
+
+  def encode_fixed_header(%Message.UnsubAck{}) do
+    encode_generic_fixed_header(11, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.PingReq{}) do
+    encode_generic_fixed_header(12, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.PingResp{}) do
+    encode_generic_fixed_header(13, 0, 0, 0)
+  end
+
+  def encode_fixed_header(%Message.Disconnect{}) do
+    encode_generic_fixed_header(14, 0, 0, 0)
+  end
+
+  @spec encode_generic_fixed_header(packet_value, dup, qos, retain) :: binary
+  defp encode_generic_fixed_header(packet_value, dup, qos, retain)
+    when (packet_value > 0 and packet_value < 15 )
+    and (dup == 0 or dup == 1)
+    and (qos == 0 or qos == 1 or qos == 2)
+    and (retain == 0 or retain == 1) do
+
+      <<packet_value::size(4), dup::size(1), qos::size(2), retain::size(1)>>
+  end
+
   @spec encode_fixed_header_remaining_length(number) :: binary
   def encode_fixed_header_remaining_length(0), do: <<0>>
 
@@ -74,7 +91,7 @@ defmodule Hulaaki.Control.Codec do
       accumulatedValue = accumulator <> encodedValue
       encode_fixed_header_remaining_length(dividend, accumulatedValue)
     else
-      encodedValue = <<remainder::size(8)>>
+      encodedValue = <<remainder>>
       accumulator <> encodedValue
     end
   end
