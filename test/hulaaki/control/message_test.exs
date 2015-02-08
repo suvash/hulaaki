@@ -3,9 +3,10 @@ defmodule Hulaaki.Control.MessageTest do
   alias Hulaaki.Control.Message, as: Message
 
   test "connect build a Connect message struct" do
-    id = :random.uniform(999999)
+    id = "test-client-id"
     username = "test-user"
     password = "test-password"
+    will_flag = 0
     will_topic = "will-topic"
     will_message = "will-message"
     will_qos = 0
@@ -15,13 +16,14 @@ defmodule Hulaaki.Control.MessageTest do
     expected = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
+                                will_flag: will_flag,
                                 will_topic: will_topic,
                                 will_message: will_message,
                                 will_qos: will_qos,
                                 will_retain: will_retain,
                                 clean_session: clean_session,
                                 keep_alive: keep_alive}
-    received = Message.connect(id, username, password,
+    received = Message.connect(id, username, password, will_flag,
                                will_topic, will_message, will_qos,
                                will_retain, clean_session, keep_alive)
 

@@ -3,12 +3,16 @@ defmodule Hulaaki.Control.Message do
   # TODO: VERIFY and DROP type in structs after functions to encode structs
   # TODO: ADD specs to functions as well
   # TODO: ADD documentation ExDoc style
+  # TODO: number of topics and number of qoses must be equal
+  # Make 0|1 things boolean from the user interface
+  # Make 0|1|2 for qos into atom from Message interface
 
   defmodule Connect do
     @type t :: %__MODULE__{
               client_id: non_neg_integer,
               username: String.t,
               password: String.t,
+              will_flag: 0|1,
               will_topic: String.t,
               will_message: String.t,
               will_qos: 0|1|2,
@@ -19,6 +23,7 @@ defmodule Hulaaki.Control.Message do
     defstruct [:client_id,
                :username,
                :password,
+               :will_flag,
                :will_topic,
                :will_message,
                :will_qos,
@@ -29,23 +34,25 @@ defmodule Hulaaki.Control.Message do
   end
 
   def connect(client_id, username, password,
-              will_topic, will_message, will_qos,
+              will_flag, will_topic, will_message, will_qos,
               will_retain, clean_session, keep_alive)
-    when is_integer(client_id)
+    when is_binary(client_id)
     and client_id > 0
     and is_binary(username)
     and is_binary(password)
     and is_binary(will_topic)
     and is_binary(will_message)
+    and (will_flag == 0 or will_flag == 1)
     and (will_qos == 0 or will_qos == 1 or will_qos == 2)
     and (will_retain == 0 or will_retain == 1)
     and (clean_session == 0 or clean_session == 1)
     and is_integer(keep_alive) do
 
       %Connect{client_id: client_id, username: username, password: password,
-               will_topic: will_topic, will_message: will_message,
-               will_qos: will_qos, will_retain: will_retain,
-               clean_session: clean_session, keep_alive: keep_alive}
+               will_flag: will_flag, will_topic: will_topic,
+               will_message: will_message, will_qos: will_qos,
+               will_retain: will_retain, clean_session: clean_session,
+               keep_alive: keep_alive}
   end
 
   defmodule ConnAck do
