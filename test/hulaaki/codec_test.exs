@@ -15,9 +15,28 @@ defmodule Hulaaki.CodecTest do
   end
 
   test "encodes fixed header for Connect struct" do
-    message = %Message.Connect{}
+    id = "test-client-id"
+    username = "test-user"
+    password = "test-password"
+    will_flag = 0
+    will_topic = "will-topic"
+    will_message = "will-message"
+    will_qos = 0
+    will_retain = 1
+    clean_session = 0
+    keep_alive = 10
+    message = %Message.Connect{client_id: id,
+                                username: username,
+                                password: password,
+                                will_flag: will_flag,
+                                will_topic: will_topic,
+                                will_message: will_message,
+                                will_qos: will_qos,
+                                will_retain: will_retain,
+                                clean_session: clean_session,
+                                keep_alive: keep_alive}
     received = Codec.encode_fixed_header(message)
-    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>>
+    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<52>>
 
     assert expected == received
   end
@@ -34,11 +53,11 @@ defmodule Hulaaki.CodecTest do
     dup = 0
     qos = 2
     retain = 1
-    message = %Message.Publish{id: 203, topic: 'test',
-                               message: 'test', dup: dup,
+    message = %Message.Publish{id: 203, topic: "test",
+                               message: "test", dup: dup,
                                qos: qos, retain: retain}
     received = Codec.encode_fixed_header(message)
-    expected = <<3::size(4), dup::size(1), qos::size(2), retain::size(1)>>
+    expected = <<3::size(4), dup::size(1), qos::size(2), retain::size(1)>> <> <<12>>
 
     assert expected == received
   end
@@ -76,25 +95,30 @@ defmodule Hulaaki.CodecTest do
   end
 
   test "encodes fixed header for Subscribe struct" do
-    message = %Message.Subscribe{}
+    id = :random.uniform(999999)
+    message = %Message.Subscribe{id: id,
+                                  topics: ["hello", "cool"],
+                                  requested_qoses: [0, 1, 2]}
     received = Codec.encode_fixed_header(message)
-    expected = <<8::size(4), 0::size(1), 1::size(2), 0::size(1)>>
+    expected = <<8::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<17>>
 
     assert expected == received
   end
 
   test "encodes fixed header for SubAck struct" do
-    message = %Message.SubAck{}
+    id = :random.uniform(999999)
+    message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     received = Codec.encode_fixed_header(message)
-    expected = <<9::size(4), 0::size(1), 0::size(2), 0::size(1)>>
+    expected = <<9::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<6>>
 
     assert expected == received
   end
 
   test "encodes fixed header for Unsubscribe struct" do
-    message = %Message.Unsubscribe{}
+    id = :random.uniform(999999)
+    message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Codec.encode_fixed_header(message)
-    expected = <<10::size(4), 0::size(1), 1::size(2), 0::size(1)>>
+    expected = <<10::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<15>>
 
     assert expected == received
   end
@@ -240,4 +264,80 @@ defmodule Hulaaki.CodecTest do
     assert expected == received
   end
 
+  # Connect
+  # ConnAck
+  # Publish
+  # Publish
+
+  test "encodes variable header for PubAck struct" do
+    id = :random.uniform(999999)
+    message = %Message.PubAck{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for PubRec struct" do
+    id = :random.uniform(999999)
+    message = %Message.PubRec{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for PubRel struct" do
+    id = :random.uniform(999999)
+    message = %Message.PubRel{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for PubComp struct" do
+    id = :random.uniform(999999)
+    message = %Message.PubComp{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for Subscribe struct" do
+    id = :random.uniform(999999)
+    message = %Message.Subscribe{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for SubAck struct" do
+    id = :random.uniform(999999)
+    message = %Message.SubAck{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for Unsubscribe struct" do
+    id = :random.uniform(999999)
+    message = %Message.Unsubscribe{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for UnsubAck struct" do
+    id = :random.uniform(999999)
+    message = %Message.UnsubAck{id: id}
+    received = Codec.encode_variable_header(message)
+    expected = <<id::size(16)>>
+
+    assert expected == received
+  end
 end

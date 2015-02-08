@@ -7,8 +7,10 @@ defmodule Hulaaki.Codec do
   @type retain :: 0|1
   @type packet_value :: 1|2|3|4|5|6|7|8|9|10|11|12|13|14
 
-  def encode_fixed_header(%Message.Connect{}) do
-    encode_fixed_header_first_byte(1, 0, 0, 0)
+  def encode_fixed_header(%Message.Connect{} = message) do
+    remaining_length = calculate_remaining_length(message)
+    encode_fixed_header_first_byte(1, 0, 0, 0) <>
+      encode_fixed_header_second_byte(remaining_length)
   end
 
   def encode_fixed_header(%Message.ConnAck{}) do
@@ -16,8 +18,11 @@ defmodule Hulaaki.Codec do
       encode_fixed_header_second_byte(2)
   end
 
-  def encode_fixed_header(%Message.Publish{dup: dup, qos: qos, retain: retain}) do
-    encode_fixed_header_first_byte(3, dup, qos, retain)
+  def encode_fixed_header(%Message.Publish{dup: dup, qos: qos,
+                                           retain: retain} = message) do
+    remaining_length = calculate_remaining_length(message)
+    encode_fixed_header_first_byte(3, dup, qos, retain) <>
+      encode_fixed_header_second_byte(remaining_length)
   end
 
   def encode_fixed_header(%Message.PubAck{}) do
@@ -40,16 +45,22 @@ defmodule Hulaaki.Codec do
       encode_fixed_header_second_byte(2)
   end
 
-  def encode_fixed_header(%Message.Subscribe{}) do
-    encode_fixed_header_first_byte(8, 0, 1, 0)
+  def encode_fixed_header(%Message.Subscribe{} = message) do
+    remaining_length = calculate_remaining_length(message)
+    encode_fixed_header_first_byte(8, 0, 1, 0) <>
+      encode_fixed_header_second_byte(remaining_length)
   end
 
-  def encode_fixed_header(%Message.SubAck{}) do
-    encode_fixed_header_first_byte(9, 0, 0, 0)
+  def encode_fixed_header(%Message.SubAck{} = message) do
+    remaining_length = calculate_remaining_length(message)
+    encode_fixed_header_first_byte(9, 0, 0, 0) <>
+      encode_fixed_header_second_byte(remaining_length)
   end
 
-  def encode_fixed_header(%Message.Unsubscribe{}) do
-    encode_fixed_header_first_byte(10, 0, 1, 0)
+  def encode_fixed_header(%Message.Unsubscribe{} = message) do
+    remaining_length = calculate_remaining_length(message)
+    encode_fixed_header_first_byte(10, 0, 1, 0) <>
+      encode_fixed_header_second_byte(remaining_length)
   end
 
   def encode_fixed_header(%Message.UnsubAck{}) do
@@ -174,4 +185,49 @@ defmodule Hulaaki.Codec do
       accumulator <> encodedValue
     end
   end
+
+  # def encode_variable_header(%Message.Connect{}) do
+  #   <<>>
+  # end
+
+  # def encode_variable_header(%Message.ConnAck{}) do
+  #   <<>>
+  # end
+
+  # def encode_variable_header(%Message.Publish{}) do
+  #   <<>>
+  # end
+
+  def encode_variable_header(%Message.PubAck{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.PubRec{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.PubRel{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.PubComp{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.Subscribe{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.SubAck{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.Unsubscribe{id: id}) do
+    <<id::size(16)>>
+  end
+
+  def encode_variable_header(%Message.UnsubAck{id: id}) do
+    <<id::size(16)>>
+  end
+
 end
