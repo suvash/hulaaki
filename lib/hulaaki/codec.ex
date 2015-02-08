@@ -186,17 +186,38 @@ defmodule Hulaaki.Codec do
     end
   end
 
-  # def encode_variable_header(%Message.Connect{}) do
-  #   <<>>
-  # end
+  def encode_variable_header(%Message.Connect{username: username,
+                                              password: password,
+                                              will_flag: will_flag,
+                                              will_qos: will_qos,
+                                              will_retain: will_retain,
+                                              clean_session: clean_session,
+                                              keep_alive: keep_alive}) do
+    username_flag = cond do
+      byte_size(username) >= 1 -> 1
+      byte_size(username) == 0 -> 0
+    end
 
-  # def encode_variable_header(%Message.ConnAck{}) do
-  #   <<>>
-  # end
+    password_flag = cond do
+      byte_size(password) >= 1 -> 1
+      byte_size(password) == 0 -> 0
+    end
 
-  # def encode_variable_header(%Message.Publish{}) do
-  #   <<>>
-  # end
+    <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
+      <<username_flag::size(1), password_flag::size(1),
+        will_retain::size(1), will_qos::size(2),
+        will_flag::size(1), clean_session::size(1), 0::size(1)>> <>
+      <<keep_alive::size(16)>>
+  end
+
+  def encode_variable_header(%Message.ConnAck{session_present: session_present,
+                                              return_code: return_code}) do
+    <<0::size(7), session_present::size(1), return_code::size(8)>>
+  end
+
+  def encode_variable_header(%Message.Publish{id: id, topic: topic}) do
+    <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+  end
 
   def encode_variable_header(%Message.PubAck{id: id}) do
     <<id::size(16)>>

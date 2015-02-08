@@ -264,10 +264,65 @@ defmodule Hulaaki.CodecTest do
     assert expected == received
   end
 
-  # Connect
-  # ConnAck
-  # Publish
-  # Publish
+  test "encodes variable header for Connect struct" do
+    id = "test-client-id"
+    username = "test-user"
+    password = "test-password"
+    will_flag = 0
+    will_topic = "will-topic"
+    will_message = "will-message"
+    will_qos = 0
+    will_retain = 1
+    clean_session = 0
+    keep_alive = 10
+    message = %Message.Connect{client_id: id,
+                                username: username,
+                                password: password,
+                                will_flag: will_flag,
+                                will_topic: will_topic,
+                                will_message: will_message,
+                                will_qos: will_qos,
+                                will_retain: will_retain,
+                                clean_session: clean_session,
+                                keep_alive: keep_alive}
+    received = Codec.encode_variable_header(message)
+    username_flag = 1
+    password_flag = 1
+    expected = <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
+                 <<username_flag::size(1), password_flag::size(1),
+                   will_retain::size(1), will_qos::size(2),
+                   will_flag::size(1), clean_session::size(1), 0::size(1)>> <>
+                 <<keep_alive::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for ConnAck struct" do
+    session_present = 0
+    return_code = 3
+    message = %Message.ConnAck{session_present: session_present,
+                                return_code: return_code}
+    received = Codec.encode_variable_header(message)
+    expected = <<0, 3>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for Publish struct" do
+    id = :random.uniform(999999)
+    topic = "topic"
+    message = "message"
+    dup = 0
+    qos = 2
+    retain = 1
+    message = %Message.Publish{id: id, topic: topic,
+                                message: message, dup: dup,
+                                qos: qos, retain: retain}
+    received = Codec.encode_variable_header(message)
+    expected = <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+
+    assert expected == received
+  end
 
   test "encodes variable header for PubAck struct" do
     id = :random.uniform(999999)
