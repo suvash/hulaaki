@@ -1,7 +1,7 @@
-defmodule Hulaaki.Control.CodecTest do
+defmodule Hulaaki.CodecTest do
   use ExUnit.Case
-  alias Hulaaki.Control.Codec, as: Codec
-  alias Hulaaki.Control.Message, as: Message
+  alias Hulaaki.Codec, as: Codec
+  alias Hulaaki.Message, as: Message
 
   defmodule Nonsense do
     defstruct type: :NONSENSE
@@ -153,7 +153,7 @@ defmodule Hulaaki.Control.CodecTest do
                                clean_session: clean_session,
                                keep_alive: keep_alive}
     received = Codec.calculate_remaining_length(message)
-    expected = 52
+    expected = 81
 
     assert expected == received
   end

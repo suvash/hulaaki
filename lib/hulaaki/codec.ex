@@ -1,5 +1,5 @@
-defmodule Hulaaki.Control.Codec do
-  alias Hulaaki.Control.Message, as: Message
+defmodule Hulaaki.Codec do
+  alias Hulaaki.Message, as: Message
   require Bitwise
 
   @type dup :: 0|1
@@ -94,7 +94,7 @@ defmodule Hulaaki.Control.Codec do
       will_flag == 0 -> 0
     end
 
-    variable_header_length + client_id_length
+    variable_header_length + client_id_length \
       + username_length + password_length + will_length
   end
 

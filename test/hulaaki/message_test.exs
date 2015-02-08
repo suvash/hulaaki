@@ -1,6 +1,6 @@
-defmodule Hulaaki.Control.MessageTest do
+defmodule Hulaaki.MessageTest do
   use ExUnit.Case
-  alias Hulaaki.Control.Message, as: Message
+  alias Hulaaki.Message, as: Message
 
   test "connect build a Connect message struct" do
     id = "test-client-id"

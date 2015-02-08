@@ -1,4 +1,4 @@
-defmodule Hulaaki.Control.Message do
+defmodule Hulaaki.Message do
 
   # TODO: VERIFY and DROP type in structs after functions to encode structs
   # TODO: ADD specs to functions as well
