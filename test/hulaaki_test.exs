@@ -25,15 +25,18 @@ defmodule HulaakiTest do
                                 clean_session: clean_session,
                                 keep_alive: keep_alive}
     received = Packet.encode(message)
-    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<52>>
+    expected = <<16, 52, 0, 4, 77, 81, 84, 84, 4, 224, 0, 10>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for ConnAck message" do
-    message = %Message.ConnAck{}
+    session_present = 0
+    return_code = 3
+    message = %Message.ConnAck{session_present: session_present,
+                                return_code: return_code}
     received = Packet.encode(message)
-    expected = <<2::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<2>>
+    expected = <<32, 2, 0, 3>>
 
     assert expected == received
   end
@@ -46,76 +49,81 @@ defmodule HulaakiTest do
                                message: "test", dup: dup,
                                qos: qos, retain: retain}
     received = Packet.encode(message)
-    expected = <<3::size(4), dup::size(1), qos::size(2), retain::size(1)>> <> <<12>>
+    expected = <<58, 12, 0, 4, 116, 101, 115, 116, 0, 203>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubAck message" do
-    message = %Message.PubAck{}
+    id = 247939
+    message = %Message.PubAck{id: id}
     received = Packet.encode(message)
-    expected = <<4::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<2>>
+    expected = <<64, 2, 200, 131>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubRec message" do
-    message = %Message.PubRec{}
+    id = 443585
+    message = %Message.PubRec{id: id}
     received = Packet.encode(message)
-    expected = <<5::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<2>>
+    expected = <<80, 2, 196, 193>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubRel message" do
-    message = %Message.PubRel{}
+    id = 428318
+    message = %Message.PubRel{id: id}
     received = Packet.encode(message)
-    expected = <<6::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<2>>
+    expected = <<98, 2, 137, 30>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubComp message" do
-    message = %Message.PubComp{}
+    id = 184628
+    message = %Message.PubComp{id: id}
     received = Packet.encode(message)
-    expected = <<7::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<2>>
+    expected = <<112, 2, 209, 52>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for Subscribe message" do
-    id = :random.uniform(999999)
+    id = 342568
     message = %Message.Subscribe{id: id,
                                   topics: ["hello", "cool"],
                                   requested_qoses: [0, 1, 2]}
     received = Packet.encode(message)
-    expected = <<8::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<17>>
+    expected = <<130, 17, 58, 40>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for SubAck message" do
-    id = :random.uniform(999999)
+    id = 672341
     message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     received = Packet.encode(message)
-    expected = <<9::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<6>>
+    expected = <<144, 6, 66, 85>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for Unsubscribe message" do
-    id = :random.uniform(999999)
+    id = 972824
     message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Packet.encode(message)
-    expected = <<10::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<15>>
+    expected = <<162, 15, 216, 24>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for UnsubAck message" do
-    message = %Message.UnsubAck{}
+    id = :random.uniform(999999)
+    message = %Message.UnsubAck{id: id}
     received = Packet.encode(message)
-    expected = <<11::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<2>>
+    expected = <<176, 2, 196, 193>>
 
     assert expected == received
   end
