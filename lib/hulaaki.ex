@@ -9,7 +9,8 @@ defmodule Hulaaki do
   defimpl Packet, for: Message.Connect do
     def encode(message) do
       Codec.encode_fixed_header(message) <>
-        Codec.encode_variable_header(message)
+        Codec.encode_variable_header(message) <>
+        Codec.encode_payload(message)
     end
   end
 
@@ -23,7 +24,8 @@ defmodule Hulaaki do
   defimpl Packet, for: Message.Publish do
     def encode(message) do
       Codec.encode_fixed_header(message) <>
-        Codec.encode_variable_header(message)
+        Codec.encode_variable_header(message) <>
+        Codec.encode_payload(message)
     end
   end
 
@@ -58,21 +60,24 @@ defmodule Hulaaki do
   defimpl Packet, for: Message.Subscribe do
     def encode(message) do
       Codec.encode_fixed_header(message) <>
-        Codec.encode_variable_header(message)
+        Codec.encode_variable_header(message) <>
+        Codec.encode_payload(message)
     end
   end
 
   defimpl Packet, for: Message.SubAck do
     def encode(message) do
       Codec.encode_fixed_header(message) <>
-        Codec.encode_variable_header(message)
+        Codec.encode_variable_header(message) <>
+        Codec.encode_payload(message)
     end
   end
 
   defimpl Packet, for: Message.Unsubscribe do
     def encode(message) do
       Codec.encode_fixed_header(message) <>
-        Codec.encode_variable_header(message)
+        Codec.encode_variable_header(message) <>
+        Codec.encode_payload(message)
     end
   end
 

@@ -25,7 +25,11 @@ defmodule HulaakiTest do
                                 clean_session: clean_session,
                                 keep_alive: keep_alive}
     received = Packet.encode(message)
-    expected = <<16, 48, 0, 4, 77, 81, 84, 84, 4, 224, 0, 10>>
+    expected = <<16, 48, 0, 4, 77, 81, 84, 84, 4, 224, 0>> <>
+                 <<10, 116, 101, 115, 116, 45, 99, 108, 105>> <>
+                 <<101, 110, 116, 45, 105, 100, 116, 101, 115>> <>
+                 <<116, 45, 117, 115, 101, 114, 0, 13, 116, 101>> <>
+                 <<115, 116, 45, 112, 97, 115, 115, 119, 111, 114, 100>>
 
     assert expected == received
   end
@@ -49,7 +53,8 @@ defmodule HulaakiTest do
                                message: "test", dup: dup,
                                qos: qos, retain: retain}
     received = Packet.encode(message)
-    expected = <<58, 12, 0, 4, 116, 101, 115, 116, 0, 203>>
+    expected = <<58, 12, 0, 4, 116, 101, 115, 116, 0, 203>> <>
+                 <<116, 101, 115, 116>>
 
     assert expected == received
   end
@@ -96,7 +101,8 @@ defmodule HulaakiTest do
                                   topics: ["hello", "cool"],
                                   requested_qoses: [0, 1, 2]}
     received = Packet.encode(message)
-    expected = <<130, 17, 58, 40>>
+    expected = <<130, 17, 58, 40, 0, 5, 104, 101, 108, 108>> <>
+                 <<111, 0, 0, 4, 99, 111, 111, 108, 1>>
 
     assert expected == received
   end
@@ -105,7 +111,7 @@ defmodule HulaakiTest do
     id = 672341
     message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     received = Packet.encode(message)
-    expected = <<144, 6, 66, 85>>
+    expected = <<144, 6, 66, 85, 0, 1, 2, 128>>
 
     assert expected == received
   end
@@ -114,7 +120,8 @@ defmodule HulaakiTest do
     id = 972824
     message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Packet.encode(message)
-    expected = <<162, 15, 216, 24>>
+    expected = <<162, 15, 216, 24, 0, 5, 104, 101, 108, 108>> <>
+                 <<111, 0, 4, 99, 111, 111, 108>>
 
     assert expected == received
   end
