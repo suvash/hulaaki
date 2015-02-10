@@ -25,7 +25,7 @@ defmodule HulaakiTest do
                                 clean_session: clean_session,
                                 keep_alive: keep_alive}
     received = Packet.encode(message)
-    expected = <<16, 52, 0, 4, 77, 81, 84, 84, 4, 224, 0, 10>>
+    expected = <<16, 48, 0, 4, 77, 81, 84, 84, 4, 224, 0, 10>>
 
     assert expected == received
   end

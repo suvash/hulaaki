@@ -96,14 +96,12 @@ defmodule Hulaaki.Codec do
       end
     end
 
-    # FIX THE LENGTH IMPLEMENTATION as not all are length prefixed
-
     variable_header_length = 10
-    client_id_length = maybe_length.(client_id)
-    username_length = maybe_length.(username)
+    client_id_length = byte_size(client_id)
+    username_length = byte_size(username)
     password_length = maybe_length.(password)
     will_length = cond do
-      will_flag == 1 -> maybe_length.(will_topic) + maybe_length.(will_message)
+      will_flag == 1 -> byte_size(will_topic) + maybe_length.(will_message)
       will_flag == 0 -> 0
     end
 

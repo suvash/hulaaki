@@ -36,7 +36,7 @@ defmodule Hulaaki.CodecTest do
                                 clean_session: clean_session,
                                 keep_alive: keep_alive}
     received = Codec.encode_fixed_header(message)
-    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<52>>
+    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<48>>
 
     assert expected == received
   end
@@ -177,9 +177,14 @@ defmodule Hulaaki.CodecTest do
                                clean_session: clean_session,
                                keep_alive: keep_alive}
     received = Codec.calculate_remaining_length(message)
-    expected = 81
+    expected = 75
 
     assert expected == received
+
+    encoded_length = byte_size(Codec.encode_variable_header(message) <>
+                                 Codec.encode_payload(message))
+
+    assert encoded_length == received
   end
 
   test "calculate remaining length for Publish struct" do
@@ -191,6 +196,10 @@ defmodule Hulaaki.CodecTest do
     expected = 29
 
     assert expected == received
+    encoded_length = byte_size(Codec.encode_variable_header(message) <>
+                                 Codec.encode_payload(message))
+
+    assert encoded_length == received
   end
 
   test "calculate remaining length for Subscribe struct" do
@@ -202,6 +211,10 @@ defmodule Hulaaki.CodecTest do
     expected = 17
 
     assert expected == received
+    encoded_length = byte_size(Codec.encode_variable_header(message) <>
+                                 Codec.encode_payload(message))
+
+    assert encoded_length == received
   end
 
   test "calculate remaining length for SubAck struct" do
@@ -212,6 +225,10 @@ defmodule Hulaaki.CodecTest do
     expected = 6
 
     assert expected == received
+    encoded_length = byte_size(Codec.encode_variable_header(message) <>
+                                 Codec.encode_payload(message))
+
+    assert encoded_length == received
   end
 
   test "calculate remaining length for Unsubscribe struct" do
@@ -220,6 +237,10 @@ defmodule Hulaaki.CodecTest do
     expected = 16
 
     assert expected == received
+    encoded_length = byte_size(Codec.encode_variable_header(message) <>
+                                 Codec.encode_payload(message))
+
+    assert encoded_length == received
   end
 
   test "encode fixed header remaining length number to bytes" do
