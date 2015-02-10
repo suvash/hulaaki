@@ -395,4 +395,62 @@ defmodule Hulaaki.CodecTest do
 
     assert expected == received
   end
+
+  test "encodes payload for Connect struct" do
+    id = "client"
+    username = "user"
+    password = "pass"
+    will_flag = 1
+    will_topic = "topic"
+    will_message = "message"
+    message = %Message.Connect{client_id: id,
+                                username: username,
+                                password: password,
+                                will_message: will_message,
+                                will_flag: will_flag,
+                                will_topic: will_topic}
+    received = Codec.encode_payload(message)
+    expected = <<99, 108, 105, 101, 110, 116, 116, 111, 112>> <>
+                 <<105, 99, 0, 7, 109, 101, 115, 115, 97, 103>> <>
+                 <<101, 117, 115, 101, 114, 0, 4, 112, 97, 115, 115>>
+
+    assert expected == received
+  end
+
+  test "encodes payload for Publish struct" do
+    message = %Message.Publish{message: "this is awesome"}
+    received = Codec.encode_payload(message)
+    expected = <<116, 104, 105, 115>> <> <<32>> <>
+                 <<105, 115>> <> <<32>> <>
+                 <<97, 119, 101, 115, 111, 109, 101>>
+
+    assert expected == received
+  end
+
+  test "encodes payload for Subscribe struct" do
+    message = %Message.Subscribe{topics: ["hello", "really"],
+                                 requested_qoses: [1, 2]}
+    received = Codec.encode_payload(message)
+    expected = <<0, 5, 104, 101, 108, 108, 111, 1>> <>
+                 <<0, 6, 114, 101, 97, 108, 108, 121, 2>>
+
+    assert expected == received
+  end
+
+  test "encodes payload for SubAck struct" do
+    message = %Message.SubAck{granted_qoses: [0, 1, 2, 128]}
+    received = Codec.encode_payload(message)
+    expected = <<0, 1, 2, 128>>
+
+    assert expected == received
+  end
+
+  test "encodes payload for Unsubscribe struct" do
+    topics = [ "nice", "really"]
+    message = %Message.Unsubscribe{topics: topics}
+    received = Codec.encode_payload(message)
+    expected = <<0, 4, 110, 105, 99, 101, 0, 6, 114, 101, 97, 108, 108, 121>>
+
+    assert expected == received
+  end
 end

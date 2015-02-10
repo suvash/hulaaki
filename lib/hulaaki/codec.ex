@@ -96,6 +96,8 @@ defmodule Hulaaki.Codec do
       end
     end
 
+    # FIX THE LENGTH IMPLEMENTATION as not all are length prefixed
+
     variable_header_length = 10
     client_id_length = maybe_length.(client_id)
     username_length = maybe_length.(username)
@@ -251,4 +253,49 @@ defmodule Hulaaki.Codec do
     <<id::size(16)>>
   end
 
+  def encode_payload(%Message.Connect{client_id: id,
+                                      username: username,
+                                      password: password,
+                                      will_flag: will_flag,
+                                      will_message: will_msg,
+                                      will_topic: will_topic}) do
+    num2bool = fn(x) ->
+      case x do
+        1 -> true
+        0 -> false
+      end
+    end
+
+    prefix_length = fn(t) -> (<<byte_size(t)::size(16)>> <> t) end
+
+    client_id_load = id
+    will_topic_load = if num2bool.(will_flag) do will_topic else "" end
+    will_msg_load = if num2bool.(will_flag) do prefix_length.(will_msg) else "" end
+    username_load = username
+    password_load = if (password != "") do prefix_length.(password) else "" end
+
+    client_id_load <> will_topic_load <> will_msg_load \
+      <> username_load <> password_load
+   end
+
+  def encode_payload(%Message.Publish{message: message}) do
+    message
+  end
+
+  def encode_payload(%Message.Subscribe{topics: topics, requested_qoses: qoses}) do
+    pref_length_suf_qos = fn({q,t}) -> (<<byte_size(t)::size(16)>> <> t <> <<q>>) end
+    qos_topic_zipmap = Enum.zip(qoses, topics)
+
+    qos_topic_zipmap |> Enum.map_join(pref_length_suf_qos)
+  end
+
+  def encode_payload(%Message.SubAck{granted_qoses: qoses}) do
+    qoses |> Enum.map_join(fn(q) -> <<q>> end)
+  end
+
+  def encode_payload(%Message.Unsubscribe{topics: topics}) do
+    prefix_length = fn(t) -> (<<byte_size(t)::size(16)>> <> t) end
+
+    topics |> Enum.map_join(prefix_length)
+  end
 end
