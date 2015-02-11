@@ -1,4 +1,4 @@
-defmodule Hulaaki.Codec do
+defmodule Hulaaki.Encoder do
   alias Hulaaki.Message, as: Message
   require Bitwise
 
