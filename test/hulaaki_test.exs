@@ -60,77 +60,77 @@ defmodule HulaakiTest do
   end
 
   test "Packet protocol is implemented for PubAck message" do
-    id = 247939
+    id = 123
     message = %Message.PubAck{id: id}
     received = Packet.encode(message)
-    expected = <<64, 2, 200, 131>>
+    expected = <<64, 2, 0, 123>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubRec message" do
-    id = 443585
+    id = 34_231
     message = %Message.PubRec{id: id}
     received = Packet.encode(message)
-    expected = <<80, 2, 196, 193>>
+    expected = <<80, 2, 133, 183>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubRel message" do
-    id = 428318
+    id = 63_123
     message = %Message.PubRel{id: id}
     received = Packet.encode(message)
-    expected = <<98, 2, 137, 30>>
+    expected = <<98, 2, 246, 147>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for PubComp message" do
-    id = 184628
+    id = 3_124
     message = %Message.PubComp{id: id}
     received = Packet.encode(message)
-    expected = <<112, 2, 209, 52>>
+    expected = <<112, 2, 12, 52>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for Subscribe message" do
-    id = 342568
+    id = 7_675
     message = %Message.Subscribe{id: id,
                                   topics: ["hello", "cool"],
                                   requested_qoses: [0, 1, 2]}
     received = Packet.encode(message)
-    expected = <<130, 17, 58, 40, 0, 5, 104, 101, 108, 108>> <>
+    expected = <<130, 17, 29, 251, 0, 5, 104, 101, 108, 108>> <>
                  <<111, 0, 0, 4, 99, 111, 111, 108, 1>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for SubAck message" do
-    id = 672341
+    id = 43_218
     message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     received = Packet.encode(message)
-    expected = <<144, 6, 66, 85, 0, 1, 2, 128>>
+    expected = <<144, 6, 168, 210, 0, 1, 2, 128>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for Unsubscribe message" do
-    id = 972824
+    id = 19_234
     message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Packet.encode(message)
-    expected = <<162, 15, 216, 24, 0, 5, 104, 101, 108, 108>> <>
+    expected = <<162, 15, 75, 34, 0, 5, 104, 101, 108, 108>> <>
                  <<111, 0, 4, 99, 111, 111, 108>>
 
     assert expected == received
   end
 
   test "Packet protocol is implemented for UnsubAck message" do
-    id = :random.uniform(999999)
+    id = 7_124
     message = %Message.UnsubAck{id: id}
     received = Packet.encode(message)
-    expected = <<176, 2, 196, 193>>
+    expected = <<176, 2, 27, 212>>
 
     assert expected == received
   end

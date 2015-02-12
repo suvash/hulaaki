@@ -215,39 +215,48 @@ defmodule Hulaaki.Encoder do
     <<0::size(7), session_present::size(1), return_code::size(8)>>
   end
 
-  def encode_variable_header(%Message.Publish{id: id, topic: topic}) do
-    <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+  def encode_variable_header(%Message.Publish{id: id, topic: topic})
+    when id <= 65_536 do
+      <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.PubAck{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.PubAck{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.PubRec{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.PubRec{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.PubRel{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.PubRel{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.PubComp{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.PubComp{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.Subscribe{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.Subscribe{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.SubAck{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.SubAck{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.Unsubscribe{id: id}) do
-    <<id::size(16)>>
+  def encode_variable_header(%Message.Unsubscribe{id: id})
+    when id <= 65_536 do
+      <<id::size(16)>>
   end
 
-  def encode_variable_header(%Message.UnsubAck{id: id}) do
+  def encode_variable_header(%Message.UnsubAck{id: id})
+    when id <= 65_536 do
     <<id::size(16)>>
   end
 

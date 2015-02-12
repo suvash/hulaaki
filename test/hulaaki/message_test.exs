@@ -41,7 +41,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "publish builds a Publish message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     topic = "nice_topic"
     message = " a short message"
     dup = 0
@@ -56,7 +56,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "publish_ack builds a PubAck message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     expected = %Message.PubAck{id: id}
     received = Message.publish_ack(id)
 
@@ -64,7 +64,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "publish_received builds a PubRec message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     expected = %Message.PubRec{id: id}
     received = Message.publish_receive(id)
 
@@ -72,7 +72,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "publish_release builds a PubRel message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     expected = %Message.PubRel{id: id}
     received = Message.publish_release(id)
 
@@ -80,7 +80,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "publish_complete builds a PubComp message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     expected = %Message.PubComp{id: id}
     received = Message.publish_complete(id)
 
@@ -88,7 +88,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "subscribe build a Subscribe message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     topics = [1,2,"hello","cool"]
     qoses = ["hello", -1, 0, 1, 2, 3, 12.34, 5, 123, 128]
     expected = %Message.Subscribe{id: id,
@@ -101,7 +101,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "subscribe_ack builds a SubAck message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     qoses = ["hello", -1, 0, 1, 2, 3, 12.34, 5, 123, 128]
     expected = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     received = Message.subscribe_ack(id, qoses)
@@ -110,7 +110,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "unsubscribe builds a Unsubscribe message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     topics = [1,2,"hello","cool"]
     expected = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Message.unsubscribe(id, topics)
@@ -119,7 +119,7 @@ defmodule Hulaaki.MessageTest do
   end
 
   test "unsubscribe_ack builds a UnsubAck message struct" do
-    id = :random.uniform(999999)
+    id = :random.uniform(65_536)
     expected = %Message.UnsubAck{id: id}
     received = Message.unsubscribe_ack(id)
 
