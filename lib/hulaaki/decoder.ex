@@ -2,12 +2,18 @@ defmodule Hulaaki.Decoder do
   alias Hulaaki.Message, as: Message
   use Bitwise
 
-  def decode(<<packet_type_value::bits-4, _rest::bits>> = bytes) do
-    case packet_type_value do
-      <<11::size(4)>> -> decode_unsubscribe_ack(bytes)
-      <<12::size(4)>> -> decode_ping_request(bytes)
-      <<13::size(4)>> -> decode_ping_response(bytes)
-      <<14::size(4)>> -> decode_disconnect(bytes)
+  def decode(<<first_byte::bits-8, _rest::bits>> = bytes) do
+    case first_byte do
+      << 2::size(4), _::size(4)>> -> decode_connect_ack(bytes)
+      << 4::size(4), _::size(4)>> -> decode_publish_ack(bytes)
+      << 5::size(4), _::size(4)>> -> decode_publish_receive(bytes)
+      << 6::size(4), 0::size(1), 1::size(2), 0::size(1)>> ->
+                                     decode_publish_release(bytes)
+      << 7::size(4), _::size(4)>> -> decode_publish_complete(bytes)
+      <<11::size(4), _::size(4)>> -> decode_unsubscribe_ack(bytes)
+      <<12::size(4), _::size(4)>> -> decode_ping_request(bytes)
+      <<13::size(4), _::size(4)>> -> decode_ping_response(bytes)
+      <<14::size(4), _::size(4)>> -> decode_disconnect(bytes)
     end
   end
 
@@ -29,6 +35,31 @@ defmodule Hulaaki.Decoder do
       else
         {accumulator + decodedValue, rest}
       end
+  end
+
+  defp decode_connect_ack(<<_, from_second_byte::binary>>) do
+    {2, <<session_present, return_code>>} = decode_remaining_length(from_second_byte)
+    Message.connect_ack(session_present, return_code)
+  end
+
+  defp decode_publish_ack(<<_, from_second_byte::binary>>) do
+    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
+    Message.publish_ack(id)
+  end
+
+  defp decode_publish_release(<<_, from_second_byte::binary>>) do
+    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
+    Message.publish_release(id)
+  end
+
+  defp decode_publish_receive(<<_, from_second_byte::binary>>) do
+    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
+    Message.publish_receive(id)
+  end
+
+  defp decode_publish_complete(<<_, from_second_byte::binary>>) do
+    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
+    Message.publish_complete(id)
   end
 
   defp decode_unsubscribe_ack(<<_, from_second_byte::binary>>) do

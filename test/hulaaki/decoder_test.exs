@@ -42,6 +42,52 @@ defmodule Hulaaki.DecoderTest do
     assert expected == received
   end
 
+  test "attempts to decode a connection ack message" do
+    session_present = 0
+    return_code = 3
+    message = Message.connect_ack(session_present, return_code)
+    encoded_bytes = Packet.encode message
+
+    decoded_message = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+  end
+
+  test "attempts to decode a publish ack message" do
+    id = :random.uniform(65_536)
+    message = Message.publish_ack(id)
+    encoded_bytes = Packet.encode message
+
+    decoded_message = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+  end
+
+  test "attempts to decode a publish receive message" do
+    id = :random.uniform(65_536)
+    message = Message.publish_receive(id)
+    encoded_bytes = Packet.encode message
+
+    decoded_message = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+  end
+
+  test "attempts to decode a publish release message" do
+    id = :random.uniform(65_536)
+    message = Message.publish_release(id)
+    encoded_bytes = Packet.encode message
+
+    decoded_message = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+  end
+
+  test "attempts to decode a publish complete message" do
+    id = :random.uniform(65_536)
+    message = Message.publish_complete(id)
+    encoded_bytes = Packet.encode message
+
+    decoded_message = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+  end
+
   test "attempts to decode a unsubscribe ack message" do
     id = :random.uniform(65_536)
     message = Message.unsubscribe_ack(id)
