@@ -89,24 +89,26 @@ defmodule Hulaaki.Encoder do
                                                   will_flag: will_flag,
                                                   will_topic: will_topic,
                                                   will_message: will_message}) do
-    maybe_length = fn(str) ->
-      case str do
-        "" -> 0
-        _ -> byte_size(str) + 2
+    prefix_length = fn(str) -> byte_size(str) + 2 end
+    prefix_length_if = fn(exp, str) ->
+      if exp do
+        prefix_length.(str)
+      else
+        0
       end
     end
 
     variable_header_length = 10
-    client_id_length = byte_size(client_id)
-    username_length = byte_size(username)
-    password_length = maybe_length.(password)
+    client_id_length = prefix_length.(client_id)
     will_length = cond do
-      will_flag == 1 -> byte_size(will_topic) + maybe_length.(will_message)
+      will_flag == 1 -> prefix_length.(will_topic) + prefix_length.(will_message)
       will_flag == 0 -> 0
     end
+    username_length  = prefix_length_if.(username != "", username)
+    password_length  = prefix_length_if.(password != "", password)
 
     variable_header_length + client_id_length \
-      + username_length + password_length + will_length
+      + will_length + username_length + password_length
   end
 
   def calculate_remaining_length(%Message.Publish{topic: topic, message: message}) do
@@ -274,12 +276,19 @@ defmodule Hulaaki.Encoder do
     end
 
     prefix_length = fn(t) -> (<<byte_size(t)::size(16)>> <> t) end
+    prefix_length_if = fn(exp, t) ->
+      if(exp) do
+        prefix_length.(t)
+      else
+        ""
+      end
+    end
 
-    client_id_load = id
-    will_topic_load = if num2bool.(will_flag) do will_topic else "" end
-    will_msg_load = if num2bool.(will_flag) do prefix_length.(will_msg) else "" end
-    username_load = username
-    password_load = if (password != "") do prefix_length.(password) else "" end
+    client_id_load  = prefix_length.(id)
+    will_topic_load = prefix_length_if.(num2bool.(will_flag), will_topic)
+    will_msg_load   = prefix_length_if.(num2bool.(will_flag), will_msg)
+    username_load   = prefix_length_if.(username != "", username)
+    password_load   = prefix_length_if.(password != "", password)
 
     client_id_load <> will_topic_load <> will_msg_load \
       <> username_load <> password_load

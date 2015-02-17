@@ -36,7 +36,7 @@ defmodule Hulaaki.EncoderTest do
                                 clean_session: clean_session,
                                 keep_alive: keep_alive}
     received = Encoder.encode_fixed_header(message)
-    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<48>>
+    expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<52>>
 
     assert expected == received
   end
@@ -177,7 +177,7 @@ defmodule Hulaaki.EncoderTest do
                                clean_session: clean_session,
                                keep_alive: keep_alive}
     received = Encoder.calculate_remaining_length(message)
-    expected = 75
+    expected = 81
 
     assert expected == received
 
@@ -431,9 +431,11 @@ defmodule Hulaaki.EncoderTest do
                                 will_flag: will_flag,
                                 will_topic: will_topic}
     received = Encoder.encode_payload(message)
-    expected = <<99, 108, 105, 101, 110, 116, 116, 111, 112>> <>
-                 <<105, 99, 0, 7, 109, 101, 115, 115, 97, 103>> <>
-                 <<101, 117, 115, 101, 114, 0, 4, 112, 97, 115, 115>>
+    expected = <<0, 6, 99, 108, 105, 101, 110, 116>> <>
+                 <<0, 5, 116, 111, 112, 105, 99>> <>
+                 <<0, 7, 109, 101, 115, 115, 97, 103, 101>> <>
+                 <<0, 4, 117, 115, 101, 114>> <>
+                 <<0, 4, 112, 97, 115, 115>>
 
     assert expected == received
   end
