@@ -4,6 +4,7 @@ defmodule Hulaaki.Decoder do
 
   def decode(<<first_byte::bits-8, _rest::bits>> = bytes) do
     case first_byte do
+      << 1::size(4), _::size(4)>> -> decode_connect(bytes)
       << 2::size(4), _::size(4)>> -> decode_connect_ack(bytes)
       << 3::size(4), _::size(4)>> -> decode_publish(bytes)
       << 4::size(4), _::size(4)>> -> decode_publish_ack(bytes)
@@ -41,6 +42,30 @@ defmodule Hulaaki.Decoder do
       else
         {accumulator + decodedValue, rest}
       end
+  end
+
+  defp decode_connect(<<_, from_second_byte::binary>>) do
+    {_, from_third_byte} = decode_remaining_length(from_second_byte)
+
+    <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
+      <<username_flag::size(1), password_flag::size(1),
+        will_retain::size(1), will_qos::size(2),
+        will_flag::size(1), clean_session::size(1), 0::size(1)>> <>
+      <<keep_alive::size(16)>> <>
+      <<rest::binary>> = from_third_byte
+
+    extract_if = fn(exp, str) -> if exp do extract_string(str) else {"", str} end end
+    extract_if_flag = fn(num, str) -> extract_if.(num == 1, str) end
+
+    {client_id,    rest_1} = extract_if.(true, rest)
+    {will_topic,   rest_2} = extract_if_flag.(will_flag, rest_1)
+    {will_message, rest_3} = extract_if_flag.(will_flag, rest_2)
+    {username,     rest_4} = extract_if_flag.(username_flag, rest_3)
+    {password,     <<>>}   = extract_if_flag.(password_flag, rest_4)
+
+    Message.connect(client_id, username, password, will_flag,
+                    will_topic, will_message, will_qos,
+                    will_retain, clean_session, keep_alive)
   end
 
   defp decode_connect_ack(<<_, from_second_byte::binary>>) do
@@ -140,9 +165,7 @@ defmodule Hulaaki.Decoder do
     Message.unsubscribe(id, topics)
   end
 
-  defp extract_topic_list(binary) do
-    extract_topic_list(binary, [])
-  end
+  defp extract_topic_list(binary), do: extract_topic_list(binary, [])
 
   defp extract_topic_list(<<>>, accumulator), do: Enum.reverse(accumulator)
 
@@ -151,7 +174,11 @@ defmodule Hulaaki.Decoder do
     extract_topic_list(rest, [element | accumulator ])
   end
 
-  def extract_topic(<<len::size(16), topic::bytes-size(len), rest::binary>>) do
+  defp extract_topic(binary) do
+    extract_string(binary)
+  end
+
+  defp extract_string(<<len::size(16), topic::bytes-size(len), rest::binary>>) do
     {topic, rest}
   end
 
