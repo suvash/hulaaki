@@ -3,6 +3,11 @@ defmodule HulaakiTest do
   alias Hulaaki.Message, as: Message
   alias Hulaaki.Packet, as: Packet
 
+  test "Packet protocol encode is implemented for String" do
+    binary = <<1,23,44,2,5>>
+    assert binary == Packet.encode(binary)
+  end
+
   test "Packet protocol encode is implemented for Connect message" do
     id = "test-client-id"
     username = "test-user"
@@ -39,7 +44,7 @@ defmodule HulaakiTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 0
+    will_flag = 1
     will_topic = "will-topic"
     will_message = "will-message"
     will_qos = 0
@@ -59,6 +64,33 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoded Connect bytes" do
+    id = "test-client-id"
+    username = "test-user"
+    password = "test-password"
+    will_flag = 1
+    will_topic = "will-topic"
+    will_message = "will-message"
+    will_qos = 0
+    will_retain = 1
+    clean_session = 0
+    keep_alive = 10
+    message = %Message.Connect{client_id: id,
+                                username: username,
+                                password: password,
+                                will_flag: will_flag,
+                                will_topic: will_topic,
+                                will_message: will_message,
+                                will_qos: will_qos,
+                                will_retain: will_retain,
+                                clean_session: clean_session,
+                                keep_alive: keep_alive}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for ConnAck message" do
     session_present = 0
     return_code = 3
@@ -76,6 +108,17 @@ defmodule HulaakiTest do
     message = %Message.ConnAck{session_present: session_present,
                                 return_code: return_code}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded ConnAck bytes" do
+    session_present = 0
+    return_code = 3
+    message = %Message.ConnAck{session_present: session_present,
+                                return_code: return_code}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 
   test "Packet protocol encode is implemented for Publish message" do
@@ -102,6 +145,19 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoded Publish bytes" do
+    dup = 1
+    qos = 1
+    retain = 0
+    message = %Message.Publish{id: 203, topic: "test",
+                               message: "test", dup: dup,
+                               qos: qos, retain: retain}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for PubAck message" do
     id = 123
     message = %Message.PubAck{id: id}
@@ -115,6 +171,15 @@ defmodule HulaakiTest do
     id = 123
     message = %Message.PubAck{id: id}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded PubAck bytes" do
+    id = 123
+    message = %Message.PubAck{id: id}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 
   test "Packet protocol encode is implemented for PubRec message" do
@@ -132,6 +197,15 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoded PubRec bytes" do
+    id = 34_231
+    message = %Message.PubRec{id: id}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for PubRel message" do
     id = 63_123
     message = %Message.PubRel{id: id}
@@ -145,6 +219,15 @@ defmodule HulaakiTest do
     id = 63_123
     message = %Message.PubRel{id: id}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded PubRel bytes" do
+    id = 63_123
+    message = %Message.PubRel{id: id}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 
   test "Packet protocol encode is implemented for PubComp message" do
@@ -162,11 +245,20 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoeded PubComp bytes" do
+    id = 3_124
+    message = %Message.PubComp{id: id}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for Subscribe message" do
     id = 7_675
     message = %Message.Subscribe{id: id,
                                   topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1, 2]}
+                                  requested_qoses: [0, 1]}
     received = Packet.encode(message)
     expected = <<130, 17, 29, 251, 0, 5, 104, 101, 108, 108>> <>
                  <<111, 0, 0, 4, 99, 111, 111, 108, 1>>
@@ -178,8 +270,19 @@ defmodule HulaakiTest do
     id = 7_675
     message = %Message.Subscribe{id: id,
                                   topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1, 2]}
+                                  requested_qoses: [0, 1]}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded Subscribe bytes" do
+    id = 7_675
+    message = %Message.Subscribe{id: id,
+                                  topics: ["hello", "cool"],
+                                  requested_qoses: [0, 1]}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 
   test "Packet protocol encode is implemented for SubAck message" do
@@ -195,6 +298,15 @@ defmodule HulaakiTest do
     id = 43_218
     message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded SubAck bytes" do
+    id = 43_218
+    message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 
   test "Packet protocol encode is implemented for Unsubscribe message" do
@@ -213,6 +325,15 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoded Unsubscribe bytes" do
+    id = 19_234
+    message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for UnsubAck message" do
     id = 7_124
     message = %Message.UnsubAck{id: id}
@@ -228,6 +349,15 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoded UnsubAck bytes" do
+    id = 7_124
+    message = %Message.UnsubAck{id: id}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for PingReq message" do
     message = %Message.PingReq{}
     received = Packet.encode(message)
@@ -239,6 +369,14 @@ defmodule HulaakiTest do
   test "Packet protocol decode is implemented for PingReq message" do
     message = %Message.PingReq{}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded PingReq bytes" do
+    message = %Message.PingReq{}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 
   test "Packet protocol encode is implemented for PingResp message" do
@@ -254,6 +392,14 @@ defmodule HulaakiTest do
     assert message == Packet.decode(message)
   end
 
+  test "Packet protocol decode is implemented for encoded PingResp bytes" do
+    message = %Message.PingResp{}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
+  end
+
   test "Packet protocol encode is implemented for Disconnect message" do
     message = %Message.Disconnect{}
     received = Packet.encode(message)
@@ -265,5 +411,13 @@ defmodule HulaakiTest do
   test "Packet protocol decode is implemented for Disconnect message" do
     message = %Message.Disconnect{}
     assert message == Packet.decode(message)
+  end
+
+  test "Packet protocol decode is implemented for encoded Disconnect bytes" do
+    message = %Message.Disconnect{}
+    encoded_bytes = Packet.encode(message)
+
+    decoded_message = Packet.decode(encoded_bytes)
+    assert message == decoded_message
   end
 end

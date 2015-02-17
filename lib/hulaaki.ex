@@ -1,10 +1,18 @@
 defmodule Hulaaki do
   alias Hulaaki.Message, as: Message
   alias Hulaaki.Encoder, as: Encoder
+  alias Hulaaki.Decoder, as: Decoder
 
   defprotocol Packet do
     def encode(message)
     def decode(message)
+  end
+
+  defimpl Packet, for: BitString do
+    def encode(binary), do: binary
+    def decode(binary) do
+      Decoder.decode(binary)
+    end
   end
 
   defimpl Packet, for: Message.Connect do
