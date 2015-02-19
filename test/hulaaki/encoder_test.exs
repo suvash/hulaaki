@@ -18,9 +18,8 @@ defmodule Hulaaki.EncoderTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 0
-    will_topic = "will-topic"
-    will_message = "will-message"
+    will_topic = ""
+    will_message = ""
     will_qos = 0
     will_retain = 1
     clean_session = 0
@@ -28,7 +27,6 @@ defmodule Hulaaki.EncoderTest do
     message = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
-                                will_flag: will_flag,
                                 will_topic: will_topic,
                                 will_message: will_message,
                                 will_qos: will_qos,
@@ -159,7 +157,6 @@ defmodule Hulaaki.EncoderTest do
     client_id = "awesome=client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 1
     will_topic = "will-topic"
     will_message = "will-message"
     will_qos = 0
@@ -169,7 +166,6 @@ defmodule Hulaaki.EncoderTest do
     message = %Message.Connect{client_id: client_id,
                                username: username,
                                password: password,
-                               will_flag: will_flag,
                                will_topic: will_topic,
                                will_message: will_message,
                                will_qos: will_qos,
@@ -289,9 +285,8 @@ defmodule Hulaaki.EncoderTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 0
-    will_topic = "will-topic"
-    will_message = "will-message"
+    will_topic = ""
+    will_message = ""
     will_qos = 0
     will_retain = 1
     clean_session = 0
@@ -299,7 +294,6 @@ defmodule Hulaaki.EncoderTest do
     message = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
-                                will_flag: will_flag,
                                 will_topic: will_topic,
                                 will_message: will_message,
                                 will_qos: will_qos,
@@ -309,6 +303,7 @@ defmodule Hulaaki.EncoderTest do
     received = Encoder.encode_variable_header(message)
     username_flag = 1
     password_flag = 1
+    will_flag = 0
     expected = <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
                  <<username_flag::size(1), password_flag::size(1),
                    will_retain::size(1), will_qos::size(2),
@@ -421,14 +416,12 @@ defmodule Hulaaki.EncoderTest do
     id = "client"
     username = "user"
     password = "pass"
-    will_flag = 1
     will_topic = "topic"
     will_message = "message"
     message = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
                                 will_message: will_message,
-                                will_flag: will_flag,
                                 will_topic: will_topic}
     received = Encoder.encode_payload(message)
     expected = <<0, 6, 99, 108, 105, 101, 110, 116>> <>

@@ -12,9 +12,8 @@ defmodule HulaakiTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 0
-    will_topic = "will-topic"
-    will_message = "will-message"
+    will_topic = ""
+    will_message = ""
     will_qos = 0
     will_retain = 1
     clean_session = 0
@@ -22,7 +21,6 @@ defmodule HulaakiTest do
     message = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
-                                will_flag: will_flag,
                                 will_topic: will_topic,
                                 will_message: will_message,
                                 will_qos: will_qos,
@@ -44,7 +42,6 @@ defmodule HulaakiTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 1
     will_topic = "will-topic"
     will_message = "will-message"
     will_qos = 0
@@ -54,7 +51,6 @@ defmodule HulaakiTest do
     message = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
-                                will_flag: will_flag,
                                 will_topic: will_topic,
                                 will_message: will_message,
                                 will_qos: will_qos,
@@ -68,7 +64,6 @@ defmodule HulaakiTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 1
     will_topic = "will-topic"
     will_message = "will-message"
     will_qos = 0
@@ -78,7 +73,6 @@ defmodule HulaakiTest do
     message = %Message.Connect{client_id: id,
                                 username: username,
                                 password: password,
-                                will_flag: will_flag,
                                 will_topic: will_topic,
                                 will_message: will_message,
                                 will_qos: will_qos,

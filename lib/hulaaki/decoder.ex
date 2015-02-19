@@ -63,7 +63,7 @@ defmodule Hulaaki.Decoder do
     {username,     rest_4} = extract_if_flag.(username_flag, rest_3)
     {password,     <<>>}   = extract_if_flag.(password_flag, rest_4)
 
-    Message.connect(client_id, username, password, will_flag,
+    Message.connect(client_id, username, password,
                     will_topic, will_message, will_qos,
                     will_retain, clean_session, keep_alive)
   end

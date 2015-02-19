@@ -46,14 +46,13 @@ defmodule Hulaaki.DecoderTest do
     id = "test-client-id"
     username = "test-user"
     password = "test-password"
-    will_flag = 1
     will_topic = "will-topic"
     will_message = "will-message"
     will_qos = 0
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = Message.connect(id, username, password, will_flag,
+    message = Message.connect(id, username, password,
                               will_topic, will_message, will_qos,
                               will_retain, clean_session, keep_alive)
     encoded_bytes = Packet.encode message

@@ -86,7 +86,6 @@ defmodule Hulaaki.Encoder do
   def calculate_remaining_length(%Message.Connect{client_id: client_id,
                                                   username: username,
                                                   password: password,
-                                                  will_flag: will_flag,
                                                   will_topic: will_topic,
                                                   will_message: will_message}) do
     prefix_length = fn(str) -> byte_size(str) + 2 end
@@ -100,15 +99,14 @@ defmodule Hulaaki.Encoder do
 
     variable_header_length = 10
     client_id_length = prefix_length.(client_id)
-    will_length = cond do
-      will_flag == 1 -> prefix_length.(will_topic) + prefix_length.(will_message)
-      will_flag == 0 -> 0
-    end
+    will_topic_length = prefix_length_if.(will_topic != "", will_topic)
+    will_message_length = prefix_length_if.(will_message != "", will_message)
     username_length  = prefix_length_if.(username != "", username)
     password_length  = prefix_length_if.(password != "", password)
 
     variable_header_length + client_id_length \
-      + will_length + username_length + password_length
+      + will_topic_length + will_message_length \
+      + username_length + password_length
   end
 
   def calculate_remaining_length(%Message.Publish{topic: topic, message: message}) do
@@ -190,9 +188,10 @@ defmodule Hulaaki.Encoder do
 
   def encode_variable_header(%Message.Connect{username: username,
                                               password: password,
-                                              will_flag: will_flag,
                                               will_qos: will_qos,
                                               will_retain: will_retain,
+                                              will_topic: will_topic,
+                                              will_message: will_message,
                                               clean_session: clean_session,
                                               keep_alive: keep_alive}) do
     username_flag = cond do
@@ -203,6 +202,11 @@ defmodule Hulaaki.Encoder do
     password_flag = cond do
       byte_size(password) >= 1 -> 1
       byte_size(password) == 0 -> 0
+    end
+
+    will_flag = cond do
+      (byte_size(will_message) >= 1 and byte_size(will_topic) >= 1) -> 1
+      (byte_size(will_message) == 0 and byte_size(will_topic) == 0) -> 0
     end
 
     <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
@@ -265,19 +269,12 @@ defmodule Hulaaki.Encoder do
   def encode_payload(%Message.Connect{client_id: id,
                                       username: username,
                                       password: password,
-                                      will_flag: will_flag,
-                                      will_message: will_msg,
+                                      will_message: will_message,
                                       will_topic: will_topic}) do
-    num2bool = fn(x) ->
-      case x do
-        1 -> true
-        0 -> false
-      end
-    end
 
     prefix_length = fn(t) -> (<<byte_size(t)::size(16)>> <> t) end
-    prefix_length_if = fn(exp, t) ->
-      if(exp) do
+    prefix_length_if_not_empty = fn(t) ->
+      if(byte_size(t) > 0) do
         prefix_length.(t)
       else
         ""
@@ -285,10 +282,10 @@ defmodule Hulaaki.Encoder do
     end
 
     client_id_load  = prefix_length.(id)
-    will_topic_load = prefix_length_if.(num2bool.(will_flag), will_topic)
-    will_msg_load   = prefix_length_if.(num2bool.(will_flag), will_msg)
-    username_load   = prefix_length_if.(username != "", username)
-    password_load   = prefix_length_if.(password != "", password)
+    will_topic_load = prefix_length_if_not_empty.(will_topic)
+    will_msg_load   = prefix_length_if_not_empty.(will_message)
+    username_load   = prefix_length_if_not_empty.(username)
+    password_load   = prefix_length_if_not_empty.(password)
 
     client_id_load <> will_topic_load <> will_msg_load \
       <> username_load <> password_load
