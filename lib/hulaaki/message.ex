@@ -61,9 +61,9 @@ defmodule Hulaaki.Message do
 
   def connect_ack(session_present, return_code)
     when (session_present == 0 or session_present == 1)
-    and (return_code == 1 or return_code == 2 or
-         return_code == 3 or return_code == 4 or
-         return_code == 5) do
+    and (return_code == 0 or return_code == 1 or
+         return_code == 2 or return_code == 3 or
+         return_code == 4 or return_code == 5) do
 
       %ConnAck{session_present: session_present, return_code: return_code}
   end
