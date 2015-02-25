@@ -1,1 +1,2 @@
-%{"dialyze": {:hex, :dialyze, "0.1.3"}}
+%{"dialyze": {:hex, :dialyze, "0.1.3"},
+  "socket": {:hex, :socket, "0.2.8"}}
