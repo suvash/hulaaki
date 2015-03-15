@@ -1,4 +1,16 @@
 Hulaaki
 =======
 
-Pronouced as hoo-laa-key, this is an attempt to write an Elixir MQTT client.
+Pronouced as who-laa-key.
+
+
+Documentation
+=============
+
+Maybe[coming soon]
+
+
+Usage
+=====
+
+DO NOT USE
