@@ -4,13 +4,13 @@ defmodule Hulaaki.Connection do
   alias Hulaaki.Packet
 
   defmodule ConnectOptions do
-    defstruct [:host, :port, :message]
+    defstruct [:host, :port]
 
-    def build(host, port, %Message.Connect{} = message)
+    def build(host, port)
     when ( is_binary(host) or is_list(host) )
     and is_integer(port) do
       host = if is_binary(host), do: String.to_char_list(host), else: host
-      %ConnectOptions{host: host, port: port, message: message}
+      %ConnectOptions{host: host, port: port}
     end
   end
 
@@ -26,13 +26,13 @@ defmodule Hulaaki.Connection do
   defp default_connect_opts do
     host = "localhost"
     port = 1883
-    message = Message.connect("default-client", "", "", "", "", 0, 0, 0, 100)
 
-    ConnectOptions.build(host, port, message)
+    ConnectOptions.build(host, port)
   end
 
-  def connect(pid, %ConnectOptions{} = connect_opts \\ default_connect_opts) do
-    GenServer.call(pid, {:connect, connect_opts})
+  def connect(pid, %Message.Connect{} = message,
+              %ConnectOptions{} = connect_opts \\ default_connect_opts) do
+    GenServer.call(pid, {:connect, message, connect_opts})
   end
 
   def stop(pid) do
@@ -45,13 +45,14 @@ defmodule Hulaaki.Connection do
     {:ok, %{state | socket: nil} }
   end
 
-  def handle_call({:connect, opts}, _from, state) do
-    %{socket: socket} = connect_socket(opts)
+  def handle_call({:connect, message, opts}, _from, state) do
+    %{socket: socket} = open_tcp_socket(opts)
+    dispatch_connect(socket, message)
     {:reply, :ok, %{state | socket: socket} }
   end
 
   def handle_call(:stop, _from, state) do
-    disconnect(state.socket)
+    dispatch_disconnect(state.socket)
     {:stop, :normal, :ok, state}
   end
 
@@ -61,21 +62,22 @@ defmodule Hulaaki.Connection do
     {:noreply, state}
   end
 
-  defp connect_socket(opts) do
+  defp open_tcp_socket(opts) do
     timeout  = 100
     host     = opts.host
     port     = opts.port
-    message  = opts.message
     tcp_opts = [{:active, :true}, {:packet, :raw}, :binary]
 
     {:ok, socket} = :gen_tcp.connect(host, port, tcp_opts, timeout)
 
-    socket |> send_message message
-
     %{socket: socket}
   end
 
-  def disconnect(socket, %Message.Disconnect{} = message \\ Message.disconnect) do
+  def dispatch_connect(socket, %Message.Connect{} = message) do
+    socket |> send_message message
+  end
+
+  def dispatch_disconnect(socket, %Message.Disconnect{} = message \\ Message.disconnect) do
     socket |> send_message message
   end
 
