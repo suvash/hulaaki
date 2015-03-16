@@ -1,5 +1,5 @@
 defmodule Hulaaki.Encoder do
-  alias Hulaaki.Message, as: Message
+  alias Hulaaki.Message
   require Bitwise
 
   @type dup :: 0|1

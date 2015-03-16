@@ -1,5 +1,5 @@
 defmodule Hulaaki.Decoder do
-  alias Hulaaki.Message, as: Message
+  alias Hulaaki.Message
   use Bitwise
 
   def decode(<<first_byte::bits-8, _rest::bits>> = bytes) do

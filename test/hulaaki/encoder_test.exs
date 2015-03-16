@@ -1,7 +1,7 @@
 defmodule Hulaaki.EncoderTest do
   use ExUnit.Case
-  alias Hulaaki.Encoder, as: Encoder
-  alias Hulaaki.Message, as: Message
+  alias Hulaaki.Encoder
+  alias Hulaaki.Message
 
   defmodule Nonsense do
     defstruct type: :NONSENSE

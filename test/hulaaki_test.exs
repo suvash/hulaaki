@@ -1,7 +1,7 @@
 defmodule HulaakiTest do
   use ExUnit.Case
-  alias Hulaaki.Message, as: Message
-  alias Hulaaki.Packet, as: Packet
+  alias Hulaaki.Message
+  alias Hulaaki.Packet
 
   test "Packet protocol encode is implemented for String" do
     binary = <<1,23,44,2,5>>

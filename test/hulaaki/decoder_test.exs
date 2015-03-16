@@ -1,8 +1,8 @@
 defmodule Hulaaki.DecoderTest do
   use ExUnit.Case
-  alias Hulaaki.Decoder, as: Decoder
-  alias Hulaaki.Message, as: Message
-  alias Hulaaki.Packet, as: Packet
+  alias Hulaaki.Decoder
+  alias Hulaaki.Message
+  alias Hulaaki.Packet
 
   test "decode remaining length from provided bytes" do
     expected = {321, ""}

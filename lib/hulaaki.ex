@@ -1,7 +1,7 @@
 defmodule Hulaaki do
-  alias Hulaaki.Message, as: Message
-  alias Hulaaki.Encoder, as: Encoder
-  alias Hulaaki.Decoder, as: Decoder
+  alias Hulaaki.Message
+  alias Hulaaki.Encoder
+  alias Hulaaki.Decoder
 
   defprotocol Packet do
     def encode(message)
