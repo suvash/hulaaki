@@ -63,6 +63,7 @@ defmodule Hulaaki.Connection do
   end
 
   def handle_call(:stop, _from, state) do
+    close_tcp_socket(state.socket)
     {:stop, :normal, :ok, state}
   end
 
@@ -77,7 +78,8 @@ defmodule Hulaaki.Connection do
     {:reply, :ok, state}
   end
 
-  def handle_info({:tcp, _, packet}, state) do
+  def handle_info({:tcp, socket, packet}, state) do
+    :inet.setopts(socket, active: :once)
     message = Packet.decode(packet)
     send state.client, message
     {:noreply, state}
@@ -87,15 +89,20 @@ defmodule Hulaaki.Connection do
     timeout  = 100
     host     = opts.host
     port     = opts.port
-    tcp_opts = [{:active, :true}, {:packet, :raw}, :binary]
+    tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 
     {:ok, socket} = :gen_tcp.connect(host, port, tcp_opts, timeout)
 
     %{socket: socket}
   end
 
+  defp close_tcp_socket(socket) do
+    socket |> :gen_tcp.close
+  end
+
   defp dispatch_message(socket, message) do
     packet = Packet.encode(message)
+    :inet.setopts(socket, active: :once)
     socket |> :gen_tcp.send packet
   end
 
