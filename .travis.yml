@@ -7,6 +7,8 @@ install:
   - sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa -y
   - sudo apt-get update
   - sudo apt-get install mosquitto -y
+  - mix local.hex --force
+  - mix deps.get --only docs
 script:
   - mosquitto -d
   - mix test
