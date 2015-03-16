@@ -10,10 +10,11 @@ defmodule Hulaaki.ConnectionTest do
     nouns = [ "thermometer", "switch", "scale", "bulb", "heater", "microwave" ]
 
     :random.seed(:os.timestamp)
+    id = to_string :random.uniform(100_000)
     [adjective] = adjectives |> Enum.shuffle |> Enum.take 1
     [noun] = nouns |> Enum.shuffle |> Enum.take 1
 
-    adjective <> "-" <> noun
+    adjective <> "-" <> noun <> "-" <> id
   end
 
   setup do
@@ -22,12 +23,12 @@ defmodule Hulaaki.ConnectionTest do
   end
 
   test "connect receives ConnAck", %{client_pid: pid} do
-    message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
+    message = Message.connect(client_name, "", "", "", "", 0, 0, 1, 100)
 
     Connection.connect(pid, message)
 
     assert_receive %Message.ConnAck{return_code: 0,
-                                    session_present: 1,
+                                    session_present: 0,
                                     type: :CONNACK}, 500
 
     post_disconnect(pid)

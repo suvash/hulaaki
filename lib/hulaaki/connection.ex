@@ -6,7 +6,7 @@ defmodule Hulaaki.Connection do
   defmodule ConnectOptions do
     defstruct [:host, :port]
 
-    def build(host, port)
+    def build(host \\ "localhost", port \\ 1883)
     when ( is_binary(host) or is_list(host) )
     and is_integer(port) do
       host = if is_binary(host), do: String.to_char_list(host), else: host
@@ -23,15 +23,8 @@ defmodule Hulaaki.Connection do
     GenServer.start_link(__MODULE__, %State{client: client_pid})
   end
 
-  defp default_connect_opts do
-    host = "localhost"
-    port = 1883
-
-    ConnectOptions.build(host, port)
-  end
-
   def connect(pid, %Message.Connect{} = message,
-              %ConnectOptions{} = connect_opts \\ default_connect_opts) do
+              %ConnectOptions{} = connect_opts \\ ConnectOptions.build) do
     GenServer.call(pid, {:connect, message, connect_opts})
   end
 

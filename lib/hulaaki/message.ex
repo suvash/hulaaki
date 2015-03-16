@@ -43,11 +43,6 @@ defmodule Hulaaki.Message do
     and (clean_session == 0 or clean_session == 1)
     and is_integer(keep_alive) do
 
-      # TODO: Don't set will_topic and will message unless will flag
-      # TODO: or maybe will flag can be gotten rid of totally
-      # Seems like the flag can be removed totally Ln 484
-      # Also check if nil values can be passed as argument
-
       %Connect{client_id: client_id, username: username, password: password,
                will_topic: will_topic, will_message: will_message,
                will_qos: will_qos, will_retain: will_retain,
