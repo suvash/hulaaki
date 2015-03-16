@@ -35,6 +35,30 @@ defmodule Hulaaki.Connection do
     GenServer.call(pid, {:connect, message, connect_opts})
   end
 
+  def publish(pid, %Message.Publish{} = message) do
+    GenServer.call(pid, {:publish, message})
+  end
+
+  def publish_release(pid, %Message.PubRel{} = message) do
+    GenServer.call(pid, {:publish_release, message})
+  end
+
+  def subscribe(pid, %Message.Subscribe{} = message) do
+    GenServer.call(pid, {:subscribe, message})
+  end
+
+  def unsubscribe(pid, %Message.Unsubscribe{} = message) do
+    GenServer.call(pid, {:unsubscribe, message})
+  end
+
+  def ping(pid, %Message.PingReq{} = message \\ Message.ping_request) do
+    GenServer.call(pid, {:ping, message})
+  end
+
+  def disconnect(pid, %Message.Disconnect{} = message \\ Message.disconnect ) do
+    GenServer.call(pid, {:disconnect, message})
+  end
+
   def stop(pid) do
     GenServer.call(pid, :stop)
   end
@@ -45,15 +69,44 @@ defmodule Hulaaki.Connection do
     {:ok, %{state | socket: nil} }
   end
 
+  def handle_call(:stop, _from, state) do
+    {:stop, :normal, :ok, state}
+  end
+
   def handle_call({:connect, message, opts}, _from, state) do
     %{socket: socket} = open_tcp_socket(opts)
     dispatch_connect(socket, message)
     {:reply, :ok, %{state | socket: socket} }
   end
 
-  def handle_call(:stop, _from, state) do
-    dispatch_disconnect(state.socket)
-    {:stop, :normal, :ok, state}
+  def handle_call({:publish, message}, _from, state) do
+    dispatch_publish(state.socket, message)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:publish_release, message}, _from, state) do
+    dispatch_publish_release(state.socket, message)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:subscribe, message}, _from, state) do
+    dispatch_subscribe(state.socket, message)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:unsubscribe, message}, _from, state) do
+    dispatch_unsubscribe(state.socket, message)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:ping, message}, _from, state) do
+    dispatch_ping(state.socket, message)
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:disconnect, message}, _from, state) do
+    dispatch_disconnect(state.socket, message)
+    {:reply, :ok, state}
   end
 
   def handle_info({:tcp, _, packet}, state) do
@@ -77,7 +130,27 @@ defmodule Hulaaki.Connection do
     socket |> send_message message
   end
 
-  def dispatch_disconnect(socket, %Message.Disconnect{} = message \\ Message.disconnect) do
+  def dispatch_publish(socket, %Message.Publish{} = message) do
+    socket |> send_message message
+  end
+
+  def dispatch_publish_release(socket, %Message.PubRel{} = message) do
+    socket |> send_message message
+  end
+
+  def dispatch_subscribe(socket, %Message.Subscribe{} = message) do
+    socket |> send_message message
+  end
+
+  def dispatch_unsubscribe(socket, %Message.Unsubscribe{} = message) do
+    socket |> send_message message
+  end
+
+  def dispatch_ping(socket, %Message.PingReq{} = message) do
+    socket |> send_message message
+  end
+
+  def dispatch_disconnect(socket, %Message.Disconnect{} = message) do
     socket |> send_message message
   end
 
