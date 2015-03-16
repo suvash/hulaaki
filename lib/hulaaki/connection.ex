@@ -75,37 +75,12 @@ defmodule Hulaaki.Connection do
 
   def handle_call({:connect, message, opts}, _from, state) do
     %{socket: socket} = open_tcp_socket(opts)
-    dispatch_connect(socket, message)
+    dispatch_message(socket, message)
     {:reply, :ok, %{state | socket: socket} }
   end
 
-  def handle_call({:publish, message}, _from, state) do
-    dispatch_publish(state.socket, message)
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:publish_release, message}, _from, state) do
-    dispatch_publish_release(state.socket, message)
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:subscribe, message}, _from, state) do
-    dispatch_subscribe(state.socket, message)
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:unsubscribe, message}, _from, state) do
-    dispatch_unsubscribe(state.socket, message)
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:ping, message}, _from, state) do
-    dispatch_ping(state.socket, message)
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:disconnect, message}, _from, state) do
-    dispatch_disconnect(state.socket, message)
+  def handle_call({_, message}, _from, state) do
+    dispatch_message(state.socket, message)
     {:reply, :ok, state}
   end
 
@@ -126,36 +101,9 @@ defmodule Hulaaki.Connection do
     %{socket: socket}
   end
 
-  def dispatch_connect(socket, %Message.Connect{} = message) do
-    socket |> send_message message
-  end
-
-  def dispatch_publish(socket, %Message.Publish{} = message) do
-    socket |> send_message message
-  end
-
-  def dispatch_publish_release(socket, %Message.PubRel{} = message) do
-    socket |> send_message message
-  end
-
-  def dispatch_subscribe(socket, %Message.Subscribe{} = message) do
-    socket |> send_message message
-  end
-
-  def dispatch_unsubscribe(socket, %Message.Unsubscribe{} = message) do
-    socket |> send_message message
-  end
-
-  def dispatch_ping(socket, %Message.PingReq{} = message) do
-    socket |> send_message message
-  end
-
-  def dispatch_disconnect(socket, %Message.Disconnect{} = message) do
-    socket |> send_message message
-  end
-
-  defp send_message(socket, message) do
+  defp dispatch_message(socket, message) do
     packet = Packet.encode(message)
     socket |> :gen_tcp.send packet
   end
+
 end

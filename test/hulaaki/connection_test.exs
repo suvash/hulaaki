@@ -3,6 +3,8 @@ defmodule Hulaaki.ConnectionTest do
   alias Hulaaki.Connection
   alias Hulaaki.Message
 
+  # How to test disconnect message
+
   defp client_name do
     adjectives = [ "lazy", "funny", "bright", "boring", "crazy", "lonely" ]
     nouns = [ "thermometer", "switch", "scale", "bulb", "heater", "microwave" ]
