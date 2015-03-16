@@ -28,7 +28,7 @@ defmodule Hulaaki.ConnectionTest do
 
     assert_receive %Message.ConnAck{return_code: 0,
                                     session_present: 1,
-                                    type: :CONNACK}
+                                    type: :CONNACK}, 500
 
     post_disconnect(pid)
   end
@@ -95,7 +95,7 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.subscribe(pid, message)
 
-    assert_receive %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}
+    assert_receive %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}, 500
 
     post_disconnect(pid)
   end
@@ -109,7 +109,7 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.unsubscribe(pid, message)
 
-    assert_receive %Message.UnsubAck{id: 19234, type: :UNSUBACK}
+    assert_receive %Message.UnsubAck{id: 19234, type: :UNSUBACK}, 500
 
     post_disconnect(pid)
   end
@@ -119,7 +119,7 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.ping(pid)
 
-    assert_receive %Message.PingResp{type: :PINGRESP}
+    assert_receive %Message.PingResp{type: :PINGRESP}, 500
 
     post_disconnect(pid)
   end
