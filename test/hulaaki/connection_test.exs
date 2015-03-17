@@ -22,18 +22,6 @@ defmodule Hulaaki.ConnectionTest do
     {:ok, client_pid: pid}
   end
 
-  test "connect receives ConnAck", %{client_pid: pid} do
-    message = Message.connect(client_name, "", "", "", "", 0, 0, 1, 100)
-
-    Connection.connect(pid, message)
-
-    assert_receive %Message.ConnAck{return_code: 0,
-                                    session_present: 0,
-                                    type: :CONNACK}, 500
-
-    post_disconnect(pid)
-  end
-
   defp pre_connect(pid) do
     message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
     Connection.connect(pid, message)
@@ -43,6 +31,17 @@ defmodule Hulaaki.ConnectionTest do
     Connection.disconnect(pid)
     Connection.stop(pid)
   end
+
+  test "connect receives ConnAck", %{client_pid: pid} do
+    pre_connect(pid)
+
+    assert_receive %Message.ConnAck{return_code: 0,
+                                    session_present: 0,
+                                    type: :CONNACK}, 500
+
+    post_disconnect(pid)
+  end
+
 
   test "publish receives PubAck", %{client_pid: pid} do
     pre_connect(pid)
