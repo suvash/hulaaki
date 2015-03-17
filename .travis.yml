@@ -10,6 +10,4 @@ install:
   - mix local.hex --force
   - mix deps.get --only docs
 script:
-  - mosquitto -d
   - mix test
-  - pkill mosquitto
