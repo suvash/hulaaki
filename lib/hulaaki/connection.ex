@@ -78,11 +78,24 @@ defmodule Hulaaki.Connection do
     {:reply, :ok, state}
   end
 
-  def handle_info({:tcp, socket, packet}, state) do
+  def handle_info({:tcp, socket, data}, state) do
     :inet.setopts(socket, active: :once)
-    message = Packet.decode(packet)
-    send state.client, message
+    messages = decode_packets(data)
+    messages |> Enum.each fn(message) -> send state.client, message end
     {:noreply, state}
+  end
+
+  defp decode_packets(data) do
+    decode_packets(data, [])
+  end
+
+  defp decode_packets(data, accumulator) do
+    %{message: message, remainder: remainder} = Packet.decode(data)
+
+    case remainder do
+      "" -> Enum.reverse [ message | accumulator ]
+      _  -> decode_packets(remainder, [ message | accumulator ])
+    end
   end
 
   defp open_tcp_socket(opts) do
