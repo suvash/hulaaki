@@ -69,70 +69,40 @@ defmodule Hulaaki.Connection do
 
   def handle_call({:connect, message, opts}, _from, state) do
     %{socket: socket} = open_tcp_socket(opts)
-
-    recv_message = %Message.ConnAck{} = socket |> dispatch_and_receive message
-    send state.client, recv_message
-
+    dispatch_message(socket, message)
     {:reply, :ok, %{state | socket: socket} }
   end
 
-  def handle_call({:publish, message}, _from, state) do
-    recv_message = state.socket |> dispatch_and_receive message
-    case recv_message do
-      %Message.PubAck{} ->
-        send state.client, recv_message
-      %Message.PubRec{} ->
-        send state.client, recv_message
-    end
-
+  def handle_call({_, message}, _from, state) do
+    dispatch_message(state.socket, message)
     {:reply, :ok, state}
   end
 
-  def handle_call({:publish_release, message}, _from, state) do
-    recv_message = %Message.PubComp{} = state.socket |> dispatch_and_receive message
-    send state.client, recv_message
-
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:subscribe, message}, _from, state) do
-    recv_message = %Message.SubAck{} = state.socket |> dispatch_and_receive message
-    send state.client, recv_message
-
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:unsubscribe, message}, _from, state) do
-    recv_message = %Message.UnsubAck{} = state.socket |> dispatch_and_receive message
-    send state.client, recv_message
-
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:ping, message}, _from, state) do
-    recv_message = %Message.PingResp{} = state.socket |> dispatch_and_receive message
-    send state.client, recv_message
-
-    {:reply, :ok, state}
-  end
-
-  def handle_call({:disconnect, message}, _from, state) do
-    dispatch(state.socket, message)
-    {:reply, :ok, state}
-  end
-
-  def handle_info({:tcp, socket, packet}, state) do
-    message = Packet.decode(packet)
-    send state.client, message
+  def handle_info({:tcp, socket, data}, state) do
     :inet.setopts(socket, active: :once)
+    messages = decode_packets(data)
+    messages |> Enum.each fn(message) -> send state.client, message end
     {:noreply, state}
+  end
+
+  defp decode_packets(data) do
+    decode_packets(data, [])
+  end
+
+  defp decode_packets(data, accumulator) do
+    %{message: message, remainder: remainder} = Packet.decode(data)
+
+    case remainder do
+      "" -> Enum.reverse [ message | accumulator ]
+      _  -> decode_packets(remainder, [ message | accumulator ])
+    end
   end
 
   defp open_tcp_socket(opts) do
     timeout  = 100
     host     = opts.host
     port     = opts.port
-    tcp_opts = [:binary, {:active, :false}, {:packet, :raw}]
+    tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 
     {:ok, socket} = :gen_tcp.connect(host, port, tcp_opts, timeout)
 
@@ -143,22 +113,10 @@ defmodule Hulaaki.Connection do
     socket |> :gen_tcp.close
   end
 
-  defp dispatch_and_receive(socket, message) do
-    send_packet = Packet.encode(message)
-
-    :inet.setopts(socket, active: :false)
-    socket |> :gen_tcp.send send_packet
-
-    {:ok, received_packet} = socket |> :gen_tcp.recv 0
-    :inet.setopts(socket, active: :once)
-
-    Packet.decode(received_packet)
-  end
-
-  defp dispatch(socket, message) do
+  defp dispatch_message(socket, message) do
     packet = Packet.encode(message)
-    socket |> :gen_tcp.send packet
     :inet.setopts(socket, active: :once)
+    socket |> :gen_tcp.send packet
   end
 
 end

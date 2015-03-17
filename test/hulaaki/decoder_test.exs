@@ -55,20 +55,32 @@ defmodule Hulaaki.DecoderTest do
     message = Message.connect(id, username, password,
                               will_topic, will_message, will_qos,
                               will_retain, clean_session, keep_alive)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<32>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<32>>
   end
 
   test "attempts to decode a connection ack message" do
     session_present = 0
     return_code = 3
     message = Message.connect_ack(session_present, return_code)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<2, 0, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<2, 0, 0>>
   end
 
   test "attempts to decode a publish message" do
@@ -79,46 +91,76 @@ defmodule Hulaaki.DecoderTest do
     qos = 2
     retain = 1
     message = Message.publish(id, topic, message, dup, qos, retain)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<11, 2, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<11, 2, 0>>
   end
 
   test "attempts to decode a publish ack message" do
     id = :random.uniform(65_536)
     message = Message.publish_ack(id)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<9, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<9, 0>>
   end
 
   test "attempts to decode a publish receive message" do
     id = :random.uniform(65_536)
     message = Message.publish_receive(id)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<9, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<9, 0>>
   end
 
   test "attempts to decode a publish release message" do
     id = :random.uniform(65_536)
     message = Message.publish_release(id)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<11, 5>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<11, 5>>
   end
 
   test "attempts to decode a publish complete message" do
     id = :random.uniform(65_536)
     message = Message.publish_complete(id)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<1, 8>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<1, 8>>
   end
 
   test "attempts to decode a subscribe message" do
@@ -126,63 +168,105 @@ defmodule Hulaaki.DecoderTest do
     topics = ["hello","cool"]
     qoses = [0, 1 ]
     message = Message.subscribe(id, topics, qoses)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<45, 11, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<45, 11, 0>>
   end
 
   test "attempts to decode a subscribe ack message" do
     id = :random.uniform(65_536)
     qoses = [0, 1, 2, 128]
     message = Message.subscribe_ack(id, qoses)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<8>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<8>>
   end
 
   test "attempts to decode a unsubscribe message" do
     id = :random.uniform(65_536)
     topics = ["hello","cool"]
     message = Message.unsubscribe(id, topics)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<13, 5, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<13, 5, 0>>
   end
 
   test "attempts to decode a unsubscribe ack message" do
     id = :random.uniform(65_536)
     message = Message.unsubscribe_ack(id)
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<5, 9>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<5, 9>>
   end
 
   test "attempts to decode a ping request message" do
     message = Message.ping_request
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<99, 11>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<99, 11>>
   end
 
   test "attempts to decode a ping response message" do
     message = Message.ping_response
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<0, 1>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<0, 1>>
   end
 
   test "attempts to decode a disconnect message" do
     message = Message.disconnect
-    encoded_bytes = Packet.encode message
 
-    decoded_message = Decoder.decode(encoded_bytes)
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<23, 43>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<23, 43>>
   end
 
 end
