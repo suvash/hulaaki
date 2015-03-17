@@ -12,4 +12,4 @@ install:
 script:
   - mosquitto -d
   - mix test
-  - pkill mosquitto
+  - sudo pkill mosquitto
