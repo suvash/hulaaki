@@ -45,14 +45,15 @@ defmodule Hulaaki.Decoder do
   end
 
   defp decode_connect(<<_, from_second_byte::binary>>) do
-    {_, from_third_byte} = decode_remaining_length(from_second_byte)
+    {length, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(length), remainder::binary>> = from_third_byte
 
     <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
       <<username_flag::size(1), password_flag::size(1),
         will_retain::size(1), will_qos::size(2),
         will_flag::size(1), clean_session::size(1), 0::size(1)>> <>
       <<keep_alive::size(16)>> <>
-      <<rest::binary>> = from_third_byte
+      <<rest::binary>> = message_bytes
 
     extract_if = fn(exp, str) -> if exp do extract_string(str) else {"", str} end end
     extract_if_flag = fn(num, str) -> extract_if.(num == 1, str) end
@@ -63,54 +64,84 @@ defmodule Hulaaki.Decoder do
     {username,     rest_4} = extract_if_flag.(username_flag, rest_3)
     {password,     <<>>}   = extract_if_flag.(password_flag, rest_4)
 
-    Message.connect(client_id, username, password,
-                    will_topic, will_message, will_qos,
-                    will_retain, clean_session, keep_alive)
+    message = Message.connect(client_id, username, password,
+                              will_topic, will_message, will_qos,
+                              will_retain, clean_session, keep_alive)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_connect_ack(<<_, from_second_byte::binary>>) do
-    {2, <<session_present, return_code>>} = decode_remaining_length(from_second_byte)
-    Message.connect_ack(session_present, return_code)
+    {2, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(2), remainder::binary>> = from_third_byte
+
+    <<session_present, return_code>> = message_bytes
+
+    message = Message.connect_ack(session_present, return_code)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_publish(<<3::size(4), dup::size(1),
                       qos::size(2), retain::size(1),
                       from_second_byte::binary>>) do
-    {_, from_third_byte} = decode_remaining_length(from_second_byte)
+    {length, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(length), remainder::binary>> = from_third_byte
 
-    {topic, rest} = extract_topic(from_third_byte)
+    {topic, rest} = extract_topic(message_bytes)
     <<id::size(16), message::binary>> = rest
 
-    Message.publish(id, topic, message, dup, qos, retain)
+    message = Message.publish(id, topic, message, dup, qos, retain)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_publish_ack(<<_, from_second_byte::binary>>) do
-    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
-    Message.publish_ack(id)
+    {2, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(2), remainder::binary>> = from_third_byte
+
+    <<id::size(16)>> = message_bytes
+
+    message = Message.publish_ack(id)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_publish_release(<<_, from_second_byte::binary>>) do
-    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
-    Message.publish_release(id)
+    {2, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(2), remainder::binary>> = from_third_byte
+
+    <<id::size(16)>> = message_bytes
+
+    message = Message.publish_release(id)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_publish_receive(<<_, from_second_byte::binary>>) do
-    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
-    Message.publish_receive(id)
+    {2, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(2), remainder::binary>> = from_third_byte
+
+    <<id::size(16)>> = message_bytes
+
+    message = Message.publish_receive(id)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_publish_complete(<<_, from_second_byte::binary>>) do
-    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
-    Message.publish_complete(id)
+    {2, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(2), remainder::binary>> = from_third_byte
+
+    <<id::size(16)>> = message_bytes
+
+    message = Message.publish_complete(id)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_subscribe(<<_, from_second_byte::binary>>) do
-    {_, rest} = decode_remaining_length(from_second_byte)
+    {length, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(length), remainder::binary>> = from_third_byte
 
-    <<id::size(16), payload::binary>> = rest
+    <<id::size(16), payload::binary>> = message_bytes
     {topics, qoses} = extract_topics_qoses(payload)
 
-    Message.subscribe(id, topics, qoses)
+    message = Message.subscribe(id, topics, qoses)
+    %{message: message, remainder: remainder}
   end
 
   defp extract_topics_qoses(binary) do
@@ -133,12 +164,14 @@ defmodule Hulaaki.Decoder do
   end
 
   defp decode_subscribe_ack(<<_, from_second_byte::binary>>) do
-    {_, rest} = decode_remaining_length(from_second_byte)
+    {length, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(length), remainder::binary>> = from_third_byte
 
-    <<id::size(16), payload::binary>> = rest
+    <<id::size(16), payload::binary>> = message_bytes
     qoses = extract_qos_list(payload)
 
-    Message.subscribe_ack(id, qoses)
+    message = Message.subscribe_ack(id, qoses)
+    %{message: message, remainder: remainder}
   end
 
   defp extract_qos_list(binary) do
@@ -157,12 +190,14 @@ defmodule Hulaaki.Decoder do
   end
 
   defp decode_unsubscribe(<<_, from_second_byte::binary>>) do
-    {_, rest} = decode_remaining_length(from_second_byte)
+    {length, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(length), remainder::binary>> = from_third_byte
 
-    <<id::size(16), payload::binary>> = rest
+    <<id::size(16), payload::binary>> = message_bytes
     topics = extract_topic_list(payload)
 
-    Message.unsubscribe(id, topics)
+    message = Message.unsubscribe(id, topics)
+    %{message: message, remainder: remainder}
   end
 
   defp extract_topic_list(binary), do: extract_topic_list(binary, [])
@@ -183,22 +218,36 @@ defmodule Hulaaki.Decoder do
   end
 
   defp decode_unsubscribe_ack(<<_, from_second_byte::binary>>) do
-    {2, <<id::size(16)>>} = decode_remaining_length(from_second_byte)
-    Message.unsubscribe_ack(id)
+    {2, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<message_bytes::bytes-size(2), remainder::binary>> = from_third_byte
+
+    <<id::size(16)>> = message_bytes
+
+    message = Message.unsubscribe_ack(id)
+    %{message: message, remainder: remainder}
   end
 
   defp decode_ping_request(<<_, from_second_byte::binary>>) do
-    {0, ""} = decode_remaining_length(from_second_byte)
-    Message.ping_request
+    {0, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<_::bytes-size(0), remainder::binary>> = from_third_byte
+
+    message = Message.ping_request
+    %{message: message, remainder: remainder}
   end
 
   defp decode_ping_response(<<_, from_second_byte::binary>>) do
-    {0, ""} = decode_remaining_length(from_second_byte)
-    Message.ping_response
+    {0, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<_::bytes-size(0), remainder::binary>> = from_third_byte
+
+    message = Message.ping_response
+    %{message: message, remainder: remainder}
   end
 
   defp decode_disconnect(<<_, from_second_byte::binary>>) do
-    {0, ""}= decode_remaining_length(from_second_byte)
-    Message.disconnect
+    {0, from_third_byte} = decode_remaining_length(from_second_byte)
+    <<_::bytes-size(0), remainder::binary>> = from_third_byte
+
+    message = Message.disconnect
+    %{message: message, remainder: remainder}
   end
 end
