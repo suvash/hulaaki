@@ -81,7 +81,7 @@ defmodule Hulaaki.Connection do
   def handle_info({:tcp, socket, data}, state) do
     :inet.setopts(socket, active: :once)
     messages = decode_packets(data)
-    messages |> Enum.each fn(message) -> send state.client, message end
+    messages |> Enum.each fn(message) -> Kernel.send state.client, message end
     {:noreply, state}
   end
 
