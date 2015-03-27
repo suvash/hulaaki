@@ -19,7 +19,7 @@ defmodule Hulaaki.ConnectionTest do
 
   setup do
     {:ok, pid} = Connection.start_link(self)
-    {:ok, client_pid: pid}
+    {:ok, connection_pid: pid}
   end
 
   defp pre_connect(pid) do
@@ -32,7 +32,7 @@ defmodule Hulaaki.ConnectionTest do
     Connection.stop(pid)
   end
 
-  test "connect receives ConnAck", %{client_pid: pid} do
+  test "connect receives ConnAck", %{connection_pid: pid} do
     pre_connect(pid)
 
     assert_receive %Message.ConnAck{return_code: 0,
@@ -43,7 +43,7 @@ defmodule Hulaaki.ConnectionTest do
   end
 
 
-  test "publish receives PubAck", %{client_pid: pid} do
+  test "publish receives PubAck", %{connection_pid: pid} do
     pre_connect(pid)
 
     id = 1122
@@ -61,7 +61,7 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid)
   end
 
-  test "publish w. qos 2 receives PubRec, publish_release receives PubComp", %{client_pid: pid} do
+  test "publish w. qos 2 receives PubRec, publish_release receives PubComp", %{connection_pid: pid} do
     pre_connect(pid)
 
     id = 2345
@@ -85,7 +85,7 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid)
   end
 
-  test "subscribe receives SubAck", %{client_pid: pid} do
+  test "subscribe receives SubAck", %{connection_pid: pid} do
     pre_connect(pid)
 
     id = 34875
@@ -100,7 +100,7 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid)
   end
 
-  test "unsubscribe receives UnsubAck", %{client_pid: pid} do
+  test "unsubscribe receives UnsubAck", %{connection_pid: pid} do
     pre_connect(pid)
 
     id = 19_234
@@ -114,7 +114,7 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid)
   end
 
-  test "ping receives PingResp", %{client_pid: pid} do
+  test "ping receives PingResp", %{connection_pid: pid} do
     pre_connect(pid)
 
     Connection.ping(pid)
