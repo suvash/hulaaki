@@ -3,12 +3,8 @@ defmodule Hulaaki.ClientTest do
   use GenEvent
   alias Hulaaki.Message
 
-  defmodule TestClient do
+  defmodule SampleClient do
     use Hulaaki.Client
-
-    def on_event(event, state) do
-      Kernel.send state.parent, event
-    end
 
     def on_connect(event, state) do
       Kernel.send state.parent, event
@@ -17,23 +13,15 @@ defmodule Hulaaki.ClientTest do
   end
 
   setup do
-    {:ok, pid} = TestClient.start(%{parent: self()})
+    {:ok, pid} = SampleClient.start(%{parent: self()})
     {:ok, client_pid: pid}
   end
 
-  test "client receives GenEvent notifications", %{client_pid: pid} do
-    pid |> GenEvent.sync_notify {:amazing, :tuple}
+  test "on_connect callback on receiving connect_ack", %{client_pid: pid} do
+    options = [client_id: "some-name"]
 
-    assert_receive {:amazing, :tuple}
-  end
+    pid |> SampleClient.connect options
 
-  test "client receives connect_ack notification", %{client_pid: pid} do
-    session_present = 0
-    return_code = 3
-    message = Message.connect_ack(session_present, return_code)
-
-    pid |> GenEvent.sync_notify message
-
-    assert_receive %Hulaaki.Message.ConnAck{return_code: 3, session_present: 0}
+    assert_receive %Hulaaki.Message.ConnAck{return_code: 0, session_present: 0}
   end
 end
