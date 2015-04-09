@@ -1,13 +1,15 @@
+sudo: required
 language: elixir
 elixir:
   - 1.0.3
 otp_release:
   - 17.4
 install:
-  - sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa -y
-  - sudo apt-get update
-  - sudo apt-get install mosquitto -y
   - mix local.hex --force
   - mix deps.get --only docs
+before_script:
+  - sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa -y
+  - sudo apt-get update -q
+  - sudo apt-get install mosquitto -y
 script:
   - mix test
