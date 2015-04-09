@@ -51,6 +51,7 @@ defmodule Hulaaki.Client do
       def on_subscribe_ack(options)
       def on_unsubscribe(options)
       def on_unsubscribe_ack(options)
+      def on_subscribed_publish(options)
       def on_ping(options)
       def on_pong(options)
       def on_disconnect(options)
@@ -61,6 +62,7 @@ defmodule Hulaaki.Client do
                       on_publish_complete: 1,
                       on_subscribe: 1, on_subscribe_ack: 1,
                       on_unsubscribe: 1, on_unsubscribe_ack: 1,
+                      on_subscribed_publish: 1,
                       on_ping: 1,    on_pong: 1,
                       on_disconnect: 1]
 
@@ -154,6 +156,11 @@ defmodule Hulaaki.Client do
 
       def handle_info({:sent, %Message.Publish{} = message}, state) do
         on_publish [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info({:received, %Message.Publish{} = message}, state) do
+        on_subscribed_publish [message: message, state: state]
         {:noreply, state}
       end
 

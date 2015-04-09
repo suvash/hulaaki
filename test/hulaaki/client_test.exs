@@ -17,6 +17,10 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:publish, message}
     end
 
+    def on_subscribed_publish(message: message, state: state) do
+      Kernel.send state.parent, {:subscribed_publish, message}
+    end
+
     def on_publish_receive(message: message, state: state) do
       Kernel.send state.parent, {:publish_receive, message}
     end
@@ -211,6 +215,30 @@ defmodule Hulaaki.ClientTest do
 
     pid |> SampleClient.ping
     assert_receive {:pong, %Message.PingResp{}}
+
+    post_disconnect pid
+  end
+
+  test "on_subscribed_publish callback on receiving publish on subscribed topic", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 24_756, topics: ["awesome"], qoses: [0]]
+    pid |> SampleClient.subscribe options
+
+    spawn fn ->
+      {:ok, pid2} = SampleClient.start_link(%{parent: self})
+
+      options = [client_id: "another-name"]
+      pid2 |> SampleClient.connect options
+
+      options = [id: 11_175, topic: "awesome", message: "a message",
+                 dup: 0, qos: 1, retain: 1]
+      pid2 |> SampleClient.publish options
+
+      post_disconnect pid2
+    end
+
+    assert_receive {:subscribed_publish, %Message.Publish{}}
 
     post_disconnect pid
   end
