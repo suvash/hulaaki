@@ -13,6 +13,14 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:connect_ack, message}
     end
 
+    def on_subscribe(message: message, state: state) do
+      Kernel.send state.parent, {:subscribe, message}
+    end
+
+    def on_subscribe_ack(message: message, state: state) do
+      Kernel.send state.parent, {:subscribe_ack, message}
+    end
+
     def on_ping(message: message, state: state) do
       Kernel.send state.parent, {:ping, message}
     end
@@ -64,6 +72,26 @@ defmodule Hulaaki.ClientTest do
     assert_receive {:disconnect, %Message.Disconnect{}}
 
     pid |> SampleClient.stop
+  end
+
+  test "on_subscribe callback on sending subscribe", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 24_756, topics: ["a/b", "c/d"], qoses: [0, 1]]
+    pid |> SampleClient.subscribe options
+    assert_receive {:subscribe, %Message.Subscribe{}}
+
+    post_disconnect pid
+  end
+
+  test "on_subscribe_ack callback on receiving subscribe_ack", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 24_756, topics: ["a/b", "c/d"], qoses: [0, 1]]
+    pid |> SampleClient.subscribe options
+    assert_receive {:subscribe_ack, %Message.SubAck{}}
+
+    post_disconnect pid
   end
 
   test "on_ping callback on sending ping", %{client_pid: pid} do
