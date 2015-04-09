@@ -142,22 +142,22 @@ defmodule Hulaaki.Client do
         {:reply, :ok, state}
       end
 
-      def handle_info(%Message.Connect{} = message, state) do
+      def handle_info({:sent, %Message.Connect{} = message}, state) do
         on_connect [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.ConnAck{} = message, state) do
+      def handle_info({:received, %Message.ConnAck{} = message}, state) do
         on_connect_ack [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.Publish{} = message, state) do
+      def handle_info({:sent, %Message.Publish{} = message}, state) do
         on_publish [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.PubRec{} = message, state) do
+      def handle_info({:received, %Message.PubRec{} = message}, state) do
         on_publish_receive [message: message, state: state]
 
         message = Message.publish_release message.id
@@ -166,52 +166,52 @@ defmodule Hulaaki.Client do
         {:noreply, state}
       end
 
-      def handle_info(%Message.PubRel{} = message, state) do
+      def handle_info({:sent, %Message.PubRel{} = message}, state) do
         on_publish_release [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.PubComp{} = message, state) do
+      def handle_info({:received, %Message.PubComp{} = message}, state) do
         on_publish_complete [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.PubAck{} = message, state) do
+      def handle_info({:received, %Message.PubAck{} = message}, state) do
         on_publish_ack [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.Subscribe{} = message, state) do
+      def handle_info({:sent, %Message.Subscribe{} = message}, state) do
         on_subscribe [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.SubAck{} = message, state) do
+      def handle_info({:received, %Message.SubAck{} = message}, state) do
         on_subscribe_ack [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.Unsubscribe{} = message, state) do
+      def handle_info({:sent, %Message.Unsubscribe{} = message}, state) do
         on_unsubscribe [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.UnsubAck{} = message, state) do
+      def handle_info({:received, %Message.UnsubAck{} = message}, state) do
         on_unsubscribe_ack [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.PingReq{} = message, state) do
+      def handle_info({:sent, %Message.PingReq{} = message}, state) do
         on_ping [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.PingResp{} = message, state) do
+      def handle_info({:received, %Message.PingResp{} = message}, state) do
         on_pong [message: message, state: state]
         {:noreply, state}
       end
 
-      def handle_info(%Message.Disconnect{} = message, state) do
+      def handle_info({:sent, %Message.Disconnect{} = message}, state) do
         on_disconnect [message: message, state: state]
         {:noreply, state}
       end

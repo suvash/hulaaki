@@ -70,20 +70,22 @@ defmodule Hulaaki.Connection do
   def handle_call({:connect, message, opts}, _from, state) do
     %{socket: socket} = open_tcp_socket(opts)
     dispatch_message(socket, message)
-    Kernel.send state.client, message
+    Kernel.send state.client, {:sent, message}
     {:reply, :ok, %{state | socket: socket} }
   end
 
   def handle_call({_, message}, _from, state) do
     dispatch_message(state.socket, message)
-    Kernel.send state.client, message
+    Kernel.send state.client, {:sent, message}
     {:reply, :ok, state}
   end
 
   def handle_info({:tcp, socket, data}, state) do
     :inet.setopts(socket, active: :once)
     messages = decode_packets(data)
-    messages |> Enum.each fn(message) -> Kernel.send state.client, message end
+    messages |> Enum.each fn(message) ->
+      Kernel.send state.client, {:received, message}
+    end
     {:noreply, state}
   end
 

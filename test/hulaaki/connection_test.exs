@@ -35,10 +35,10 @@ defmodule Hulaaki.ConnectionTest do
   test "connect receives ConnAck", %{connection_pid: pid} do
     pre_connect(pid)
 
-    assert_receive %Message.ConnAck{return_code: 0,
+    assert_receive {:received, %Message.ConnAck{return_code: 0,
                                     session_present: 0,
-                                    type: :CONNACK}, 500
-    assert_receive %Message.Connect{}
+                                    type: :CONNACK}}, 500
+    assert_receive {:sent, %Message.Connect{}}, 500
 
     post_disconnect(pid)
   end
@@ -57,8 +57,8 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.publish(pid, message)
 
-    assert_receive %Message.PubAck{id: 1122, type: :PUBACK}, 500
-    assert_receive %Message.Publish{}
+    assert_receive {:received, %Message.PubAck{id: 1122, type: :PUBACK}}, 500
+    assert_receive {:sent, %Message.Publish{}}, 500
 
     post_disconnect(pid)
   end
@@ -76,15 +76,15 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.publish(pid, publish_message)
 
-    assert_receive %Message.PubRec{id: 2345, type: :PUBREC}, 500
-    assert_receive %Message.Publish{}
+    assert_receive {:received, %Message.PubRec{id: 2345, type: :PUBREC}}, 500
+    assert_receive {:sent, %Message.Publish{}}, 500
 
     publish_release_message = Message.publish_release(id)
 
     Connection.publish_release(pid, publish_release_message)
 
-    assert_receive %Message.PubComp{id: 2345, type: :PUBCOMP}, 500
-    assert_receive %Message.PubRel{}
+    assert_receive {:received, %Message.PubComp{id: 2345, type: :PUBCOMP}}, 500
+    assert_receive {:sent, %Message.PubRel{}}, 500
 
     post_disconnect(pid)
   end
@@ -99,8 +99,8 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.subscribe(pid, message)
 
-    assert_receive %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}, 500
-    assert_receive %Message.Subscribe{}
+    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}}, 500
+    assert_receive {:sent, %Message.Subscribe{}}, 500
 
     post_disconnect(pid)
   end
@@ -114,8 +114,8 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.unsubscribe(pid, message)
 
-    assert_receive %Message.UnsubAck{id: 19234, type: :UNSUBACK}, 500
-    assert_receive %Message.Unsubscribe{}
+    assert_receive {:received, %Message.UnsubAck{id: 19234, type: :UNSUBACK}}, 500
+    assert_receive {:sent, %Message.Unsubscribe{}}, 500
 
     post_disconnect(pid)
   end
@@ -125,8 +125,8 @@ defmodule Hulaaki.ConnectionTest do
 
     Connection.ping(pid)
 
-    assert_receive %Message.PingResp{type: :PINGRESP}, 500
-    assert_receive %Message.PingReq{}
+    assert_receive {:received, %Message.PingResp{type: :PINGRESP}}, 500
+    assert_receive {:sent, %Message.PingReq{}}, 500
 
     post_disconnect(pid)
   end
@@ -159,9 +159,9 @@ defmodule Hulaaki.ConnectionTest do
       post_disconnect(pid2)
     end
 
-    assert_receive %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
+    assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
                                     message: "you better get this message",
-                                    topic: "common", type: :PUBLISH}, 500
+                                    topic: "common", type: :PUBLISH}}, 500
 
     post_disconnect(pid1)
   end
