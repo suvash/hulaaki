@@ -38,6 +38,7 @@ defmodule Hulaaki.ConnectionTest do
     assert_receive %Message.ConnAck{return_code: 0,
                                     session_present: 0,
                                     type: :CONNACK}, 500
+    assert_receive %Message.Connect{}
 
     post_disconnect(pid)
   end
@@ -57,6 +58,7 @@ defmodule Hulaaki.ConnectionTest do
     Connection.publish(pid, message)
 
     assert_receive %Message.PubAck{id: 1122, type: :PUBACK}, 500
+    assert_receive %Message.Publish{}
 
     post_disconnect(pid)
   end
@@ -75,12 +77,14 @@ defmodule Hulaaki.ConnectionTest do
     Connection.publish(pid, publish_message)
 
     assert_receive %Message.PubRec{id: 2345, type: :PUBREC}, 500
+    assert_receive %Message.Publish{}
 
     publish_release_message = Message.publish_release(id)
 
     Connection.publish_release(pid, publish_release_message)
 
     assert_receive %Message.PubComp{id: 2345, type: :PUBCOMP}, 500
+    assert_receive %Message.PubRel{}
 
     post_disconnect(pid)
   end
@@ -96,6 +100,7 @@ defmodule Hulaaki.ConnectionTest do
     Connection.subscribe(pid, message)
 
     assert_receive %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}, 500
+    assert_receive %Message.Subscribe{}
 
     post_disconnect(pid)
   end
@@ -110,6 +115,7 @@ defmodule Hulaaki.ConnectionTest do
     Connection.unsubscribe(pid, message)
 
     assert_receive %Message.UnsubAck{id: 19234, type: :UNSUBACK}, 500
+    assert_receive %Message.Unsubscribe{}
 
     post_disconnect(pid)
   end
@@ -120,6 +126,7 @@ defmodule Hulaaki.ConnectionTest do
     Connection.ping(pid)
 
     assert_receive %Message.PingResp{type: :PINGRESP}, 500
+    assert_receive %Message.PingReq{}
 
     post_disconnect(pid)
   end

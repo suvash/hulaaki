@@ -70,11 +70,13 @@ defmodule Hulaaki.Connection do
   def handle_call({:connect, message, opts}, _from, state) do
     %{socket: socket} = open_tcp_socket(opts)
     dispatch_message(socket, message)
+    Kernel.send state.client, message
     {:reply, :ok, %{state | socket: socket} }
   end
 
   def handle_call({_, message}, _from, state) do
     dispatch_message(state.socket, message)
+    Kernel.send state.client, message
     {:reply, :ok, state}
   end
 
