@@ -89,6 +89,10 @@ defmodule Hulaaki.Connection do
     {:noreply, state}
   end
 
+  def handle_info({:tcp_closed, _socket}, state) do
+    {:stop, :shutdown, state}
+  end
+
   defp decode_packets(data) do
     decode_packets(data, [])
   end
