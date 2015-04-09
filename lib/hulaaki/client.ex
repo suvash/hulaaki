@@ -6,10 +6,7 @@ defmodule Hulaaki.Client do
       alias Hulaaki.Message
 
       def start_link(initial_state) do
-        {:ok, connection_pid} = Connection.start_link(self())
-        state = Map.merge(%{connection: connection_pid}, initial_state)
-
-        GenServer.start_link(__MODULE__, state)
+        GenServer.start_link(__MODULE__, initial_state)
       end
 
       def stop(pid) do
@@ -17,7 +14,8 @@ defmodule Hulaaki.Client do
       end
 
       def connect(pid, opts) do
-        GenServer.call pid, {:connect, opts}
+        {:ok, conn_pid} = Connection.start_link(pid)
+        GenServer.call pid, {:connect, opts, conn_pid}
       end
 
       def ping(pid) do
@@ -52,7 +50,7 @@ defmodule Hulaaki.Client do
 
       # collection options for host port ?
 
-      def handle_call({:connect, opts}, _from, state) do
+      def handle_call({:connect, opts, conn_pid}, _from, state) do
         client_id     = opts |> Keyword.fetch! :client_id
         username      = opts |> Keyword.get :username, ""
         password      = opts |> Keyword.get :password, ""
@@ -66,6 +64,8 @@ defmodule Hulaaki.Client do
         message = Message.connect(client_id, username, password,
                                   will_topic, will_message, will_qos,
                                   will_retain, clean_session, keep_alive)
+
+        state = Map.merge(%{connection: conn_pid}, state)
 
         :ok = state.connection |> Connection.connect message
         on_connect [state: state]

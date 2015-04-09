@@ -10,7 +10,7 @@ defmodule Hulaaki.ClientTest do
     end
 
     def on_connect_ack(message: message, state: state) do
-      Kernel.send state.parent, message
+      Kernel.send state.parent, {:connect_ack, message}
     end
 
     def on_ping(state: state) do
@@ -18,7 +18,7 @@ defmodule Hulaaki.ClientTest do
     end
 
     def on_pong(message: message, state: state) do
-      Kernel.send state.parent, message
+      Kernel.send state.parent, {:pong, message}
     end
 
     def on_disconnect(state: state) do
@@ -52,7 +52,8 @@ defmodule Hulaaki.ClientTest do
   test "on_connect_ack callback on receiving connect_ack", %{client_pid: pid} do
     pre_connect pid
 
-    assert_receive %Message.ConnAck{return_code: 0, session_present: 0}
+    assert_receive {:connect_ack,
+                    %Message.ConnAck{return_code: 0, session_present: 0}}
 
     post_disconnect pid
   end
@@ -79,7 +80,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     pid |> SampleClient.ping
-    assert_receive %Message.PingResp{}
+    assert_receive {:pong, %Message.PingResp{}}
 
     post_disconnect pid
   end
