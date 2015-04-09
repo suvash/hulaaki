@@ -13,6 +13,14 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:connect_ack, message}
     end
 
+    def on_publish(message: message, state: state) do
+      Kernel.send state.parent, {:publish, message}
+    end
+
+    def on_publish_ack(message: message, state: state) do
+      Kernel.send state.parent, {:publish_ack, message}
+    end
+
     def on_subscribe(message: message, state: state) do
       Kernel.send state.parent, {:subscribe, message}
     end
@@ -80,6 +88,28 @@ defmodule Hulaaki.ClientTest do
     assert_receive {:disconnect, %Message.Disconnect{}}
 
     pid |> SampleClient.stop
+  end
+
+  test "on_publish callback on sending publish", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 9_347, topic: "nope", message: "a message",
+               dup: 0, qos: 1, retain: 1]
+    pid |> SampleClient.publish options
+    assert_receive {:publish, %Message.Publish{}}
+
+    post_disconnect pid
+  end
+
+  test "on_publish_ack callback on receiving publish_ack", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 9_347, topic: "nope", message: "a message",
+               dup: 0, qos: 1, retain: 1]
+    pid |> SampleClient.publish options
+    assert_receive {:publish_ack, %Message.PubAck{}}
+
+    post_disconnect pid
   end
 
   test "on_subscribe callback on sending subscribe", %{client_pid: pid} do

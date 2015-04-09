@@ -18,6 +18,10 @@ defmodule Hulaaki.Client do
         GenServer.call pid, {:connect, opts, conn_pid}
       end
 
+      def publish(pid, opts) do
+        GenServer.call pid, {:publish, opts}
+      end
+
       def subscribe(pid, opts) do
         GenServer.call pid, {:subscribe, opts}
       end
@@ -38,6 +42,8 @@ defmodule Hulaaki.Client do
 
       def on_connect(options)
       def on_connect_ack(options)
+      def on_publish(options)
+      def on_publish_ack(options)
       def on_subscribe(options)
       def on_subscribe_ack(options)
       def on_unsubscribe(options)
@@ -47,6 +53,7 @@ defmodule Hulaaki.Client do
       def on_disconnect(options)
 
       defoverridable [on_connect: 1, on_connect_ack: 1,
+                      on_publish: 1, on_publish_ack: 1,
                       on_subscribe: 1, on_subscribe_ack: 1,
                       on_unsubscribe: 1, on_unsubscribe_ack: 1,
                       on_ping: 1,    on_pong: 1,
@@ -82,6 +89,20 @@ defmodule Hulaaki.Client do
         state = Map.merge(%{connection: conn_pid}, state)
 
         :ok = state.connection |> Connection.connect message
+        {:reply, :ok, state}
+      end
+
+      def handle_call({:publish, opts}, _from, state) do
+        id     = opts |> Keyword.fetch! :id
+        topic  = opts |> Keyword.fetch! :topic
+        msg    = opts |> Keyword.fetch! :message
+        dup    = opts |> Keyword.fetch! :dup
+        qos    = opts |> Keyword.fetch! :qos
+        retain = opts |> Keyword.fetch! :retain
+
+        message = Message.publish(id, topic, msg, dup, qos, retain)
+
+        :ok = state.connection |> Connection.publish message
         {:reply, :ok, state}
       end
 
@@ -123,6 +144,16 @@ defmodule Hulaaki.Client do
 
       def handle_info(%Message.ConnAck{} = message, state) do
         on_connect_ack [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.Publish{} = message, state) do
+        on_publish [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.PubAck{} = message, state) do
+        on_publish_ack [message: message, state: state]
         {:noreply, state}
       end
 
