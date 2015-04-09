@@ -68,35 +68,42 @@ defmodule Hulaaki.Client do
         state = Map.merge(%{connection: conn_pid}, state)
 
         :ok = state.connection |> Connection.connect message
-        on_connect [state: state]
-
         {:reply, :ok, state}
-      end
-
-      def handle_info(%Message.ConnAck{} = message, state) do
-        on_connect_ack [message: message, state: state]
-
-        {:noreply, state}
       end
 
       def handle_call(:ping, _from, state) do
         :ok = state.connection |> Connection.ping
-        on_ping [state: state]
-
         {:reply, :ok, state}
-      end
-
-      def handle_info(%Message.PingResp{} = message, state) do
-        on_pong [message: message, state: state]
-
-        {:noreply, state}
       end
 
       def handle_call(:disconnect, _from, state) do
         :ok = state.connection |> Connection.disconnect
-        on_disconnect [state: state]
-
         {:reply, :ok, state}
+      end
+
+      def handle_info(%Message.Connect{} = message, state) do
+        on_connect [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.ConnAck{} = message, state) do
+        on_connect_ack [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.PingReq{} = message, state) do
+        on_ping [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.PingResp{} = message, state) do
+        on_pong [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.Disconnect{} = message, state) do
+        on_disconnect [message: message, state: state]
+        {:noreply, state}
       end
     end
   end
