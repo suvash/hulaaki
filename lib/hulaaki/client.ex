@@ -43,6 +43,9 @@ defmodule Hulaaki.Client do
       def on_connect(options)
       def on_connect_ack(options)
       def on_publish(options)
+      def on_publish_receive(options)
+      def on_publish_release(options)
+      def on_publish_complete(options)
       def on_publish_ack(options)
       def on_subscribe(options)
       def on_subscribe_ack(options)
@@ -54,6 +57,8 @@ defmodule Hulaaki.Client do
 
       defoverridable [on_connect: 1, on_connect_ack: 1,
                       on_publish: 1, on_publish_ack: 1,
+                      on_publish_receive: 1, on_publish_release: 1,
+                      on_publish_complete: 1,
                       on_subscribe: 1, on_subscribe_ack: 1,
                       on_unsubscribe: 1, on_unsubscribe_ack: 1,
                       on_ping: 1,    on_pong: 1,
@@ -149,6 +154,25 @@ defmodule Hulaaki.Client do
 
       def handle_info(%Message.Publish{} = message, state) do
         on_publish [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.PubRec{} = message, state) do
+        on_publish_receive [message: message, state: state]
+
+        message = Message.publish_release message.id
+        :ok = state.connection |> Connection.publish_release message
+
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.PubRel{} = message, state) do
+        on_publish_release [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.PubComp{} = message, state) do
+        on_publish_complete [message: message, state: state]
         {:noreply, state}
       end
 

@@ -17,6 +17,18 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:publish, message}
     end
 
+    def on_publish_receive(message: message, state: state) do
+      Kernel.send state.parent, {:publish_receive, message}
+    end
+
+    def on_publish_release(message: message, state: state) do
+      Kernel.send state.parent, {:publish_release, message}
+    end
+
+    def on_publish_complete(message: message, state: state) do
+      Kernel.send state.parent, {:publish_complete, message}
+    end
+
     def on_publish_ack(message: message, state: state) do
       Kernel.send state.parent, {:publish_ack, message}
     end
@@ -108,6 +120,39 @@ defmodule Hulaaki.ClientTest do
                dup: 0, qos: 1, retain: 1]
     pid |> SampleClient.publish options
     assert_receive {:publish_ack, %Message.PubAck{}}
+
+    post_disconnect pid
+  end
+
+  test "on_publish_receive callback on receiving publish_receive", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 9_347, topic: "nope", message: "a message",
+               dup: 0, qos: 2, retain: 1]
+    pid |> SampleClient.publish options
+    assert_receive {:publish_receive, %Message.PubRec{}}
+
+    post_disconnect pid
+  end
+
+  test "on_publish_release callback on sending publish_release", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 9_347, topic: "nope", message: "a message",
+               dup: 0, qos: 2, retain: 1]
+    pid |> SampleClient.publish options
+    assert_receive {:publish_release, %Message.PubRel{}}
+
+    post_disconnect pid
+  end
+
+  test "on_publish_complete callback on receiving publish_complete", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 9_347, topic: "nope", message: "a message",
+               dup: 0, qos: 2, retain: 1]
+    pid |> SampleClient.publish options
+    assert_receive {:publish_complete, %Message.PubComp{}}
 
     post_disconnect pid
   end
