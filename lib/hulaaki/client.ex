@@ -22,6 +22,10 @@ defmodule Hulaaki.Client do
         GenServer.call pid, {:subscribe, opts}
       end
 
+      def unsubscribe(pid, opts) do
+        GenServer.call pid, {:unsubscribe, opts}
+      end
+
       def ping(pid) do
         GenServer.call pid, :ping
       end
@@ -36,12 +40,15 @@ defmodule Hulaaki.Client do
       def on_connect_ack(options)
       def on_subscribe(options)
       def on_subscribe_ack(options)
+      def on_unsubscribe(options)
+      def on_unsubscribe_ack(options)
       def on_ping(options)
       def on_pong(options)
       def on_disconnect(options)
 
       defoverridable [on_connect: 1, on_connect_ack: 1,
                       on_subscribe: 1, on_subscribe_ack: 1,
+                      on_unsubscribe: 1, on_unsubscribe_ack: 1,
                       on_ping: 1,    on_pong: 1,
                       on_disconnect: 1]
 
@@ -89,6 +96,16 @@ defmodule Hulaaki.Client do
         {:reply, :ok, state}
       end
 
+      def handle_call({:unsubscribe, opts}, _from, state) do
+        id     = opts |> Keyword.fetch! :id
+        topics = opts |> Keyword.fetch! :topics
+
+        message = Message.unsubscribe(id, topics)
+
+        :ok = state.connection |> Connection.unsubscribe message
+        {:reply, :ok, state}
+      end
+
       def handle_call(:ping, _from, state) do
         :ok = state.connection |> Connection.ping
         {:reply, :ok, state}
@@ -116,6 +133,16 @@ defmodule Hulaaki.Client do
 
       def handle_info(%Message.SubAck{} = message, state) do
         on_subscribe_ack [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.Unsubscribe{} = message, state) do
+        on_unsubscribe [message: message, state: state]
+        {:noreply, state}
+      end
+
+      def handle_info(%Message.UnsubAck{} = message, state) do
+        on_unsubscribe_ack [message: message, state: state]
         {:noreply, state}
       end
 

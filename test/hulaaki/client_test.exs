@@ -21,6 +21,14 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:subscribe_ack, message}
     end
 
+    def on_unsubscribe(message: message, state: state) do
+      Kernel.send state.parent, {:unsubscribe, message}
+    end
+
+    def on_unsubscribe_ack(message: message, state: state) do
+      Kernel.send state.parent, {:unsubscribe_ack, message}
+    end
+
     def on_ping(message: message, state: state) do
       Kernel.send state.parent, {:ping, message}
     end
@@ -90,6 +98,26 @@ defmodule Hulaaki.ClientTest do
     options = [id: 24_756, topics: ["a/b", "c/d"], qoses: [0, 1]]
     pid |> SampleClient.subscribe options
     assert_receive {:subscribe_ack, %Message.SubAck{}}
+
+    post_disconnect pid
+  end
+
+  test "on_unsubscribe callback on sending unsubscribe", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 12_385, topics: ["a/d", "c/f"]]
+    pid |> SampleClient.unsubscribe options
+    assert_receive {:unsubscribe, %Message.Unsubscribe{}}
+
+    post_disconnect pid
+  end
+
+  test "on_unsubscribe_ack callback on receiving unsubscribe_ack", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [id: 12_385, topics: ["a/d", "c/f"]]
+    pid |> SampleClient.unsubscribe options
+    assert_receive {:unsubscribe_ack, %Message.UnsubAck{}}
 
     post_disconnect pid
   end
