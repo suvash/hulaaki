@@ -4,12 +4,19 @@ elixir:
   - 1.0.3
 otp_release:
   - 17.4
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get -y install libc-ares-dev libssl-dev uuid-dev
+  - wget http://mosquitto.org/files/source/mosquitto-1.4.tar.gz
 install:
+  - tar xvzf mosquitto-1.4.tar.gz
+  - cd mosquitto-1.4
+  - make
+  - sudo make install
+  - cd ..
+before_script:
+  - mosquitto -d
   - mix local.hex --force
   - mix deps.get --only docs
-before_script:
-  - sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa -y
-  - sudo apt-get update -q
-  - sudo apt-get install mosquitto -y
 script:
   - mix test
