@@ -17,6 +17,11 @@ install:
 before_script:
   - mosquitto -d
   - mix local.hex --force
-  - mix deps.get --only docs
+  - mix local.rebar
+  - MIX_ENV=test mix deps.get
 script:
-  - mix test
+  - MIX_ENV=test mix test
+after_script:
+  - MIX_ENV=test mix coveralls.travis
+  - MIX_ENV=docs mix deps.get
+  - MIX_ENV=docs mix inch.report
