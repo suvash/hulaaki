@@ -1,9 +1,10 @@
 defmodule Hulaaki.Message do
+  @moduledoc """
+  Provides the structs and constructors for different kinds of message
+  packets in the MQTT protocol.
+  """
 
-  # TODO: ADD documentation ExDoc style
   # TODO: number of topics and number of qoses must be equal
-  # Make 0|1 things boolean from the user interface
-  # Make 0|1|2 for qos into atom from Message interface
 
   defmodule Connect do
     @type t :: %__MODULE__{
@@ -29,6 +30,9 @@ defmodule Hulaaki.Message do
                type: :CONNECT]
   end
 
+  @doc """
+  Creates a Connect struct with the guards applied.
+  """
   def connect(client_id, username, password,
               will_topic, will_message, will_qos,
               will_retain, clean_session, keep_alive)
@@ -54,6 +58,9 @@ defmodule Hulaaki.Message do
     defstruct [:session_present, :return_code, type: :CONNACK]
   end
 
+  @doc """
+  Creates a ConnAck struct with the guards applied.
+  """
   def connect_ack(session_present, return_code)
     when (session_present == 0 or session_present == 1)
     and (return_code == 0 or return_code == 1 or
@@ -75,6 +82,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, :topic, :message, :dup, :qos, :retain, type: :PUBLISH]
   end
 
+  @doc """
+  Creates a Publish struct with the guards applied.
+  """
   def publish(packet_id, topic, message, dup, qos, retain)
     when is_integer(packet_id)
     and packet_id > 0
@@ -93,6 +103,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, type: :PUBACK]
   end
 
+  @doc """
+  Creates a PubAck struct with the guards applied.
+  """
   def publish_ack(packet_id)
     when is_integer(packet_id)
     and packet_id > 0 do
@@ -105,6 +118,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, type: :PUBREC]
   end
 
+  @doc """
+  Creates a PubRec struct with the guards applied.
+  """
   def publish_receive(packet_id)
     when is_integer(packet_id)
     and packet_id > 0 do
@@ -117,6 +133,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, type: :PUBREL]
   end
 
+  @doc """
+  Creates a PubRel struct with the guards applied.
+  """
   def publish_release(packet_id)
     when is_integer(packet_id)
     and packet_id > 0 do
@@ -129,6 +148,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, type: :PUBCOMP]
   end
 
+  @doc """
+  Creates a PubComp struct with the guards applied.
+  """
   def publish_complete(packet_id)
     when is_integer(packet_id)
     and packet_id > 0 do
@@ -144,6 +166,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, :topics, :requested_qoses, type: :SUBSCRIBE]
   end
 
+  @doc """
+  Creates a Subscribe struct with the guards applied.
+  """
   def subscribe(packet_id, topics, requested_qoses)
     when is_integer(packet_id)
     and packet_id > 0
@@ -155,6 +180,7 @@ defmodule Hulaaki.Message do
 
       %Subscribe{id: packet_id, topics: clean_topics, requested_qoses: clean_qoses}
   end
+
   defmodule SubAck do
     @type t :: %__MODULE__{
                id: non_neg_integer,
@@ -163,6 +189,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, :granted_qoses, type: :SUBACK]
   end
 
+  @doc """
+  Creates a SubAck struct with the guards applied.
+  """
   def subscribe_ack(packet_id, granted_qoses)
     when is_integer(packet_id)
     and packet_id > 0
@@ -178,6 +207,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, :topics, type: :UNSUBSCRIBE]
   end
 
+  @doc """
+  Creates a Unsubscribe struct with the guards applied.
+  """
   def unsubscribe(packet_id, topics)
     when is_integer(packet_id)
     and packet_id > 0
@@ -192,6 +224,9 @@ defmodule Hulaaki.Message do
     defstruct [:id, type: :UNSUBACK]
   end
 
+  @doc """
+  Creates a UnsubAck struct with the guards applied.
+  """
   def unsubscribe_ack(packet_id)
     when is_integer(packet_id)
     and packet_id > 0 do
@@ -204,6 +239,9 @@ defmodule Hulaaki.Message do
     defstruct type: :PINGREQ
   end
 
+  @doc """
+  Creates a Pingreq struct.
+  """
   def ping_request do
     %PingReq{}
   end
@@ -213,6 +251,9 @@ defmodule Hulaaki.Message do
     defstruct type: :PINGRESP
   end
 
+  @doc """
+  Creates a Pingresp struct.
+  """
   def ping_response do
     %PingResp{}
   end
@@ -222,6 +263,9 @@ defmodule Hulaaki.Message do
     defstruct type: :DISCONNECT
   end
 
+  @doc """
+  Creates a Disconnect struct.
+  """
   def disconnect do
     %Disconnect{}
   end
