@@ -201,7 +201,7 @@ defmodule Hulaaki.EncoderTest do
   test "calculate remaining length for Subscribe struct" do
     id = :random.uniform(65_536)
     topics = ["hello","cool"]
-    qoses = [0, 2, 1, 128]
+    qoses = [0, 2]
     message = Message.subscribe(id, topics, qoses)
     received = Encoder.calculate_remaining_length(message)
     expected = 17

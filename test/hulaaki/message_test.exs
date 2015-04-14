@@ -88,11 +88,11 @@ defmodule Hulaaki.MessageTest do
   test "subscribe build a Subscribe message struct" do
     # topics and req_qoses must have equal length
     id = :random.uniform(65_536)
-    topics = [1,2,"hello","cool"]
-    qoses = ["hello", -1, 0, 1, 2, 3, 12.34, 5, 123, 128]
+    topics = ["hello","cool"]
+    qoses = [0, 1]
     expected = %Message.Subscribe{id: id,
                                   topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1, 2]}
+                                  requested_qoses: [0, 1]}
     received = Message.subscribe(id, topics, qoses)
 
     assert expected == received

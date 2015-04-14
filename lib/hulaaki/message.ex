@@ -173,7 +173,8 @@ defmodule Hulaaki.Message do
     when is_integer(packet_id)
     and packet_id > 0
     and is_list(topics)
-    and is_list(requested_qoses) do
+    and is_list(requested_qoses)
+    and length(requested_qoses) == length(topics) do
       clean_topics = Enum.filter(topics, fn(x) -> is_binary(x) end)
       valid_qos? = fn(x) -> (x == 0 or x == 1 or x == 2) end
       clean_qoses = Enum.filter(requested_qoses, valid_qos?)
