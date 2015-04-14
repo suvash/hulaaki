@@ -3,29 +3,18 @@ defmodule Hulaaki.Connection do
   alias Hulaaki.Message
   alias Hulaaki.Packet
 
-  defmodule ConnectOptions do
-    defstruct [:host, :port]
-
-    def build(host \\ "localhost", port \\ 1883)
-    when ( is_binary(host) or is_list(host) )
-    and is_integer(port) do
-      host = if is_binary(host), do: String.to_char_list(host), else: host
-      %ConnectOptions{host: host, port: port}
-    end
-  end
-
-  defmodule State do
-    defstruct [:socket, :client]
-  end
-
   def start_link(client_pid)
   when is_pid(client_pid) do
-    GenServer.start_link(__MODULE__, %State{client: client_pid})
+    GenServer.start_link(__MODULE__, %{client: client_pid, socket: nil})
   end
 
   def connect(pid, %Message.Connect{} = message,
-              %ConnectOptions{} = connect_opts \\ ConnectOptions.build) do
-    GenServer.call(pid, {:connect, message, connect_opts})
+              opts \\ [host: "localhost", port: 1883]) do
+    host     = opts |> Keyword.fetch! :host
+    host     = if is_binary(host), do: String.to_char_list(host), else: host
+    port     = opts |> Keyword.fetch! :port
+
+    GenServer.call(pid, {:connect, message, [host: host, port: port]})
   end
 
   def publish(pid, %Message.Publish{} = message) do
@@ -58,8 +47,8 @@ defmodule Hulaaki.Connection do
 
   ## GenServer callbacks
 
-  def init(%State{} = state) do
-    {:ok, %{state | socket: nil} }
+  def init(state) do
+    {:ok, state}
   end
 
   def handle_call(:stop, _from, state) do
@@ -108,8 +97,8 @@ defmodule Hulaaki.Connection do
 
   defp open_tcp_socket(opts) do
     timeout  = 100
-    host     = opts.host
-    port     = opts.port
+    host     = opts |> Keyword.fetch! :host
+    port     = opts |> Keyword.fetch! :port
     tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 
     {:ok, socket} = :gen_tcp.connect(host, port, tcp_opts, timeout)
