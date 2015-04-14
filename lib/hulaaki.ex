@@ -2,9 +2,23 @@ defmodule Hulaaki do
   alias Hulaaki.Message
   alias Hulaaki.Encoder
   alias Hulaaki.Decoder
+  @moduledoc """
+  Defines Packet protocol and provides implementations for Hulaaki Messages
+  """
 
   defprotocol Packet do
+    @moduledoc """
+    Defines the protocol Packet to encode/decode a Hulaaki Message
+    """
+
+    @doc """
+    Should implement the encoding of a Message struct to binary
+    """
     def encode(message)
+
+    @doc """
+    Should implement the decoding of a binary to Message struct
+    """
     def decode(message)
   end
 

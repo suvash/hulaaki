@@ -2,8 +2,7 @@ defmodule Hulaaki.Decoder do
   alias Hulaaki.Message
   use Bitwise
   @moduledoc """
-  Provides functions for decoding bytes(binary) to Message structs and
-  decode remaining length as specified in MQTT 3.1.1 spec section 2.2.3
+  Provides functions for decoding bytes(binary) to Message structs
   """
 
   @doc """
