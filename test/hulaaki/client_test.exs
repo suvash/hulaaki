@@ -72,7 +72,7 @@ defmodule Hulaaki.ClientTest do
   end
 
   defp pre_connect(pid) do
-    options = [client_id: "some-name"]
+    options = [client_id: "some-name", host: "localhost", port: 1883]
     pid |> SampleClient.connect options
   end
 
@@ -228,7 +228,7 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self})
 
-      options = [client_id: "another-name"]
+      options = [client_id: "another-name", host: 'localhost', port: 1883]
       pid2 |> SampleClient.connect options
 
       options = [id: 11_175, topic: "awesome", message: "a message",

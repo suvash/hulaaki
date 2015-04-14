@@ -8,13 +8,8 @@ defmodule Hulaaki.Connection do
     GenServer.start_link(__MODULE__, %{client: client_pid, socket: nil})
   end
 
-  def connect(pid, %Message.Connect{} = message,
-              opts \\ [host: "localhost", port: 1883]) do
-    host     = opts |> Keyword.fetch! :host
-    host     = if is_binary(host), do: String.to_char_list(host), else: host
-    port     = opts |> Keyword.fetch! :port
-
-    GenServer.call(pid, {:connect, message, [host: host, port: port]})
+  def connect(pid, %Message.Connect{} = message, opts) do
+    GenServer.call(pid, {:connect, message, opts})
   end
 
   def publish(pid, %Message.Publish{} = message) do
@@ -98,6 +93,7 @@ defmodule Hulaaki.Connection do
   defp open_tcp_socket(opts) do
     timeout  = 100
     host     = opts |> Keyword.fetch! :host
+    host     = if is_binary(host), do: String.to_char_list(host), else: host
     port     = opts |> Keyword.fetch! :port
     tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 

@@ -79,6 +79,9 @@ defmodule Hulaaki.Client do
       # collection options for host port ?
 
       def handle_call({:connect, opts, conn_pid}, _from, state) do
+        host          = opts |> Keyword.fetch! :host
+        port          = opts |> Keyword.fetch! :port
+
         client_id     = opts |> Keyword.fetch! :client_id
         username      = opts |> Keyword.get :username, ""
         password      = opts |> Keyword.get :password, ""
@@ -95,7 +98,8 @@ defmodule Hulaaki.Client do
 
         state = Map.merge(%{connection: conn_pid}, state)
 
-        :ok = state.connection |> Connection.connect message
+        connect_opts = [host: host, port: port]
+        :ok = state.connection |> Connection.connect message, connect_opts
         {:reply, :ok, state}
       end
 
