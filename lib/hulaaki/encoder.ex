@@ -1,12 +1,18 @@
 defmodule Hulaaki.Encoder do
   alias Hulaaki.Message
   require Bitwise
+  @moduledoc """
+  Provides functions for encoding Message structs to bytes(binary)
+  """
 
   @type dup :: 0|1
   @type qos :: 0|1|2
   @type retain :: 0|1
   @type packet_value :: 1|2|3|4|5|6|7|8|9|10|11|12|13|14
 
+  @doc """
+  Encodes the fixed header (as specified in MQTT spec) for a given Message struct
+  """
   def encode_fixed_header(%Message.Connect{} = message) do
     remaining_length = calculate_remaining_length(message)
     encode_fixed_header_first_byte(1, 0, 0, 0) <>
@@ -83,6 +89,9 @@ defmodule Hulaaki.Encoder do
       encode_fixed_header_second_byte(0)
   end
 
+  @doc """
+  Calculates the remaining length (as specified in MQTT spec) for a given Message struct
+  """
   def calculate_remaining_length(%Message.Connect{client_id: client_id,
                                                   username: username,
                                                   password: password,
@@ -163,6 +172,10 @@ defmodule Hulaaki.Encoder do
       encode_fixed_header_remaining_length(remaining_length)
   end
 
+  @doc """
+  Encodes remaining length using a variable length
+  encoding scheme specified in MQTT 3.1.1 spec section 2.2.3
+  """
   @spec encode_fixed_header_remaining_length(number) :: binary
   def encode_fixed_header_remaining_length(0), do: <<0>>
 
@@ -186,6 +199,9 @@ defmodule Hulaaki.Encoder do
     end
   end
 
+  @doc """
+  Encodes variable header for a given Message struct
+  """
   def encode_variable_header(%Message.Connect{username: username,
                                               password: password,
                                               will_qos: will_qos,
@@ -266,6 +282,9 @@ defmodule Hulaaki.Encoder do
     <<id::size(16)>>
   end
 
+  @doc """
+  Encodes the payload for a given Message struct
+  """
   def encode_payload(%Message.Connect{client_id: id,
                                       username: username,
                                       password: password,

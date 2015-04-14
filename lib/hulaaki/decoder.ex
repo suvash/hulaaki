@@ -1,7 +1,14 @@
 defmodule Hulaaki.Decoder do
   alias Hulaaki.Message
   use Bitwise
+  @moduledoc """
+  Provides functions for decoding bytes(binary) to Message structs and
+  decode remaining length as specified in MQTT 3.1.1 spec section 2.2.3
+  """
 
+  @doc """
+  Decodes a binary to a tuple containing Message struct and a remainder
+  """
   def decode(<<first_byte::bits-8, _rest::bits>> = bytes) do
     case first_byte do
       << 1::size(4), _::size(4)>> -> decode_connect(bytes)
@@ -24,6 +31,10 @@ defmodule Hulaaki.Decoder do
     end
   end
 
+  @doc """
+  Decodes remaining length from bytes encoded using a variable length
+  encoding scheme specified in MQTT 3.1.1 spec section 2.2.3
+  """
   def decode_remaining_length(<<0>>), do: {0, ""}
 
   def decode_remaining_length(bytes) do

@@ -4,11 +4,25 @@ defmodule Hulaaki.Message do
   packets in the MQTT protocol.
   """
 
-  # TODO: number of topics and number of qoses must be equal
-
   defmodule Connect do
+    @moduledoc """
+    Struct for Hulaaki Connect
+
+    ## Fields
+
+      * `client_id`     : A string(binary) representing the client.
+      * `username`      : A string(binary) representing the username.
+      * `password`      : A string(binary) representing the password.
+      * `will_topic`    : A string(binary) representing the will topic.
+      * `will_message`  : A string(binary) representing the will message.
+      * `will_qos`      : An integer of value either 0,1,2 representing the will qos.
+      * `will_retain`   : An integer of value either 0,1 representing the will retain.
+      * `clean_session` : An integer of value either 0,1 representing whether the session is clean.
+      * `keep_alive`    : An integer representing the keep alive value in seconds.
+    """
+
     @type t :: %__MODULE__{
-              client_id: non_neg_integer,
+              client_id: String.t,
               username: String.t,
               password: String.t,
               will_topic: String.t,
@@ -31,7 +45,7 @@ defmodule Hulaaki.Message do
   end
 
   @doc """
-  Creates a Connect struct with the guards applied.
+  Creates a Connect struct with the guards applied to the arguments.
   """
   def connect(client_id, username, password,
               will_topic, will_message, will_qos,
@@ -54,6 +68,15 @@ defmodule Hulaaki.Message do
   end
 
   defmodule ConnAck do
+    @moduledoc """
+    Struct for Hulaaki ConnAck
+
+    ## Fields
+
+      * `session_present` : An integer of value either 0,1 representing the session present.
+      * `return_code`     : An integer of value either 0,1,2,3,4,5 representing the return code.
+    """
+
     @type t :: %__MODULE__{session_present: 0|1, return_code: 1|2|3|4|5, type: atom}
     defstruct [:session_present, :return_code, type: :CONNACK]
   end
@@ -71,6 +94,18 @@ defmodule Hulaaki.Message do
   end
 
   defmodule Publish do
+    @moduledoc """
+    Struct for Hulaaki Publish
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `topic`     : A string(binary) representing the topic.
+      * `message`   : A string(binary) representing the message.
+      * `dup`       : An integer of value either 0,1 representing the dup bit.
+      * `qos`       : An integer of value either 0,1,2 representing the qos bit.
+      * `retain`    : An integer of value either 0,1 representing the retain bit.
+    """
+
     @type t :: %__MODULE__{
                id: non_neg_integer,
                topic: String.t,
@@ -88,6 +123,7 @@ defmodule Hulaaki.Message do
   def publish(packet_id, topic, message, dup, qos, retain)
     when is_integer(packet_id)
     and packet_id > 0
+    and packet_id <= 65_536
     and is_binary(topic)
     and is_binary(message)
     and (dup == 0 or dup == 1)
@@ -99,6 +135,13 @@ defmodule Hulaaki.Message do
   end
 
   defmodule PubAck do
+    @moduledoc """
+    Struct for Hulaaki PubAck
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+    """
+
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBACK]
   end
@@ -108,12 +151,20 @@ defmodule Hulaaki.Message do
   """
   def publish_ack(packet_id)
     when is_integer(packet_id)
-    and packet_id > 0 do
+    and packet_id > 0
+    and packet_id <= 65_536 do
 
       %PubAck{id: packet_id}
   end
 
   defmodule PubRec do
+    @moduledoc """
+    Struct for Hulaaki PubRec
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+    """
+
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBREC]
   end
@@ -129,6 +180,13 @@ defmodule Hulaaki.Message do
   end
 
   defmodule PubRel do
+    @moduledoc """
+    Struct for Hulaaki PubRel
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+    """
+
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBREL]
   end
@@ -138,12 +196,20 @@ defmodule Hulaaki.Message do
   """
   def publish_release(packet_id)
     when is_integer(packet_id)
-    and packet_id > 0 do
+    and packet_id > 0
+    and packet_id <= 65_536 do
 
       %PubRel{id: packet_id}
   end
 
   defmodule PubComp do
+    @moduledoc """
+    Struct for Hulaaki PubComp
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+    """
+
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBCOMP]
   end
@@ -153,11 +219,22 @@ defmodule Hulaaki.Message do
   """
   def publish_complete(packet_id)
     when is_integer(packet_id)
-    and packet_id > 0 do
+    and packet_id > 0
+    and packet_id <= 65_536 do
 
       %PubComp{id: packet_id}
   end
+
   defmodule Subscribe do
+    @moduledoc """
+    Struct for Hulaaki Subscribe
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `topics`          : A list of string(binary) representing various topics.
+      * `requested_qoses` : A list of integer of value 0,1,2 representing qoses.
+    """
+
     @type t :: %__MODULE__{
                id: non_neg_integer,
                topics: list(String.t),
@@ -172,9 +249,11 @@ defmodule Hulaaki.Message do
   def subscribe(packet_id, topics, requested_qoses)
     when is_integer(packet_id)
     and packet_id > 0
+    and packet_id <= 65_536
     and is_list(topics)
     and is_list(requested_qoses)
     and length(requested_qoses) == length(topics) do
+
       clean_topics = Enum.filter(topics, fn(x) -> is_binary(x) end)
       valid_qos? = fn(x) -> (x == 0 or x == 1 or x == 2) end
       clean_qoses = Enum.filter(requested_qoses, valid_qos?)
@@ -183,6 +262,14 @@ defmodule Hulaaki.Message do
   end
 
   defmodule SubAck do
+    @moduledoc """
+    Struct for Hulaaki SubAck
+
+    ## Fields
+      * `packet_id`     : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `granted_qoses` : A list of integer of value 0,1,2,128 representing qoses.
+    """
+
     @type t :: %__MODULE__{
                id: non_neg_integer,
                granted_qoses: list(0|1|2|128),
@@ -196,7 +283,9 @@ defmodule Hulaaki.Message do
   def subscribe_ack(packet_id, granted_qoses)
     when is_integer(packet_id)
     and packet_id > 0
+    and packet_id <= 65_536
     and is_list(granted_qoses) do
+
       valid_qos? = fn(x) -> (x == 0 or x == 1 or x == 2 or x == 128) end
       clean_qoses = Enum.filter(granted_qoses, valid_qos?)
 
@@ -204,6 +293,14 @@ defmodule Hulaaki.Message do
   end
 
   defmodule Unsubscribe do
+    @moduledoc """
+    Struct for Hulaaki Unsubscribe
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `topics`    : A list of string(binary) representing various topics.
+    """
+
     @type t :: %__MODULE__{id: non_neg_integer, topics: list(String.t), type: atom}
     defstruct [:id, :topics, type: :UNSUBSCRIBE]
   end
@@ -221,6 +318,13 @@ defmodule Hulaaki.Message do
   end
 
   defmodule UnsubAck do
+    @moduledoc """
+    Struct for Hulaaki UnsubAck
+
+    ## Fields
+      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+    """
+
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :UNSUBACK]
   end
@@ -236,6 +340,10 @@ defmodule Hulaaki.Message do
   end
 
   defmodule PingReq do
+    @moduledoc """
+    Struct for Hulaaki PingReq
+    """
+
     @type t :: %__MODULE__{type: atom}
     defstruct type: :PINGREQ
   end
@@ -248,6 +356,10 @@ defmodule Hulaaki.Message do
   end
 
   defmodule PingResp do
+    @moduledoc """
+    Struct for Hulaaki PingResp
+    """
+
     @type t :: %__MODULE__{type: atom}
     defstruct type: :PINGRESP
   end
@@ -260,6 +372,10 @@ defmodule Hulaaki.Message do
   end
 
   defmodule Disconnect do
+    @moduledoc """
+    Struct for Hulaaki Disconnect
+    """
+
     @type t :: %__MODULE__{type: atom}
     defstruct type: :DISCONNECT
   end
