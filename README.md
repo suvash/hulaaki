@@ -1,5 +1,4 @@
-Hulaaki
-=======
+# Hulaaki (हुलाकी)
 
 [![Build Status](https://travis-ci.org/suvash/hulaaki.svg?branch=master)](https://travis-ci.org/suvash/hulaaki?branch=master)
 [![Coverage Status](https://coveralls.io/repos/suvash/hulaaki/badge.svg?branch=master)](https://coveralls.io/r/suvash/hulaaki?branch=master)
@@ -8,13 +7,11 @@ Hulaaki
 Pronouced as who-laa-key.
 
 
-Documentation
-=============
+# Documentation
 
-Maybe[coming soon]
+In the works.
 
 
-Usage
-=====
+# Usage
 
-DO NOT USE
+Do not use. YET.
