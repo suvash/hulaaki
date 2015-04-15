@@ -1,4 +1,8 @@
 defmodule Hulaaki.Client do
+  @moduledoc """
+  Provides a Client implementation that uses a Connection using Genserver
+  with overridable callbacks for messages sent and received
+  """
   defmacro __using__(_) do
     quote location: :keep do
       use GenServer
@@ -165,6 +169,7 @@ defmodule Hulaaki.Client do
 
       def handle_info({:received, %Message.Publish{} = message}, state) do
         on_subscribed_publish [message: message, state: state]
+        # needs to reply with publish ack ?
         {:noreply, state}
       end
 
