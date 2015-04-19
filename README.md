@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/suvash/hulaaki.svg?branch=master)](https://travis-ci.org/suvash/hulaaki?branch=master)
 [![Coverage Status](https://coveralls.io/repos/suvash/hulaaki/badge.svg?branch=master)](https://coveralls.io/r/suvash/hulaaki?branch=master)
 [![Inline docs](http://inch-ci.org/github/suvash/hulaaki.svg?branch=master)](http://inch-ci.org/github/suvash/hulaaki?branch=master)
-[![Gitter](https://badges.gitter.im/chat.svg)](https://gitter.im/suvash/hulaaki)
 
 Hulaaki is a client library for MQTT 3.1.1 entirely written in Elixir.
 
@@ -13,6 +12,12 @@ Before we get started, keep in mind that you need a running MQTT
 server that you can connect to.
 
 Add Hulaaki to your project dependencies in `mix.exs`
+
+```elixir
+def deps do
+  [{:hulaaki, "~> 0.0.1"} ]
+end
+```
 
 The quickest way to get up and running with Hulaaki is to `use` the
 provided `Client` module. This Genserver module defines function
