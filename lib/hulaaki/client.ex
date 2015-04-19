@@ -42,34 +42,6 @@ defmodule Hulaaki.Client do
         GenServer.call pid, :disconnect
       end
 
-      ## Overrideable callbacks
-
-      def on_connect(options)
-      def on_connect_ack(options)
-      def on_publish(options)
-      def on_publish_receive(options)
-      def on_publish_release(options)
-      def on_publish_complete(options)
-      def on_publish_ack(options)
-      def on_subscribe(options)
-      def on_subscribe_ack(options)
-      def on_unsubscribe(options)
-      def on_unsubscribe_ack(options)
-      def on_subscribed_publish(options)
-      def on_ping(options)
-      def on_pong(options)
-      def on_disconnect(options)
-
-      defoverridable [on_connect: 1, on_connect_ack: 1,
-                      on_publish: 1, on_publish_ack: 1,
-                      on_publish_receive: 1, on_publish_release: 1,
-                      on_publish_complete: 1,
-                      on_subscribe: 1, on_subscribe_ack: 1,
-                      on_unsubscribe: 1, on_unsubscribe_ack: 1,
-                      on_subscribed_publish: 1,
-                      on_ping: 1,    on_pong: 1,
-                      on_disconnect: 1]
-
       ## GenServer callbacks
 
       def init(%{} = state) do
@@ -231,6 +203,34 @@ defmodule Hulaaki.Client do
         on_disconnect [message: message, state: state]
         {:noreply, state}
       end
+
+      ## Overrideable callbacks
+
+      def on_connect([message: message, state: state]), do: true
+      def on_connect_ack([message: message, state: state]), do: true
+      def on_publish([message: message, state: state]), do: true
+      def on_publish_receive([message: message, state: state]), do: true
+      def on_publish_release([message: message, state: state]), do: true
+      def on_publish_complete([message: message, state: state]), do: true
+      def on_publish_ack([message: message, state: state]), do: true
+      def on_subscribe([message: message, state: state]), do: true
+      def on_subscribe_ack([message: message, state: state]), do: true
+      def on_unsubscribe([message: message, state: state]), do: true
+      def on_unsubscribe_ack([message: message, state: state]), do: true
+      def on_subscribed_publish([message: message, state: state]), do: true
+      def on_ping([message: message, state: state]), do: true
+      def on_pong([message: message, state: state]), do: true
+      def on_disconnect([message: message, state: state]), do: true
+
+      defoverridable [on_connect: 1, on_connect_ack: 1,
+                      on_publish: 1, on_publish_ack: 1,
+                      on_publish_receive: 1, on_publish_release: 1,
+                      on_publish_complete: 1,
+                      on_subscribe: 1, on_subscribe_ack: 1,
+                      on_unsubscribe: 1, on_unsubscribe_ack: 1,
+                      on_subscribed_publish: 1,
+                      on_ping: 1,    on_pong: 1,
+                      on_disconnect: 1]
     end
   end
 end
