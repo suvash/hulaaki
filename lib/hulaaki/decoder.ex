@@ -99,6 +99,14 @@ defmodule Hulaaki.Decoder do
     {topic, rest} = extract_topic(message_bytes)
     <<id::size(16), message::binary>> = rest
 
+    # no message id if qos = 0
+    if qos == 0 do
+      id = 1 # arbitrary > 0 but needed to satisfy Message.publish below
+      message = rest
+    else
+      <<id::size(16), message::binary>> = rest
+    end
+    
     message = Message.publish(id, topic, message, dup, qos, retain)
     %{message: message, remainder: remainder}
   end

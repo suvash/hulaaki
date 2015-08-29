@@ -3,6 +3,10 @@ defmodule Hulaaki.ConnectionTest do
   alias Hulaaki.Connection
   alias Hulaaki.Message
 
+  # configure the mqtt server
+  @mqtt_host "192.168.16.62"
+  @mqtt_port 1883
+  
   # How to test disconnect message
 
   defp client_name do
@@ -24,7 +28,7 @@ defmodule Hulaaki.ConnectionTest do
 
   defp pre_connect(pid) do
     message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
-    Connection.connect(pid, message, [host: 'localhost', port: 1883])
+    Connection.connect(pid, message, [host: @mqtt_host, port: @mqtt_port])
   end
 
   defp post_disconnect(pid) do
