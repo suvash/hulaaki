@@ -53,6 +53,23 @@ defmodule Hulaaki.MessageTest do
     assert expected == received
   end
 
+  test "publish builds a Publish message struct without packet id when qos 0" do
+    id = :random.uniform(65_536)
+    topic = "nice_topic"
+    message = " a short message"
+    dup = 0
+    qos = 0
+    retain = 1
+    expected = %Message.Publish{topic: topic,
+                                message: message, dup: dup,
+                                qos: qos, retain: retain}
+    received_1 = Message.publish(id, topic, message, dup, qos, retain)
+    received_2 = Message.publish(topic, message, dup, qos, retain)
+
+    assert expected == received_1
+    assert expected == received_2
+  end
+
   test "publish_ack builds a PubAck message struct" do
     id = :random.uniform(65_536)
     expected = %Message.PubAck{id: id}
