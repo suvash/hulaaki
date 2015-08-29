@@ -2,6 +2,10 @@ defmodule Hulaaki.ClientTest do
   use ExUnit.Case
   alias Hulaaki.Message
 
+  # configure the mqtt server
+  @mqtt_host "192.168.16.62"
+  @mqtt_port 1883
+  
   defmodule SampleClient do
     use Hulaaki.Client
 
@@ -72,7 +76,7 @@ defmodule Hulaaki.ClientTest do
   end
 
   defp pre_connect(pid) do
-    options = [client_id: "some-name", host: "localhost", port: 1883]
+    options = [client_id: "some-name", host: @mqtt_host, port: @mqtt_port]
     pid |> SampleClient.connect options
   end
 
@@ -228,7 +232,7 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self})
 
-      options = [client_id: "another-name", host: 'localhost', port: 1883]
+      options = [client_id: "another-name", host: @mqtt_host, port: @mqtt_port]
       pid2 |> SampleClient.connect options
 
       options = [id: 11_175, topic: "awesome", message: "a message",

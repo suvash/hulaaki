@@ -47,7 +47,33 @@ defmodule Hulaaki.EncoderTest do
     assert expected == received
   end
 
-  test "encodes fixed header for Publish struct" do
+  test "encodes fixed header for Publish struct qos 0" do
+    dup = 0
+    qos = 0
+    retain = 1
+    message = %Message.Publish{id: 203, topic: "test",
+                               message: "test", dup: dup,
+                               qos: qos, retain: retain}
+    received = Encoder.encode_fixed_header(message)
+    expected = <<3::size(4), dup::size(1), qos::size(2), retain::size(1)>> <> <<10>>
+
+    assert expected == received
+  end
+    
+  test "encodes fixed header for Publish struct qos 1" do
+    dup = 0
+    qos = 1
+    retain = 1
+    message = %Message.Publish{id: 203, topic: "test",
+                               message: "test", dup: dup,
+                               qos: qos, retain: retain}
+    received = Encoder.encode_fixed_header(message)
+    expected = <<3::size(4), dup::size(1), qos::size(2), retain::size(1)>> <> <<12>>
+
+    assert expected == received
+  end
+    
+  test "encodes fixed header for Publish struct qos 2" do
     dup = 0
     qos = 2
     retain = 1
@@ -324,7 +350,39 @@ defmodule Hulaaki.EncoderTest do
     assert expected == received
   end
 
-  test "encodes variable header for Publish struct" do
+  test "encodes variable header for Publish struct qos 0" do
+    id = :random.uniform(65_536)
+    topic = "topic"
+    message = "message"
+    dup = 0
+    qos = 0
+    retain = 1
+    message = %Message.Publish{id: id, topic: topic,
+                               message: message, dup: dup,
+                               qos: qos, retain: retain}
+    received = Encoder.encode_variable_header(message)
+    expected = <<byte_size(topic)::size(16)>> <> topic
+
+    assert expected == received
+  end
+
+  test "encodes variable header for Publish struct qos 1" do
+    id = :random.uniform(65_536)
+    topic = "topic"
+    message = "message"
+    dup = 0
+    qos = 1
+    retain = 1
+    message = %Message.Publish{id: id, topic: topic,
+                               message: message, dup: dup,
+                               qos: qos, retain: retain}
+    received = Encoder.encode_variable_header(message)
+    expected = <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+
+    assert expected == received
+  end
+  
+  test "encodes variable header for Publish struct qos 2" do
     id = :random.uniform(65_536)
     topic = "topic"
     message = "message"
