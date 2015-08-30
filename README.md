@@ -80,6 +80,8 @@ documentation for now. This shall be improved over time.
 ## Contributing
 
 Pull requests with appropriate tests and improvements are welcome.
+Mosquitto is currently used by the author to test the library. Please
+take a look at the Makefile to run tests.
 
 ## Naming
 
