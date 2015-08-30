@@ -103,6 +103,26 @@ defmodule Hulaaki.DecoderTest do
     assert rest == <<11, 2, 0>>
   end
 
+  test "attempts to decode a publish message when qos 0" do
+    id = :random.uniform(65_536)
+    topic = "nice_topic"
+    message = " a short message"
+    dup = 0
+    qos = 0
+    retain = 1
+    message = Message.publish(id, topic, message, dup, qos, retain)
+
+    encoded_bytes = Packet.encode message
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<>>
+
+    encoded_bytes = Packet.encode(message) <> <<11, 2, 0>>
+    %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
+    assert decoded_message == message
+    assert rest == <<11, 2, 0>>
+  end
+
   test "attempts to decode a publish ack message" do
     id = :random.uniform(65_536)
     message = Message.publish_ack(id)

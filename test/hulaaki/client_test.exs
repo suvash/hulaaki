@@ -117,6 +117,17 @@ defmodule Hulaaki.ClientTest do
     post_disconnect pid
   end
 
+  test "on_publish callback on sending publish w. qos 0", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [topic: "nope", message: "a message",
+               dup: 0, qos: 0, retain: 1]
+    pid |> SampleClient.publish options
+    assert_receive {:publish, %Message.Publish{}}
+
+    post_disconnect pid
+  end
+
   test "on_publish_ack callback on receiving publish_ack", %{client_pid: pid} do
     pre_connect pid
 

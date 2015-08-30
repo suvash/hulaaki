@@ -43,8 +43,7 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid)
   end
 
-
-  test "publish receives PubAck", %{connection_pid: pid} do
+  test "publish w. qos 1 receives PubAck", %{connection_pid: pid} do
     pre_connect(pid)
 
     id = 1122
@@ -131,12 +130,45 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid)
   end
 
-  test "receive messages published to a topic it has subscribed to" do
+  test "receive messages published to a topic on qos 0 it has subscribed to" do
     {:ok, pid1} = Connection.start_link(self)
     pre_connect(pid1)
 
     id = :random.uniform(65_536)
-    topics = ["common"]
+    topics = ["qos0"]
+    qoses =  [0]
+    message = Message.subscribe(id, topics, qoses)
+
+    Connection.subscribe(pid1, message)
+
+    spawn fn ->
+      {:ok, pid2} = Connection.start_link(self)
+      pre_connect(pid2)
+
+      topic = "qos0"
+      message = "you better get this message on qos 0"
+      dup = 0
+      qos = 0
+      retain = 0
+      message0 = Message.publish(topic, message, dup, qos, retain)
+      Connection.publish(pid2, message0)
+
+      post_disconnect(pid2)
+    end
+
+    assert_receive {:received, %Message.Publish{dup: 0,qos: 0, retain: 0,
+                                    message: "you better get this message on qos 0",
+                                    topic: "qos0", type: :PUBLISH}}, 500
+
+    post_disconnect(pid1)
+  end
+
+  test "receive messages published to a topic on qos 1 it has subscribed to" do
+    {:ok, pid1} = Connection.start_link(self)
+    pre_connect(pid1)
+
+    id = :random.uniform(65_536)
+    topics = ["qos1"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
 
@@ -147,21 +179,20 @@ defmodule Hulaaki.ConnectionTest do
       pre_connect(pid2)
 
       id = :random.uniform(65_536)
-      topic = "common"
-      message = "you better get this message"
+      topic = "qos1"
+      message = "you better get this message on qos 1"
       dup = 0
       qos = 1
       retain = 0
-      message = Message.publish(id, topic, message, dup, qos, retain)
-
-      Connection.publish(pid2, message)
+      message1 = Message.publish(id, topic, message, dup, qos, retain)
+      Connection.publish(pid2, message1)
 
       post_disconnect(pid2)
     end
 
     assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
-                                    message: "you better get this message",
-                                    topic: "common", type: :PUBLISH}}, 500
+                                    message: "you better get this message on qos 1",
+                                    topic: "qos1", type: :PUBLISH}}, 500
 
     post_disconnect(pid1)
   end

@@ -97,9 +97,21 @@ defmodule Hulaaki.Decoder do
     <<message_bytes::bytes-size(length), remainder::binary>> = from_third_byte
 
     {topic, rest} = extract_topic(message_bytes)
-    <<id::size(16), message::binary>> = rest
+    {id, message} =
+      case qos do
+        0 ->
+          {nil, rest}
+        _ ->
+          <<id2::size(16), message2::binary>> = rest
+          {id2, message2}
+      end
 
-    message = Message.publish(id, topic, message, dup, qos, retain)
+
+    message =
+      case qos do
+        0 -> Message.publish(topic, message, dup, qos, retain)
+        _ -> Message.publish(id, topic, message, dup, qos, retain)
+      end
     %{message: message, remainder: remainder}
   end
 

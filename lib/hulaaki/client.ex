@@ -80,14 +80,20 @@ defmodule Hulaaki.Client do
       end
 
       def handle_call({:publish, opts}, _from, state) do
-        id     = opts |> Keyword.fetch! :id
         topic  = opts |> Keyword.fetch! :topic
         msg    = opts |> Keyword.fetch! :message
         dup    = opts |> Keyword.fetch! :dup
         qos    = opts |> Keyword.fetch! :qos
         retain = opts |> Keyword.fetch! :retain
 
-        message = Message.publish(id, topic, msg, dup, qos, retain)
+        message =
+          case qos do
+            0 ->
+              Message.publish(topic, msg, dup, qos, retain)
+            _ ->
+              id = opts |> Keyword.fetch! :id
+              Message.publish(id, topic, msg, dup, qos, retain)
+          end
 
         :ok = state.connection |> Connection.publish message
         {:reply, :ok, state}

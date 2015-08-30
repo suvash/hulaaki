@@ -130,7 +130,22 @@ defmodule Hulaaki.Message do
     and (qos == 0 or qos == 1 or qos == 2)
     and (retain == 0 or retain == 1) do
 
-      %Publish{id: packet_id, topic: topic, message: message,
+      case qos do
+        0 -> publish(topic, message, dup, qos, retain)
+        _ -> %Publish{id: packet_id, topic: topic, message: message,
+                      dup: dup, qos: qos, retain: retain}
+
+      end
+  end
+
+  def publish(topic, message, dup, qos, retain)
+    when is_binary(topic)
+    and is_binary(message)
+    and (dup == 0 or dup == 1)
+    and qos == 0
+    and (retain == 0 or retain == 1) do
+
+      %Publish{topic: topic, message: message,
                dup: dup, qos: qos, retain: retain}
   end
 
