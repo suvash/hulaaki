@@ -145,9 +145,22 @@ defmodule Hulaaki.Client do
         {:noreply, state}
       end
 
-      def handle_info({:received, %Message.Publish{} = message}, state) do
+      def handle_info({:received, %Message.Publish{qos: qos} = message}, state) do
         on_subscribed_publish [message: message, state: state]
-        # needs to reply with publish ack ?
+
+        case qos do
+          1 ->
+            message = Message.publish_ack message.id
+            :ok = state.connection |> Connection.publish_ack message
+          _ ->
+            # unsure about supporting qos 2 yet
+        end
+
+        {:noreply, state}
+      end
+
+      def handle_info({:sent, %Message.PubAck{} = message}, state) do
+        on_subscribed_publish_ack [message: message, state: state]
         {:noreply, state}
       end
 
@@ -224,6 +237,7 @@ defmodule Hulaaki.Client do
       def on_unsubscribe([message: message, state: state]), do: true
       def on_unsubscribe_ack([message: message, state: state]), do: true
       def on_subscribed_publish([message: message, state: state]), do: true
+      def on_subscribed_publish_ack([message: message, state: state]), do: true
       def on_ping([message: message, state: state]), do: true
       def on_pong([message: message, state: state]), do: true
       def on_disconnect([message: message, state: state]), do: true
@@ -234,7 +248,7 @@ defmodule Hulaaki.Client do
                       on_publish_complete: 1,
                       on_subscribe: 1, on_subscribe_ack: 1,
                       on_unsubscribe: 1, on_unsubscribe_ack: 1,
-                      on_subscribed_publish: 1,
+                      on_subscribed_publish: 1, on_subscribed_publish_ack: 1,
                       on_ping: 1,    on_pong: 1,
                       on_disconnect: 1]
     end
