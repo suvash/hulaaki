@@ -138,6 +138,9 @@ defmodule Hulaaki.Message do
       end
   end
 
+  @doc """
+  Creates a Publish struct with the guards applied.
+  """
   def publish(topic, message, dup, qos, retain)
     when is_binary(topic)
     and is_binary(message)
