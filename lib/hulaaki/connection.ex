@@ -31,6 +31,13 @@ defmodule Hulaaki.Connection do
   end
 
   @doc """
+  Sends a Publish Ack message over the connection
+  """
+  def publish_ack(pid, %Message.PubAck{} = message) do
+    GenServer.call(pid, {:publish_ack, message})
+  end
+
+  @doc """
   Sends a Publish release message over the connection
   """
   def publish_release(pid, %Message.PubRel{} = message) do

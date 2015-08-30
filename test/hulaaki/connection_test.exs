@@ -163,7 +163,7 @@ defmodule Hulaaki.ConnectionTest do
     post_disconnect(pid1)
   end
 
-  test "receive messages published to a topic on qos 1 it has subscribed to" do
+  test "receive messages published to a topic it has subscribed to on qos 1" do
     {:ok, pid1} = Connection.start_link(self)
     pre_connect(pid1)
 
@@ -193,6 +193,45 @@ defmodule Hulaaki.ConnectionTest do
     assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
                                     message: "you better get this message on qos 1",
                                     topic: "qos1", type: :PUBLISH}}, 500
+
+    post_disconnect(pid1)
+  end
+
+  test "send publish ack after receiving publish messages published to a topic it has subscribed to on qos 1" do
+    {:ok, pid1} = Connection.start_link(self)
+    pre_connect(pid1)
+
+    id = :random.uniform(65_536)
+    topics = ["qos1"]
+    qoses =  [1]
+    message = Message.subscribe(id, topics, qoses)
+
+    Connection.subscribe(pid1, message)
+
+    spawn fn ->
+      {:ok, pid2} = Connection.start_link(self)
+      pre_connect(pid2)
+
+      id = :random.uniform(65_536)
+      topic = "qos1"
+      message = "you better get this message on qos 1"
+      dup = 0
+      qos = 1
+      retain = 0
+      message1 = Message.publish(id, topic, message, dup, qos, retain)
+      Connection.publish(pid2, message1)
+
+      post_disconnect(pid2)
+    end
+
+    assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
+                                    message: "you better get this message on qos 1",
+                                    topic: "qos1", type: :PUBLISH}}, 500
+
+    message = Message.publish_ack(id)
+    Connection.publish_ack(pid1, message)
+
+    assert_receive {:sent, %Message.PubAck{}}, 500
 
     post_disconnect(pid1)
   end
