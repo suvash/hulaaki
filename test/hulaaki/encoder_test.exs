@@ -198,6 +198,21 @@ defmodule Hulaaki.EncoderTest do
     assert encoded_length == received
   end
 
+  test "calculate remaining length for Publish struct when qos 0" do
+    id = :random.uniform(65_536)
+    topic = "nice topic"
+    publish_message = "a short message"
+    message = Message.publish(id, topic, publish_message, 0, 0, 1)
+    received = Encoder.calculate_remaining_length(message)
+    expected = 27
+
+    assert expected == received
+    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
+                                 Encoder.encode_payload(message))
+
+    assert encoded_length == received
+  end
+
   test "calculate remaining length for Subscribe struct" do
     id = :random.uniform(65_536)
     topics = ["hello","cool"]
@@ -336,6 +351,21 @@ defmodule Hulaaki.EncoderTest do
                                 qos: qos, retain: retain}
     received = Encoder.encode_variable_header(message)
     expected = <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+
+    assert expected == received
+  end
+
+  test "encodes variable header for Publish struct when qos 0" do
+    topic = "topic"
+    message = "message"
+    dup = 0
+    qos = 0
+    retain = 1
+    message = %Message.Publish{topic: topic,
+                                message: message, dup: dup,
+                                qos: qos, retain: retain}
+    received = Encoder.encode_variable_header(message)
+    expected = <<byte_size(topic)::size(16)>> <> topic
 
     assert expected == received
   end

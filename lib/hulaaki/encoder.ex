@@ -118,8 +118,10 @@ defmodule Hulaaki.Encoder do
       + username_length + password_length
   end
 
-  def calculate_remaining_length(%Message.Publish{topic: topic, message: message}) do
-    message_id_length = 2
+  def calculate_remaining_length(%Message.Publish{topic: topic,
+                                                  message: message,
+                                                  qos: qos}) do
+    message_id_length = (qos == 0) && 0 || 2
     topic_length_byte_length = 2
     message_length = byte_size(message)
     topic_length = byte_size(topic)
@@ -237,9 +239,13 @@ defmodule Hulaaki.Encoder do
     <<0::size(7), session_present::size(1), return_code::size(8)>>
   end
 
-  def encode_variable_header(%Message.Publish{id: id, topic: topic})
-    when id <= 65_536 do
-      <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+  def encode_variable_header(%Message.Publish{id: id, topic: topic, qos: qos})
+    when id <= 65_536
+    or id == nil do
+      case qos do
+        0 -> <<byte_size(topic)::size(16)>> <> topic
+        _ -> <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
+      end
   end
 
   def encode_variable_header(%Message.PubAck{id: id})
