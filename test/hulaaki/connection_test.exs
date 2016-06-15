@@ -11,8 +11,8 @@ defmodule Hulaaki.ConnectionTest do
 
     :random.seed(:os.timestamp)
     id = to_string :random.uniform(100_000)
-    [adjective] = adjectives |> Enum.shuffle |> Enum.take 1
-    [noun] = nouns |> Enum.shuffle |> Enum.take 1
+    [adjective] = adjectives |> Enum.shuffle |> Enum.take(1)
+    [noun] = nouns |> Enum.shuffle |> Enum.take(1)
 
     adjective <> "-" <> noun <> "-" <> id
   end

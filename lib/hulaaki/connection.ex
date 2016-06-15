@@ -111,9 +111,11 @@ defmodule Hulaaki.Connection do
   def handle_info({:tcp, socket, data}, state) do
     :inet.setopts(socket, active: :once)
     messages = decode_packets(data)
-    messages |> Enum.each fn(message) ->
-      Kernel.send state.client, {:received, message}
-    end
+    Enum.each(messages,
+      fn(message) ->
+        Kernel.send state.client, {:received, message}
+      end
+    )
     {:noreply, state}
   end
 
@@ -137,9 +139,9 @@ defmodule Hulaaki.Connection do
 
   defp open_tcp_socket(opts) do
     timeout  = 100
-    host     = opts |> Keyword.fetch! :host
+    host     = opts |> Keyword.fetch!(:host)
     host     = if is_binary(host), do: String.to_char_list(host), else: host
-    port     = opts |> Keyword.fetch! :port
+    port     = opts |> Keyword.fetch!(:port)
     tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 
     {:ok, socket} = :gen_tcp.connect(host, port, tcp_opts, timeout)
@@ -154,7 +156,7 @@ defmodule Hulaaki.Connection do
   defp dispatch_message(socket, message) do
     packet = Packet.encode(message)
     :inet.setopts(socket, active: :once)
-    socket |> :gen_tcp.send packet
+    socket |> :gen_tcp.send(packet)
   end
 
 end

@@ -77,12 +77,12 @@ defmodule Hulaaki.ClientTest do
 
   defp pre_connect(pid) do
     options = [client_id: "some-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
-    pid |> SampleClient.connect options
+    SampleClient.connect(pid, options)
   end
 
   defp post_disconnect(pid) do
-    pid |> SampleClient.disconnect
-    pid |> SampleClient.stop
+    SampleClient.disconnect(pid)
+    SampleClient.stop(pid)
   end
 
   test "on_connect callback on sending connect", %{client_pid: pid} do
@@ -104,10 +104,10 @@ defmodule Hulaaki.ClientTest do
   test "on_disconnect callback on sending disconnect", %{client_pid: pid} do
     pre_connect pid
 
-    pid |> SampleClient.disconnect
+    SampleClient.disconnect(pid)
     assert_receive {:disconnect, %Message.Disconnect{}}
 
-    pid |> SampleClient.stop
+    SampleClient.stop(pid)
   end
 
   test "on_publish callback on sending publish", %{client_pid: pid} do
@@ -115,7 +115,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [id: 9_347, topic: "nope", message: "a message",
                dup: 0, qos: 1, retain: 1]
-    pid |> SampleClient.publish options
+    SampleClient.publish(pid, options)
     assert_receive {:publish, %Message.Publish{}}
 
     post_disconnect pid
@@ -126,7 +126,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 0, retain: 1]
-    pid |> SampleClient.publish options
+    SampleClient.publish(pid, options)
     assert_receive {:publish, %Message.Publish{}}
 
     post_disconnect pid
@@ -137,7 +137,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [id: 9_347, topic: "nope", message: "a message",
                dup: 0, qos: 1, retain: 1]
-    pid |> SampleClient.publish options
+    SampleClient.publish(pid, options)
     assert_receive {:publish_ack, %Message.PubAck{}}
 
     post_disconnect pid
@@ -148,7 +148,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [id: 9_347, topic: "nope", message: "a message",
                dup: 0, qos: 2, retain: 1]
-    pid |> SampleClient.publish options
+    SampleClient.publish(pid, options)
     assert_receive {:publish_receive, %Message.PubRec{}}
 
     post_disconnect pid
@@ -159,7 +159,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [id: 9_347, topic: "nope", message: "a message",
                dup: 0, qos: 2, retain: 1]
-    pid |> SampleClient.publish options
+    SampleClient.publish(pid, options)
     assert_receive {:publish_release, %Message.PubRel{}}
 
     post_disconnect pid
@@ -170,7 +170,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [id: 9_347, topic: "nope", message: "a message",
                dup: 0, qos: 2, retain: 1]
-    pid |> SampleClient.publish options
+    SampleClient.publish(pid, options)
     assert_receive {:publish_complete, %Message.PubComp{}}
 
     post_disconnect pid
@@ -180,7 +180,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     options = [id: 24_756, topics: ["a/b", "c/d"], qoses: [0, 1]]
-    pid |> SampleClient.subscribe options
+    SampleClient.subscribe(pid, options)
     assert_receive {:subscribe, %Message.Subscribe{}}
 
     post_disconnect pid
@@ -190,7 +190,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     options = [id: 24_756, topics: ["a/b", "c/d"], qoses: [0, 1]]
-    pid |> SampleClient.subscribe options
+    SampleClient.subscribe(pid, options)
     assert_receive {:subscribe_ack, %Message.SubAck{}}
 
     post_disconnect pid
@@ -200,7 +200,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     options = [id: 12_385, topics: ["a/d", "c/f"]]
-    pid |> SampleClient.unsubscribe options
+    SampleClient.unsubscribe(pid, options)
     assert_receive {:unsubscribe, %Message.Unsubscribe{}}
 
     post_disconnect pid
@@ -210,7 +210,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     options = [id: 12_385, topics: ["a/d", "c/f"]]
-    pid |> SampleClient.unsubscribe options
+    SampleClient.unsubscribe(pid, options)
     assert_receive {:unsubscribe_ack, %Message.UnsubAck{}}
 
     post_disconnect pid
@@ -219,7 +219,7 @@ defmodule Hulaaki.ClientTest do
   test "on_ping callback on sending ping", %{client_pid: pid} do
     pre_connect pid
 
-    pid |> SampleClient.ping
+    SampleClient.ping(pid)
     assert_receive {:ping, %Message.PingReq{}}
 
     post_disconnect pid
@@ -228,7 +228,7 @@ defmodule Hulaaki.ClientTest do
   test "on_pong callback on receiving ping_resp", %{client_pid: pid} do
     pre_connect pid
 
-    pid |> SampleClient.ping
+    SampleClient.ping(pid)
     assert_receive {:pong, %Message.PingResp{}}
 
     post_disconnect pid
@@ -238,17 +238,17 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     options = [id: 24_756, topics: ["awesome"], qoses: [0]]
-    pid |> SampleClient.subscribe options
+    SampleClient.subscribe(pid, options)
 
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self})
 
       options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
-      pid2 |> SampleClient.connect options
+      SampleClient.connect(pid2, options)
 
       options = [id: 11_175, topic: "awesome", message: "a message",
                  dup: 0, qos: 0, retain: 1]
-      pid2 |> SampleClient.publish options
+      SampleClient.publish(pid2, options)
 
       post_disconnect pid2
     end
@@ -262,17 +262,17 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     options = [id: 24_756, topics: ["awesome"], qoses: [1]]
-    pid |> SampleClient.subscribe options
+    SampleClient.subscribe(pid, options)
 
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self})
 
       options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
-      pid2 |> SampleClient.connect options
+      SampleClient.connect(pid2, options)
 
       options = [id: 11_175, topic: "awesome", message: "a message",
                  dup: 0, qos: 1, retain: 1]
-      pid2 |> SampleClient.publish options
+      SampleClient.publish(pid2, options)
 
       post_disconnect pid2
     end

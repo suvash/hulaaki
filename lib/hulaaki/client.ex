@@ -55,18 +55,18 @@ defmodule Hulaaki.Client do
       # collection options for host port ?
 
       def handle_call({:connect, opts, conn_pid}, _from, state) do
-        host          = opts |> Keyword.fetch! :host
-        port          = opts |> Keyword.fetch! :port
+        host          = opts |> Keyword.fetch!(:host)
+        port          = opts |> Keyword.fetch!(:port)
 
-        client_id     = opts |> Keyword.fetch! :client_id
-        username      = opts |> Keyword.get :username, ""
-        password      = opts |> Keyword.get :password, ""
-        will_topic    = opts |> Keyword.get :will_topic, ""
-        will_message  = opts |> Keyword.get :will_message, ""
-        will_qos      = opts |> Keyword.get :will_qos, 0
-        will_retain   = opts |> Keyword.get :will_retain, 0
-        clean_session = opts |> Keyword.get :clean_session, 1
-        keep_alive    = opts |> Keyword.get :keep_alive, 100
+        client_id     = opts |> Keyword.fetch!(:client_id)
+        username      = opts |> Keyword.get(:username, "")
+        password      = opts |> Keyword.get(:password, "")
+        will_topic    = opts |> Keyword.get(:will_topic, "")
+        will_message  = opts |> Keyword.get(:will_message, "")
+        will_qos      = opts |> Keyword.get(:will_qos, 0)
+        will_retain   = opts |> Keyword.get(:will_retain, 0)
+        clean_session = opts |> Keyword.get(:clean_session, 1)
+        keep_alive    = opts |> Keyword.get(:keep_alive, 100)
 
         message = Message.connect(client_id, username, password,
                                   will_topic, will_message, will_qos,
@@ -75,48 +75,48 @@ defmodule Hulaaki.Client do
         state = Map.merge(%{connection: conn_pid}, state)
 
         connect_opts = [host: host, port: port]
-        :ok = state.connection |> Connection.connect message, connect_opts
+        :ok = state.connection |> Connection.connect(message, connect_opts)
         {:reply, :ok, state}
       end
 
       def handle_call({:publish, opts}, _from, state) do
-        topic  = opts |> Keyword.fetch! :topic
-        msg    = opts |> Keyword.fetch! :message
-        dup    = opts |> Keyword.fetch! :dup
-        qos    = opts |> Keyword.fetch! :qos
-        retain = opts |> Keyword.fetch! :retain
+        topic  = opts |> Keyword.fetch!(:topic)
+        msg    = opts |> Keyword.fetch!(:message)
+        dup    = opts |> Keyword.fetch!(:dup)
+        qos    = opts |> Keyword.fetch!(:qos)
+        retain = opts |> Keyword.fetch!(:retain)
 
         message =
           case qos do
             0 ->
               Message.publish(topic, msg, dup, qos, retain)
             _ ->
-              id = opts |> Keyword.fetch! :id
+              id = opts |> Keyword.fetch!(:id)
               Message.publish(id, topic, msg, dup, qos, retain)
           end
 
-        :ok = state.connection |> Connection.publish message
+        :ok = state.connection |> Connection.publish(message)
         {:reply, :ok, state}
       end
 
       def handle_call({:subscribe, opts}, _from, state) do
-        id     = opts |> Keyword.fetch! :id
-        topics = opts |> Keyword.fetch! :topics
-        qoses  = opts |> Keyword.fetch! :qoses
+        id     = opts |> Keyword.fetch!(:id)
+        topics = opts |> Keyword.fetch!(:topics)
+        qoses  = opts |> Keyword.fetch!(:qoses)
 
         message = Message.subscribe(id, topics, qoses)
 
-        :ok = state.connection |> Connection.subscribe message
+        :ok = state.connection |> Connection.subscribe(message)
         {:reply, :ok, state}
       end
 
       def handle_call({:unsubscribe, opts}, _from, state) do
-        id     = opts |> Keyword.fetch! :id
-        topics = opts |> Keyword.fetch! :topics
+        id     = opts |> Keyword.fetch!(:id)
+        topics = opts |> Keyword.fetch!(:topics)
 
         message = Message.unsubscribe(id, topics)
 
-        :ok = state.connection |> Connection.unsubscribe message
+        :ok = state.connection |> Connection.unsubscribe(message)
         {:reply, :ok, state}
       end
 
@@ -151,7 +151,7 @@ defmodule Hulaaki.Client do
         case qos do
           1 ->
             message = Message.publish_ack message.id
-            :ok = state.connection |> Connection.publish_ack message
+            :ok = state.connection |> Connection.publish_ack(message)
           _ ->
             # unsure about supporting qos 2 yet
         end
@@ -168,7 +168,7 @@ defmodule Hulaaki.Client do
         on_publish_receive [message: message, state: state]
 
         message = Message.publish_release message.id
-        :ok = state.connection |> Connection.publish_release message
+        :ok = state.connection |> Connection.publish_release(message)
 
         {:noreply, state}
       end
