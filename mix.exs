@@ -39,7 +39,7 @@ defmodule Hulaaki.Mixfile do
   end
 
   defp package do
-    [contributors: ["Suvash Thapaliya"],
+    [maintainers: ["Suvash Thapaliya"],
      licenses: ["MIT"],
      links: %{github: "https://github.com/suvash/hulaaki"}]
   end
