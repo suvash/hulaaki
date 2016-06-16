@@ -7,7 +7,7 @@ defmodule Hulaaki.Mixfile do
     [app: :hulaaki,
      version: @version,
      name: "Hulaaki",
-     elixir: "~> 1.0",
+     elixir: "~> 1.2",
      source_url: "https://github.com/suvash/hulaaki",
      homepage_url: "https://github.com/suvash/hulaaki",
      deps: deps,
