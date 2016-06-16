@@ -11,8 +11,8 @@ defmodule Hulaaki.ConnectionTest do
 
     :random.seed(:os.timestamp)
     id = to_string :random.uniform(100_000)
-    [adjective] = adjectives |> Enum.shuffle |> Enum.take 1
-    [noun] = nouns |> Enum.shuffle |> Enum.take 1
+    [adjective] = adjectives |> Enum.shuffle |> Enum.take(1)
+    [noun] = nouns |> Enum.shuffle |> Enum.take(1)
 
     adjective <> "-" <> noun <> "-" <> id
   end
@@ -24,7 +24,7 @@ defmodule Hulaaki.ConnectionTest do
 
   defp pre_connect(pid) do
     message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
-    Connection.connect(pid, message, [host: 'localhost', port: 1883])
+    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port])
   end
 
   defp post_disconnect(pid) do
