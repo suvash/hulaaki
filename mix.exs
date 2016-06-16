@@ -40,13 +40,13 @@ defmodule Hulaaki.Mixfile do
 
   defp package do
     [maintainers: ["Suvash Thapaliya"],
+     files: ["lib", "mix.exs", "README.md", "LICENSE.txt"],
      licenses: ["MIT"],
-     links: %{github: "https://github.com/suvash/hulaaki"}]
+     links: %{Github: "https://github.com/suvash/hulaaki"}]
   end
 
   defp docs do
-    {ref, 0} = System.cmd("git", ["rev-parse", "--verify", "--quiet", "HEAD"])
-    [readme: "README.md", main: "README",
-     source_ref: ref, source_url: "https://github.com/suvash/hulaaki"]
+    [source_ref: "v#{@version}", main: "readme", readme: "readme.md",
+     source_url: "https://github.com/suvash/hulaaki"]
   end
 end
