@@ -10,4 +10,8 @@ defmodule TestConfig do
     {port, _} = ( System.get_env("MQTT_PORT") || "1883" ) |> Integer.parse
     port
   end
+
+  def mqtt_timeout do
+    500
+  end
 end
