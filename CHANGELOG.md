@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Added CHANGELOG.md
 
+### Updated
+- Parameterize `timeout` for mqtt TCP connection, so it's not hardcoded
+
 ## [0.0.3] - 2016-06-16
 ### Added
 - Add Docker support for development environment.
