@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [0.0.4] - 2016-07-24
 ### Added
 - Added CHANGELOG.md
 
@@ -34,7 +36,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - First version of the project made public
 
-[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/suvash/hulaaki/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/suvash/hulaaki/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/suvash/hulaaki/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/suvash/hulaaki/compare/078ccb7569ff97bb36a78faf43e048ae24478453...v0.0.1
