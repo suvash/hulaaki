@@ -138,7 +138,7 @@ defmodule Hulaaki.Connection do
   end
 
   defp open_tcp_socket(opts) do
-    timeout  = 100
+    timeout  = opts |> Keyword.fetch!(:timeout)
     host     = opts |> Keyword.fetch!(:host)
     host     = if is_binary(host), do: String.to_char_list(host), else: host
     port     = opts |> Keyword.fetch!(:port)

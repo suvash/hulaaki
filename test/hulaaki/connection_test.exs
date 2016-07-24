@@ -24,7 +24,7 @@ defmodule Hulaaki.ConnectionTest do
 
   defp pre_connect(pid) do
     message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
-    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port])
+    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: TestConfig.mqtt_timeout])
   end
 
   defp post_disconnect(pid) do

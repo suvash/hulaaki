@@ -57,6 +57,7 @@ defmodule Hulaaki.Client do
       def handle_call({:connect, opts, conn_pid}, _from, state) do
         host          = opts |> Keyword.fetch!(:host)
         port          = opts |> Keyword.fetch!(:port)
+        timeout       = opts |> Keyword.get(:timeout, 100)
 
         client_id     = opts |> Keyword.fetch!(:client_id)
         username      = opts |> Keyword.get(:username, "")
@@ -74,7 +75,7 @@ defmodule Hulaaki.Client do
 
         state = Map.merge(%{connection: conn_pid}, state)
 
-        connect_opts = [host: host, port: port]
+        connect_opts = [host: host, port: port, timeout: timeout]
         :ok = state.connection |> Connection.connect(message, connect_opts)
         {:reply, :ok, state}
       end
