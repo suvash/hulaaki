@@ -83,6 +83,7 @@ defmodule Hulaaki.Connection do
 
   @doc false
   def init(state) do
+    state = state |> Map.put(:remainder, "")
     {:ok, state}
   end
 
@@ -133,12 +134,14 @@ defmodule Hulaaki.Connection do
 
   defp handle_socket_data(socket, data, state) do
     set_active_once(socket, state.transport)
-    messages = decode_packets(data)
+    {messages, remainder} = decode_packets(state.remainder <> data)
+
     Enum.each(messages,
       fn(message) ->
         Kernel.send state.client, {:received, message}
       end
     )
+    state = %{state | remainder: remainder}
     {:noreply, state}
   end
 
@@ -149,9 +152,10 @@ defmodule Hulaaki.Connection do
   defp decode_packets(data, accumulator) do
     %{message: message, remainder: remainder} = Packet.decode(data)
 
-    case remainder do
-      "" -> Enum.reverse [ message | accumulator ]
-      _  -> decode_packets(remainder, [ message | accumulator ])
+    case {message, remainder} do
+      {nil, _} -> {Enum.reverse(accumulator), remainder}
+      {_, ""} -> {Enum.reverse([message | accumulator]), ""}
+      _ -> decode_packets(remainder, [message | accumulator])
     end
   end
 
