@@ -2,8 +2,6 @@ defmodule Hulaaki.ClientTest do
   use ExUnit.Case
   alias Hulaaki.Message
 
-  @keep_alive 1
-
   defmodule SampleClient do
     use Hulaaki.Client
 
@@ -78,7 +76,7 @@ defmodule Hulaaki.ClientTest do
   end
 
   defp pre_connect(pid) do
-    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200, keep_alive: @keep_alive]
+    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200]
     SampleClient.connect(pid, options)
   end
 
