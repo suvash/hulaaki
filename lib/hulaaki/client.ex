@@ -47,7 +47,7 @@ defmodule Hulaaki.Client do
       def init(%{} = state) do
         state = 
           state
-          |> Map.put(:keep_alive, nil)
+          |> Map.put(:keep_alive_interval, nil)
           |> Map.put(:keep_alive_ref, nil)
         {:ok, state}
       end
@@ -81,7 +81,7 @@ defmodule Hulaaki.Client do
 
         connect_opts = [host: host, port: port, timeout: timeout]
         :ok = state.connection |> Connection.connect(message, connect_opts)
-        {:reply, :ok, %{state | keep_alive: keep_alive}}
+        {:reply, :ok, %{state | keep_alive_interval: keep_alive * 1000}}
       end
 
       def handle_call({:publish, opts}, _from, state) do
@@ -243,12 +243,12 @@ defmodule Hulaaki.Client do
       end 
 
       ## Private functions
-      defp update_keep_alive_timer(%{keep_alive: keep_alive, keep_alive_ref: keep_alive_ref} = state) do 
+      defp update_keep_alive_timer(%{keep_alive_interval: keep_alive_interval, keep_alive_ref: keep_alive_ref} = state) do 
         if keep_alive_ref do 
           Process.cancel_timer(keep_alive_ref)
         end
 
-        keep_alive_ref = Process.send_after(self, {:keep_alive}, keep_alive * 1000)
+        keep_alive_ref = Process.send_after(self, {:keep_alive}, keep_alive_interval)
         %{state | keep_alive_ref: keep_alive_ref}
       end       
 
