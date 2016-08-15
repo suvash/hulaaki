@@ -9,7 +9,7 @@ defmodule Hulaaki.DecoderTest do
     received = Decoder.decode_remaining_length(<<193, 2>>)
     assert expected == received
 
-    expected = {:error, {0, ""}}
+    expected = {:ok, {0, ""}}
     received = Decoder.decode_remaining_length(<<0>>)
     assert expected == received
 
