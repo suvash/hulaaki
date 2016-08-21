@@ -83,6 +83,10 @@ Pull requests with appropriate tests and improvements are welcome.
 Mosquitto is currently used by the author to test the library. Please
 take a look at the Makefile to run tests.
 
+## Changelog
+
+Please check the [CHANGELOG.md](https://github.com/suvash/hulaaki/blob/master/CHANGELOG.md).
+
 ## Naming
 
 Hulaaki(pronouced as who-laa-key) is the phonetic spelling of the word

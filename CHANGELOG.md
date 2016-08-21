@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Added link to CHANGELOG in the README
 
 ## [0.0.4] - 2016-07-24
 ### Added
