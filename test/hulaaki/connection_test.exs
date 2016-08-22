@@ -134,7 +134,7 @@ defmodule Hulaaki.ConnectionTest do
     {:ok, pid1} = Connection.start_link(self)
     pre_connect(pid1)
 
-    id = :random.uniform(65_536)
+    id = :random.uniform(65_535)
     topics = ["qos0"]
     qoses =  [0]
     message = Message.subscribe(id, topics, qoses)
@@ -167,7 +167,7 @@ defmodule Hulaaki.ConnectionTest do
     {:ok, pid1} = Connection.start_link(self)
     pre_connect(pid1)
 
-    id = :random.uniform(65_536)
+    id = :random.uniform(65_535)
     topics = ["qos1"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
@@ -178,7 +178,7 @@ defmodule Hulaaki.ConnectionTest do
       {:ok, pid2} = Connection.start_link(self)
       pre_connect(pid2)
 
-      id = :random.uniform(65_536)
+      id = :random.uniform(65_535)
       topic = "qos1"
       message = "you better get this message on qos 1"
       dup = 0
@@ -201,7 +201,7 @@ defmodule Hulaaki.ConnectionTest do
     {:ok, pid1} = Connection.start_link(self)
     pre_connect(pid1)
 
-    id = :random.uniform(65_536)
+    id = :random.uniform(65_535)
     topics = ["qos1"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
@@ -212,7 +212,7 @@ defmodule Hulaaki.ConnectionTest do
       {:ok, pid2} = Connection.start_link(self)
       pre_connect(pid2)
 
-      id = :random.uniform(65_536)
+      id = :random.uniform(65_535)
       topic = "qos1"
       message = "you better get this message on qos 1"
       dup = 0

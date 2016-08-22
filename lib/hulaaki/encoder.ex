@@ -240,7 +240,7 @@ defmodule Hulaaki.Encoder do
   end
 
   def encode_variable_header(%Message.Publish{id: id, topic: topic, qos: qos})
-    when id <= 65_536
+    when id <= 65_535
     or id == nil do
       case qos do
         0 -> <<byte_size(topic)::size(16)>> <> topic
@@ -249,42 +249,42 @@ defmodule Hulaaki.Encoder do
   end
 
   def encode_variable_header(%Message.PubAck{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.PubRec{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.PubRel{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.PubComp{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.Subscribe{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.SubAck{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.Unsubscribe{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
       <<id::size(16)>>
   end
 
   def encode_variable_header(%Message.UnsubAck{id: id})
-    when id <= 65_536 do
+    when id <= 65_535 do
     <<id::size(16)>>
   end
 

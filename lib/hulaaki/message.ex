@@ -98,7 +98,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki Publish
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
       * `topic`     : A string(binary) representing the topic.
       * `message`   : A string(binary) representing the message.
       * `dup`       : An integer of value either 0,1 representing the dup bit.
@@ -123,7 +123,7 @@ defmodule Hulaaki.Message do
   def publish(packet_id, topic, message, dup, qos, retain)
     when is_integer(packet_id)
     and packet_id > 0
-    and packet_id <= 65_536
+    and packet_id <= 65_535
     and is_binary(topic)
     and is_binary(message)
     and (dup == 0 or dup == 1)
@@ -157,7 +157,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki PubAck
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
@@ -170,7 +170,7 @@ defmodule Hulaaki.Message do
   def publish_ack(packet_id)
     when is_integer(packet_id)
     and packet_id > 0
-    and packet_id <= 65_536 do
+    and packet_id <= 65_535 do
 
       %PubAck{id: packet_id}
   end
@@ -180,7 +180,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki PubRec
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
@@ -202,7 +202,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki PubRel
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
@@ -215,7 +215,7 @@ defmodule Hulaaki.Message do
   def publish_release(packet_id)
     when is_integer(packet_id)
     and packet_id > 0
-    and packet_id <= 65_536 do
+    and packet_id <= 65_535 do
 
       %PubRel{id: packet_id}
   end
@@ -225,7 +225,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki PubComp
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
@@ -238,7 +238,7 @@ defmodule Hulaaki.Message do
   def publish_complete(packet_id)
     when is_integer(packet_id)
     and packet_id > 0
-    and packet_id <= 65_536 do
+    and packet_id <= 65_535 do
 
       %PubComp{id: packet_id}
   end
@@ -248,7 +248,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki Subscribe
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
       * `topics`          : A list of string(binary) representing various topics.
       * `requested_qoses` : A list of integer of value 0,1,2 representing qoses.
     """
@@ -267,7 +267,7 @@ defmodule Hulaaki.Message do
   def subscribe(packet_id, topics, requested_qoses)
     when is_integer(packet_id)
     and packet_id > 0
-    and packet_id <= 65_536
+    and packet_id <= 65_535
     and is_list(topics)
     and is_list(requested_qoses)
     and length(requested_qoses) == length(topics) do
@@ -284,7 +284,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki SubAck
 
     ## Fields
-      * `packet_id`     : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id`     : An integer of value upto 65535 (2 bytes) representing packet identifier
       * `granted_qoses` : A list of integer of value 0,1,2,128 representing qoses.
     """
 
@@ -301,7 +301,7 @@ defmodule Hulaaki.Message do
   def subscribe_ack(packet_id, granted_qoses)
     when is_integer(packet_id)
     and packet_id > 0
-    and packet_id <= 65_536
+    and packet_id <= 65_535
     and is_list(granted_qoses) do
 
       valid_qos? = fn(x) -> (x == 0 or x == 1 or x == 2 or x == 128) end
@@ -315,7 +315,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki Unsubscribe
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
       * `topics`    : A list of string(binary) representing various topics.
     """
 
@@ -340,7 +340,7 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki UnsubAck
 
     ## Fields
-      * `packet_id` : An integer of value upto 65536 (2 bytes) representing packet identifier
+      * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
     @type t :: %__MODULE__{id: non_neg_integer, type: atom}
