@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Added link to CHANGELOG in the README
 
+### Fixed
+- Replaces all occurences of 65_536 to 65_535 (max limit for 2 bytes)
+
 ## [0.0.4] - 2016-07-24
 ### Added
 - Added CHANGELOG.md
