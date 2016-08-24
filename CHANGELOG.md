@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Added link to CHANGELOG in the README
+- Add instructions on using Makefile for running tests.
 
 ### Fixed
 - Replaces all occurences of 65_536 to 65_535 (max limit for 2 bytes)

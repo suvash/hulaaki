@@ -80,8 +80,37 @@ documentation for now. This shall be improved over time.
 ## Contributing
 
 Pull requests with appropriate tests and improvements are welcome.
-Mosquitto is currently used by the author to test the library. Please
-take a look at the Makefile to run tests.
+Mosquitto is currently used by the author to test the library.
+
+### Running the tests
+
+If you already have Elixir runtime and a MQTT broker running (on
+standard ports), you should just be able to run `mix test` as you
+would do on other mix projects.
+
+As prefered by the author, you can also use the provided Makefile to
+run the tests. The only dependency required is Docker on your machine.
+```
+# Make sure you have Docker running on your machine
+
+# Start the MQTT Server
+$ make mqtt-server-start
+
+# Run the tests
+$ make test
+
+# Stop the MQTT server after all is over
+$ make mqtt-server-stop
+
+# Cleanup Docker images when all is done
+# make clean
+
+# To cleanup everything, it helps if you understand how to use Docker a bit.
+# If not familiar and you want to stop and remove everything Docker related:
+$ docker stop $(docker ps -aq)
+$ docker rm $(docker ps -aq)
+$ docker rmi $(docker images -aq)
+```
 
 ## Changelog
 
