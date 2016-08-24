@@ -45,6 +45,10 @@ defmodule Hulaaki.Client do
       ## GenServer callbacks
 
       def init(%{} = state) do
+        state = 
+          state
+          |> Map.put(:keep_alive_interval, nil)
+          |> Map.put(:keep_alive_ref, nil)
         {:ok, state}
       end
 
@@ -77,7 +81,7 @@ defmodule Hulaaki.Client do
 
         connect_opts = [host: host, port: port, timeout: timeout]
         :ok = state.connection |> Connection.connect(message, connect_opts)
-        {:reply, :ok, state}
+        {:reply, :ok, %{state | keep_alive_interval: keep_alive * 1000}}
       end
 
       def handle_call({:publish, opts}, _from, state) do
@@ -132,16 +136,19 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Connect{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_connect [message: message, state: state]
         {:noreply, state}
       end
 
       def handle_info({:received, %Message.ConnAck{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_connect_ack [message: message, state: state]
         {:noreply, state}
       end
 
       def handle_info({:sent, %Message.Publish{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_publish [message: message, state: state]
         {:noreply, state}
       end
@@ -161,6 +168,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.PubAck{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_subscribed_publish_ack [message: message, state: state]
         {:noreply, state}
       end
@@ -175,6 +183,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.PubRel{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_publish_release [message: message, state: state]
         {:noreply, state}
       end
@@ -190,6 +199,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Subscribe{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_subscribe [message: message, state: state]
         {:noreply, state}
       end
@@ -200,6 +210,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Unsubscribe{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_unsubscribe [message: message, state: state]
         {:noreply, state}
       end
@@ -210,6 +221,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.PingReq{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_ping [message: message, state: state]
         {:noreply, state}
       end
@@ -220,9 +232,25 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Disconnect{} = message}, state) do
+        state = update_keep_alive_timer(state)
         on_disconnect [message: message, state: state]
         {:noreply, state}
       end
+
+      def handle_info({:keep_alive}, state) do
+        :ok = state.connection |> Connection.ping
+        {:noreply, state}
+      end 
+
+      ## Private functions
+      defp update_keep_alive_timer(%{keep_alive_interval: keep_alive_interval, keep_alive_ref: keep_alive_ref} = state) do 
+        if keep_alive_ref do 
+          Process.cancel_timer(keep_alive_ref)
+        end
+
+        keep_alive_ref = Process.send_after(self, {:keep_alive}, keep_alive_interval)
+        %{state | keep_alive_ref: keep_alive_ref}
+      end       
 
       ## Overrideable callbacks
 
