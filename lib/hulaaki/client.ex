@@ -45,10 +45,7 @@ defmodule Hulaaki.Client do
       ## GenServer callbacks
 
       def init(%{} = state) do
-        state =
-          state 
-          |> Map.put(:pub_id, 1)
-          |> Map.put(:sub_id, 1)
+        state = Map.put(state, :packet_id, 1)
         {:ok, state}
       end
 
@@ -96,8 +93,8 @@ defmodule Hulaaki.Client do
             0 ->
               {Message.publish(topic, msg, dup, qos, retain), state}
             _ ->
-              id = state.pub_id
-              state = update_pub_id(state)
+              id = state.packet_id
+              state = update_packet_id(state)
               {Message.publish(id, topic, msg, dup, qos, retain), state}
           end
 
@@ -106,25 +103,25 @@ defmodule Hulaaki.Client do
       end
 
       def handle_call({:subscribe, opts}, _from, state) do
-        id     = state.sub_id
+        id     = state.packet_id
         topics = opts |> Keyword.fetch!(:topics)
         qoses  = opts |> Keyword.fetch!(:qoses)
 
         message = Message.subscribe(id, topics, qoses)
 
         :ok = state.connection |> Connection.subscribe(message)
-        state = update_sub_id(state)
+        state = update_packet_id(state)
         {:reply, :ok, state}
       end
 
       def handle_call({:unsubscribe, opts}, _from, state) do
-        id     = state.sub_id
+        id     = state.packet_id
         topics = opts |> Keyword.fetch!(:topics)
 
         message = Message.unsubscribe(id, topics)
 
         :ok = state.connection |> Connection.unsubscribe(message)
-        state = update_sub_id(state)
+        state = update_packet_id(state)
         {:reply, :ok, state}
       end
 
@@ -232,18 +229,11 @@ defmodule Hulaaki.Client do
       end
 
       ## Private functions
-      defp update_pub_id(%{pub_id: 65_535} = state) do
-        %{state | pub_id: 1}
+      defp update_packet_id(%{packet_id: 65_535} = state) do
+        %{state | packet_id: 1}
       end 
-      defp update_pub_id(%{pub_id: pub_id} = state) do
-        %{state | pub_id: (pub_id + 1)}
-      end 
-
-      defp update_sub_id(%{sub_id: 65_535} = state) do
-        %{state | sub_id: 1}
-      end 
-      defp update_sub_id(%{sub_id: sub_id} = state) do
-        %{state | sub_id: (sub_id + 1)}
+      defp update_packet_id(%{packet_id: packet_id} = state) do
+        %{state | packet_id: (packet_id + 1)}
       end 
 
       ## Overrideable callbacks
