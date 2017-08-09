@@ -85,6 +85,14 @@ defmodule Hulaaki.ClientTest do
     SampleClient.stop(pid)
   end
 
+  test "error message when sending connect on connection failure", %{client_pid: pid} do
+    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: 7878, timeout: 200]
+
+    reply = SampleClient.connect(pid, options)
+
+    assert {:error, :econnrefused} == reply
+  end
+
   test "on_connect callback on sending connect", %{client_pid: pid} do
     pre_connect pid
 
