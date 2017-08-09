@@ -32,6 +32,14 @@ defmodule Hulaaki.ConnectionTest do
     Connection.stop(pid)
   end
 
+  test "failed tcp connection returns an error tuple", %{connection_pid: pid} do
+    message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
+
+    reply = Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: 7878, timeout: TestConfig.mqtt_timeout])
+
+    assert {:error, :econnrefused} == reply
+  end
+
   test "connect receives ConnAck", %{connection_pid: pid} do
     pre_connect(pid)
 
