@@ -84,7 +84,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a publish message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topic = "nice_topic"
     message = " a short message"
     dup = 0
@@ -104,7 +104,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a publish message when qos 0" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topic = "nice_topic"
     message = " a short message"
     dup = 0
@@ -124,7 +124,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a publish ack message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = Message.publish_ack(id)
 
     encoded_bytes = Packet.encode message
@@ -139,7 +139,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a publish receive message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = Message.publish_receive(id)
 
     encoded_bytes = Packet.encode message
@@ -154,7 +154,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a publish release message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = Message.publish_release(id)
 
     encoded_bytes = Packet.encode message
@@ -169,7 +169,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a publish complete message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = Message.publish_complete(id)
 
     encoded_bytes = Packet.encode message
@@ -184,7 +184,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a subscribe message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topics = ["hello","cool"]
     qoses = [0, 1 ]
     message = Message.subscribe(id, topics, qoses)
@@ -201,7 +201,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a subscribe ack message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     qoses = [0, 1, 2, 128]
     message = Message.subscribe_ack(id, qoses)
 
@@ -217,7 +217,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a unsubscribe message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topics = ["hello","cool"]
     message = Message.unsubscribe(id, topics)
 
@@ -233,7 +233,7 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a unsubscribe ack message" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = Message.unsubscribe_ack(id)
 
     encoded_bytes = Packet.encode message

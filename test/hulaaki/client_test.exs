@@ -249,7 +249,7 @@ defmodule Hulaaki.ClientTest do
     SampleClient.subscribe(pid, options)
 
     spawn fn ->
-      {:ok, pid2} = SampleClient.start_link(%{parent: self})
+      {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
       SampleClient.connect(pid2, options)
@@ -273,7 +273,7 @@ defmodule Hulaaki.ClientTest do
     SampleClient.subscribe(pid, options)
 
     spawn fn ->
-      {:ok, pid2} = SampleClient.start_link(%{parent: self})
+      {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
       SampleClient.connect(pid2, options)

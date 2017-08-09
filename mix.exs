@@ -7,14 +7,14 @@ defmodule Hulaaki.Mixfile do
     [app: :hulaaki,
      version: @version,
      name: "Hulaaki",
-     elixir: "~> 1.2",
+     elixir: "~> 1.3",
      source_url: "https://github.com/suvash/hulaaki",
      homepage_url: "https://github.com/suvash/hulaaki",
-     deps: deps,
+     deps: deps(),
      docs: &docs/0,
 
-     description: description,
-     package: package,
+     description: description(),
+     package: package(),
 
      test_coverage: [tool: ExCoveralls]
     ]
@@ -25,11 +25,11 @@ defmodule Hulaaki.Mixfile do
   end
 
   defp deps do
-    [{:inch_ex, "~> 0.5.3", only: :docs},
-     {:earmark, "~> 0.2.1", only: [:dev, :docs]},
-     {:ex_doc, "~> 0.12", only: [:dev, :docs]},
+    [{:inch_ex, "~> 0.5.6", only: :docs},
+     {:earmark, "~> 1.2.3", only: [:dev, :docs]},
+     {:ex_doc, "~> 0.16.2", only: [:dev, :docs]},
      {:dialyze, "~> 0.2.1", only: :test},
-     {:excoveralls, "~> 0.5.4", only: [:dev, :test]}]
+     {:excoveralls, "~> 0.7.2", only: [:dev, :test]}]
   end
 
   defp description do
