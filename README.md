@@ -73,10 +73,6 @@ and test strategy.
 Please refer to the inline documentation and tests to explore the
 documentation for now. This shall be improved over time.
 
-## Immediate TODOs
-* Ping and Ping Response based heartbeat in Client based on the keep alive timeout.
-* .....
-
 ## Contributing
 
 Pull requests with appropriate tests and improvements are welcome.
