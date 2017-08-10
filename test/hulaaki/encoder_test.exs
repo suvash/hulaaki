@@ -93,7 +93,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes fixed header for Subscribe struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.Subscribe{id: id,
                                   topics: ["hello", "cool"],
                                   requested_qoses: [0, 1, 2]}
@@ -104,7 +104,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes fixed header for SubAck struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.SubAck{id: id, granted_qoses: [0, 1, 2, 128]}
     received = Encoder.encode_fixed_header(message)
     expected = <<9::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<6>>
@@ -113,7 +113,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes fixed header for Unsubscribe struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Encoder.encode_fixed_header(message)
     expected = <<10::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<15>>
@@ -184,7 +184,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "calculate remaining length for Publish struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topic = "nice topic"
     publish_message = "a short message"
     message = Message.publish(id, topic, publish_message, 0, 2, 1)
@@ -199,7 +199,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "calculate remaining length for Publish struct when qos 0" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topic = "nice topic"
     publish_message = "a short message"
     message = Message.publish(id, topic, publish_message, 0, 0, 1)
@@ -214,7 +214,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "calculate remaining length for Subscribe struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topics = ["hello","cool"]
     qoses = [0, 2]
     message = Message.subscribe(id, topics, qoses)
@@ -229,7 +229,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "calculate remaining length for SubAck struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     qoses = [0, 1, 2, 128]
     message = Message.subscribe_ack(id, qoses)
     received = Encoder.calculate_remaining_length(message)
@@ -340,7 +340,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for Publish struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topic = "topic"
     message = "message"
     dup = 0
@@ -371,7 +371,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for PubAck struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.PubAck{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -380,7 +380,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for PubRec struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.PubRec{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -389,7 +389,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for PubRel struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.PubRel{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -398,7 +398,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for PubComp struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.PubComp{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -407,7 +407,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for Subscribe struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.Subscribe{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -416,7 +416,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for SubAck struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.SubAck{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -425,7 +425,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for Unsubscribe struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.Unsubscribe{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>
@@ -434,7 +434,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes variable header for UnsubAck struct" do
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     message = %Message.UnsubAck{id: id}
     received = Encoder.encode_variable_header(message)
     expected = <<id::size(16)>>

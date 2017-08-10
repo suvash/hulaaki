@@ -9,8 +9,7 @@ defmodule Hulaaki.ConnectionTest do
     adjectives = [ "lazy", "funny", "bright", "boring", "crazy", "lonely" ]
     nouns = [ "thermometer", "switch", "scale", "bulb", "heater", "microwave" ]
 
-    :random.seed(:os.timestamp)
-    id = to_string :random.uniform(100_000)
+    id = to_string :rand.uniform(100_000)
     [adjective] = adjectives |> Enum.shuffle |> Enum.take(1)
     [noun] = nouns |> Enum.shuffle |> Enum.take(1)
 
@@ -18,12 +17,12 @@ defmodule Hulaaki.ConnectionTest do
   end
 
   setup do
-    {:ok, pid} = Connection.start_link(self)
+    {:ok, pid} = Connection.start_link(self())
     {:ok, connection_pid: pid}
   end
 
   defp pre_connect(pid) do
-    message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
+    message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
     Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: TestConfig.mqtt_timeout])
   end
 
@@ -33,7 +32,7 @@ defmodule Hulaaki.ConnectionTest do
   end
 
   test "failed tcp connection returns an error tuple", %{connection_pid: pid} do
-    message = Message.connect(client_name, "", "", "", "", 0, 0, 0, 100)
+    message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
     reply = Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: 7878, timeout: TestConfig.mqtt_timeout])
 
@@ -139,10 +138,10 @@ defmodule Hulaaki.ConnectionTest do
   end
 
   test "receive messages published to a topic on qos 0 it has subscribed to" do
-    {:ok, pid1} = Connection.start_link(self)
+    {:ok, pid1} = Connection.start_link(self())
     pre_connect(pid1)
 
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topics = ["qos0"]
     qoses =  [0]
     message = Message.subscribe(id, topics, qoses)
@@ -150,7 +149,7 @@ defmodule Hulaaki.ConnectionTest do
     Connection.subscribe(pid1, message)
 
     spawn fn ->
-      {:ok, pid2} = Connection.start_link(self)
+      {:ok, pid2} = Connection.start_link(self())
       pre_connect(pid2)
 
       topic = "qos0"
@@ -172,10 +171,10 @@ defmodule Hulaaki.ConnectionTest do
   end
 
   test "receive messages published to a topic it has subscribed to on qos 1" do
-    {:ok, pid1} = Connection.start_link(self)
+    {:ok, pid1} = Connection.start_link(self())
     pre_connect(pid1)
 
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topics = ["qos1"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
@@ -183,10 +182,10 @@ defmodule Hulaaki.ConnectionTest do
     Connection.subscribe(pid1, message)
 
     spawn fn ->
-      {:ok, pid2} = Connection.start_link(self)
+      {:ok, pid2} = Connection.start_link(self())
       pre_connect(pid2)
 
-      id = :random.uniform(65_535)
+      id = :rand.uniform(65_535)
       topic = "qos1"
       message = "you better get this message on qos 1"
       dup = 0
@@ -206,10 +205,10 @@ defmodule Hulaaki.ConnectionTest do
   end
 
   test "send publish ack after receiving publish messages published to a topic it has subscribed to on qos 1" do
-    {:ok, pid1} = Connection.start_link(self)
+    {:ok, pid1} = Connection.start_link(self())
     pre_connect(pid1)
 
-    id = :random.uniform(65_535)
+    id = :rand.uniform(65_535)
     topics = ["qos1"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
@@ -217,10 +216,10 @@ defmodule Hulaaki.ConnectionTest do
     Connection.subscribe(pid1, message)
 
     spawn fn ->
-      {:ok, pid2} = Connection.start_link(self)
+      {:ok, pid2} = Connection.start_link(self())
       pre_connect(pid2)
 
-      id = :random.uniform(65_535)
+      id = :rand.uniform(65_535)
       topic = "qos1"
       message = "you better get this message on qos 1"
       dup = 0
