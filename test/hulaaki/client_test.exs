@@ -242,6 +242,19 @@ defmodule Hulaaki.ClientTest do
     post_disconnect pid
   end
 
+  test "receives ping (and hence ping_response) after keep_alive timeout on idle connection" do
+    {:ok, pid} = SampleClient.start_link(%{parent: self()})
+
+    options = [client_id: "some-name-6379", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port,
+               keep_alive: 2, timeout: 200]
+    SampleClient.connect(pid, options)
+
+    assert_receive({:ping, %Message.PingReq{}}, 4_000)
+    assert_receive({:ping_response, %Message.PingResp{}}, 4_000)
+
+    post_disconnect pid
+  end
+
   test "on_subscribed_publish callback on receiving publish on subscribed topic", %{client_pid: pid} do
     pre_connect pid
 
