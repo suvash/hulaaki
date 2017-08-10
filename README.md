@@ -56,7 +56,7 @@ $ iex -S mix
 
 > {:ok, pid} = SampleClient.start_link(%{})
 
-> options = [client_id: "some-name", host: "localhost", port: 1883]
+> options = [client_id: "some-name-7490", host: "localhost", port: 1883]
 
 > SampleClient.connect(pid, options)
 

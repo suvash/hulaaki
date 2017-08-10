@@ -76,7 +76,8 @@ defmodule Hulaaki.ClientTest do
   end
 
   defp pre_connect(pid) do
-    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200]
+    options = [client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
+               host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200]
     SampleClient.connect(pid, options)
   end
 
@@ -86,7 +87,7 @@ defmodule Hulaaki.ClientTest do
   end
 
   test "error message when sending connect on connection failure", %{client_pid: pid} do
-    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: 7878, timeout: 200]
+    options = [client_id: "some-name-1974", host: TestConfig.mqtt_host, port: 7878, timeout: 200]
 
     reply = SampleClient.connect(pid, options)
 
@@ -264,7 +265,7 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      options = [client_id: "another-name-7592", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
       SampleClient.connect(pid2, options)
 
       options = [id: 11_175, topic: "awesome", message: "a message",
@@ -288,7 +289,7 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      options = [client_id: "another-name-8234", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
       SampleClient.connect(pid2, options)
 
       options = [id: 11_175, topic: "awesome", message: "a message",
