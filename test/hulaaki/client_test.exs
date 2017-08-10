@@ -61,8 +61,8 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:ping, message}
     end
 
-    def on_pong(message: message, state: state) do
-      Kernel.send state.parent, {:pong, message}
+    def on_ping_response(message: message, state: state) do
+      Kernel.send state.parent, {:ping_response, message}
     end
 
     def on_disconnect(message: message, state: state) do
@@ -233,11 +233,11 @@ defmodule Hulaaki.ClientTest do
     post_disconnect pid
   end
 
-  test "on_pong callback on receiving ping_resp", %{client_pid: pid} do
+  test "on_ping_response callback on receiving ping_resp", %{client_pid: pid} do
     pre_connect pid
 
     SampleClient.ping(pid)
-    assert_receive {:pong, %Message.PingResp{}}
+    assert_receive {:ping_response, %Message.PingResp{}}
 
     post_disconnect pid
   end

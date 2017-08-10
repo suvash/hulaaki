@@ -229,7 +229,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:received, %Message.PingResp{} = message}, state) do
-        on_pong [message: message, state: state]
+        on_ping_response [message: message, state: state]
         {:noreply, state}
       end
 
@@ -270,7 +270,7 @@ defmodule Hulaaki.Client do
       def on_subscribed_publish([message: message, state: state]), do: true
       def on_subscribed_publish_ack([message: message, state: state]), do: true
       def on_ping([message: message, state: state]), do: true
-      def on_pong([message: message, state: state]), do: true
+      def on_ping_response([message: message, state: state]), do: true
       def on_disconnect([message: message, state: state]), do: true
 
       defoverridable [on_connect: 1, on_connect_ack: 1,
@@ -280,7 +280,7 @@ defmodule Hulaaki.Client do
                       on_subscribe: 1, on_subscribe_ack: 1,
                       on_unsubscribe: 1, on_unsubscribe_ack: 1,
                       on_subscribed_publish: 1, on_subscribed_publish_ack: 1,
-                      on_ping: 1, on_pong: 1,
+                      on_ping: 1, on_ping_response: 1,
                       on_disconnect: 1]
     end
   end

@@ -43,7 +43,7 @@ defmodule SampleClient do
     IO.inspect options
   end
 
-  def on_pong(options) do
+  def on_ping_response(options) do
     IO.inspect options
   end
 end
@@ -74,7 +74,7 @@ Please refer to the inline documentation and tests to explore the
 documentation for now. This shall be improved over time.
 
 ## Immediate TODOs
-* Pingpong based heartbeat in Client based on the timeout.
+* Ping and Ping Response based heartbeat in Client based on the keep alive timeout.
 * .....
 
 ## Contributing
