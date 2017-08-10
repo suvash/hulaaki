@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 - Added link to CHANGELOG in the README
 - Add instructions on using Makefile for running tests.
 - Handle `gen_tcp` connection failures instead of crashing
+- Add automatic ping to server (based on keep alive) and expect ping response with callbacks
 
 ### Fixed
 - Replaces all occurences of 65_536 to 65_535 (max limit for 2 bytes)

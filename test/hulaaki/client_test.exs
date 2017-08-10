@@ -61,12 +61,32 @@ defmodule Hulaaki.ClientTest do
       Kernel.send state.parent, {:ping, message}
     end
 
-    def on_pong(message: message, state: state) do
-      Kernel.send state.parent, {:pong, message}
+    def on_ping_response(message: message, state: state) do
+      Kernel.send state.parent, {:ping_response, message}
+    end
+
+    def on_ping_response_timeout(message: message, state: state) do
+      Kernel.send state.parent, {:ping_response_timeout, message}
     end
 
     def on_disconnect(message: message, state: state) do
       Kernel.send state.parent, {:disconnect, message}
+    end
+  end
+
+  defmodule HackPingResponseClient do
+    use Hulaaki.Client
+
+    def on_ping(message: message, state: state) do
+      Kernel.send state.parent, {:ping, message}
+    end
+
+    def on_ping_response(_) do
+      Kernel.send(self(), {:ping_response_timeout})
+    end
+
+    def on_ping_response_timeout(message: _, state: state) do
+      Kernel.send state.parent, {:ping_response_timeout}
     end
   end
 
@@ -76,7 +96,8 @@ defmodule Hulaaki.ClientTest do
   end
 
   defp pre_connect(pid) do
-    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200]
+    options = [client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
+               host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200]
     SampleClient.connect(pid, options)
   end
 
@@ -86,7 +107,7 @@ defmodule Hulaaki.ClientTest do
   end
 
   test "error message when sending connect on connection failure", %{client_pid: pid} do
-    options = [client_id: "some-name", host: TestConfig.mqtt_host, port: 7878, timeout: 200]
+    options = [client_id: "some-name-1974", host: TestConfig.mqtt_host, port: 7878, timeout: 200]
 
     reply = SampleClient.connect(pid, options)
 
@@ -233,11 +254,36 @@ defmodule Hulaaki.ClientTest do
     post_disconnect pid
   end
 
-  test "on_pong callback on receiving ping_resp", %{client_pid: pid} do
+  test "on_ping_response callback on receiving ping_resp", %{client_pid: pid} do
     pre_connect pid
 
     SampleClient.ping(pid)
-    assert_receive {:pong, %Message.PingResp{}}
+    assert_receive {:ping_response, %Message.PingResp{}}
+
+    post_disconnect pid
+  end
+
+  test "receives ping (and hence ping_response) after keep_alive timeout on idle connection" do
+    {:ok, pid} = SampleClient.start_link(%{parent: self()})
+
+    options = [client_id: "some-name-6379", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port,
+               keep_alive: 2, timeout: 200]
+    SampleClient.connect(pid, options)
+
+    assert_receive({:ping, %Message.PingReq{}}, 4_000)
+    assert_receive({:ping_response, %Message.PingResp{}}, 4_000)
+
+    post_disconnect pid
+  end
+
+  test "receives ping response timeout after the ping response timeout" do
+    {:ok, pid} =  HackPingResponseClient.start_link(%{parent: self()})
+
+    options = [client_id: "ping-response-7402", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port,
+               keep_alive: 2, timeout: 200]
+    HackPingResponseClient.connect(pid, options)
+
+    assert_receive({:ping_response_timeout}, 8_000)
 
     post_disconnect pid
   end
@@ -251,7 +297,7 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      options = [client_id: "another-name-7592", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
       SampleClient.connect(pid2, options)
 
       options = [id: 11_175, topic: "awesome", message: "a message",
@@ -275,7 +321,7 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      options = [client_id: "another-name-8234", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
       SampleClient.connect(pid2, options)
 
       options = [id: 11_175, topic: "awesome", message: "a message",

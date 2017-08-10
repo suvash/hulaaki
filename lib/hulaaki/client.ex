@@ -45,6 +45,12 @@ defmodule Hulaaki.Client do
       ## GenServer callbacks
 
       def init(%{} = state) do
+        state =
+          state
+          |> Map.put(:keep_alive_interval, nil)
+          |> Map.put(:keep_alive_timer_ref, nil)
+          |> Map.put(:ping_response_timeout_interval, nil)
+          |> Map.put(:ping_response_timer_ref, nil)
         {:ok, state}
       end
 
@@ -69,6 +75,9 @@ defmodule Hulaaki.Client do
         clean_session = opts |> Keyword.get(:clean_session, 1)
         keep_alive    = opts |> Keyword.get(:keep_alive, 100)
 
+        # arbritary : based off recommendation on MQTT 3.1.1 spec Line 542/543
+        ping_response_timeout = keep_alive * 2
+
         message = Message.connect(client_id, username, password,
                                   will_topic, will_message, will_qos,
                                   will_retain, clean_session, keep_alive)
@@ -77,7 +86,8 @@ defmodule Hulaaki.Client do
 
         connect_opts = [host: host, port: port, timeout: timeout]
         case state.connection |> Connection.connect(message, connect_opts) do
-          :ok -> {:reply, :ok, state}
+          :ok -> {:reply, :ok, %{state | keep_alive_interval: keep_alive * 1000,
+                                         ping_response_timeout_interval: ping_response_timeout * 1000}}
           {:error, reason} -> {:reply, {:error, reason}, state}
         end
       end
@@ -134,6 +144,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Connect{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_connect [message: message, state: state]
         {:noreply, state}
       end
@@ -144,6 +155,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Publish{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_publish [message: message, state: state]
         {:noreply, state}
       end
@@ -163,6 +175,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.PubAck{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_subscribed_publish_ack [message: message, state: state]
         {:noreply, state}
       end
@@ -177,6 +190,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.PubRel{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_publish_release [message: message, state: state]
         {:noreply, state}
       end
@@ -192,6 +206,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Subscribe{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_subscribe [message: message, state: state]
         {:noreply, state}
       end
@@ -202,6 +217,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Unsubscribe{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_unsubscribe [message: message, state: state]
         {:noreply, state}
       end
@@ -212,18 +228,50 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.PingReq{} = message}, state) do
+        state = reset_keep_alive_timer(state)
+        state = reset_ping_response_timer(state)
         on_ping [message: message, state: state]
         {:noreply, state}
       end
 
       def handle_info({:received, %Message.PingResp{} = message}, state) do
-        on_pong [message: message, state: state]
+        state = cancel_ping_response_timer(state)
+        on_ping_response [message: message, state: state]
         {:noreply, state}
       end
 
       def handle_info({:sent, %Message.Disconnect{} = message}, state) do
+        state = reset_keep_alive_timer(state)
         on_disconnect [message: message, state: state]
         {:noreply, state}
+      end
+
+      def handle_info({:keep_alive}, state) do
+        :ok = state.connection |> Connection.ping
+        {:noreply, state}
+      end
+
+      def handle_info({:ping_response_timeout}, state) do
+        on_ping_response_timeout [message: nil, state: state]
+        {:noreply, state}
+      end
+
+      ## Private functions
+      defp reset_keep_alive_timer(%{keep_alive_interval: keep_alive_interval, keep_alive_timer_ref: keep_alive_timer_ref} = state) do
+        if keep_alive_timer_ref, do: Process.cancel_timer(keep_alive_timer_ref)
+        keep_alive_timer_ref = Process.send_after(self(), {:keep_alive}, keep_alive_interval)
+        %{state | keep_alive_timer_ref: keep_alive_timer_ref}
+      end
+
+      defp reset_ping_response_timer(%{ping_response_timeout_interval: ping_response_timeout_interval, ping_response_timer_ref: ping_response_timer_ref} = state) do
+        if ping_response_timer_ref, do: Process.cancel_timer(ping_response_timer_ref)
+        ping_response_timer_ref = Process.send_after(self(), {:ping_response_timeout}, ping_response_timeout_interval)
+        %{state | ping_response_timer_ref: ping_response_timer_ref}
+      end
+
+      defp cancel_ping_response_timer(%{ping_response_timer_ref: ping_response_timer_ref} = state) do
+        if ping_response_timer_ref, do: Process.cancel_timer(ping_response_timer_ref)
+        %{state | ping_response_timer_ref: nil}
       end
 
       ## Overrideable callbacks
@@ -242,7 +290,8 @@ defmodule Hulaaki.Client do
       def on_subscribed_publish([message: message, state: state]), do: true
       def on_subscribed_publish_ack([message: message, state: state]), do: true
       def on_ping([message: message, state: state]), do: true
-      def on_pong([message: message, state: state]), do: true
+      def on_ping_response([message: message, state: state]), do: true
+      def on_ping_response_timeout([message: message, state: state]), do: true
       def on_disconnect([message: message, state: state]), do: true
 
       defoverridable [on_connect: 1, on_connect_ack: 1,
@@ -252,7 +301,7 @@ defmodule Hulaaki.Client do
                       on_subscribe: 1, on_subscribe_ack: 1,
                       on_unsubscribe: 1, on_unsubscribe_ack: 1,
                       on_subscribed_publish: 1, on_subscribed_publish_ack: 1,
-                      on_ping: 1,    on_pong: 1,
+                      on_ping: 1, on_ping_response: 1, on_ping_response_timeout: 1,
                       on_disconnect: 1]
     end
   end

@@ -43,7 +43,7 @@ defmodule SampleClient do
     IO.inspect options
   end
 
-  def on_pong(options) do
+  def on_ping_response(options) do
     IO.inspect options
   end
 end
@@ -56,7 +56,7 @@ $ iex -S mix
 
 > {:ok, pid} = SampleClient.start_link(%{})
 
-> options = [client_id: "some-name", host: "localhost", port: 1883]
+> options = [client_id: "some-name-7490", host: "localhost", port: 1883]
 
 > SampleClient.connect(pid, options)
 
@@ -72,10 +72,6 @@ and test strategy.
 
 Please refer to the inline documentation and tests to explore the
 documentation for now. This shall be improved over time.
-
-## Immediate TODOs
-* Pingpong based heartbeat in Client based on the timeout.
-* .....
 
 ## Contributing
 
