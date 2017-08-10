@@ -90,6 +90,22 @@ defmodule Hulaaki.ClientTest do
     end
   end
 
+  defmodule PacketIdInspectClient do
+    use Hulaaki.Client
+
+    def on_publish(message: message, state: state) do
+      Kernel.send state.parent, {:publish, message}
+    end
+
+    def on_subscribe(message: message, state: state) do
+      Kernel.send state.parent, {:subscribe, message}
+    end
+
+    def on_unsubscribe(message: message, state: state) do
+      Kernel.send state.parent, {:unsubscribe, message}
+    end
+  end
+
   setup do
     {:ok, pid} = SampleClient.start_link(%{parent: self()})
     {:ok, client_pid: pid}
@@ -284,6 +300,36 @@ defmodule Hulaaki.ClientTest do
     HackPingResponseClient.connect(pid, options)
 
     assert_receive({:ping_response_timeout}, 8_000)
+
+    post_disconnect pid
+  end
+
+  test "packet id is incremented internally" do
+    {:ok, pid} =  PacketIdInspectClient.start_link(%{parent: self()})
+
+    options = [client_id: "packet-inspect-9457", host: TestConfig.mqtt_host,
+               port: TestConfig.mqtt_port, timeout: 200]
+    PacketIdInspectClient.connect(pid, options)
+
+    options = [topic: "qos0", message: "a message", dup: 0, qos: 0, retain: 1]
+    PacketIdInspectClient.publish(pid, options)
+    assert_receive {:publish, %Message.Publish{id: nil}}
+
+    options = [topic: "qos1", message: "a message", dup: 0, qos: 1, retain: 1]
+    PacketIdInspectClient.publish(pid, options)
+    assert_receive {:publish, %Message.Publish{id: 1}}
+
+    options = [topic: "qos1", message: "a message", dup: 0, qos: 1, retain: 1]
+    PacketIdInspectClient.publish(pid, options)
+    assert_receive {:publish, %Message.Publish{id: 2}}
+
+    options = [topics: ["topicA", "topicB"], qoses: [0, 1]]
+    PacketIdInspectClient.subscribe(pid, options)
+    assert_receive {:subscribe, %Message.Subscribe{id: 3}}
+
+    options = [topics: ["topicA", "topicB"]]
+    SampleClient.unsubscribe(pid, options)
+    assert_receive {:unsubscribe, %Message.Unsubscribe{id: 4}}
 
     post_disconnect pid
   end
