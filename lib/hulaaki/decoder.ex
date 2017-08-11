@@ -52,13 +52,13 @@ defmodule Hulaaki.Decoder do
         if byte_size(rest) > 0 do
           decode_remaining_length(rest, length, multiplier * 128)
         else
-          {:error, {length, ""}}
+          {:partial, {length, ""}}
         end
       else
         if byte_size(rest) >= length do
           {:ok, {length, rest}}
         else
-          {:error, {length, rest}}
+          {:partial, {length, rest}}
         end
       end
   end
@@ -89,7 +89,7 @@ defmodule Hulaaki.Decoder do
                                   will_retain, clean_session, keep_alive)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -104,7 +104,7 @@ defmodule Hulaaki.Decoder do
         message = Message.connect_ack(session_present, return_code)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -134,7 +134,7 @@ defmodule Hulaaki.Decoder do
           end
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -149,7 +149,7 @@ defmodule Hulaaki.Decoder do
         message = Message.publish_ack(id)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -164,7 +164,7 @@ defmodule Hulaaki.Decoder do
         message = Message.publish_release(id)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -179,7 +179,7 @@ defmodule Hulaaki.Decoder do
         message = Message.publish_receive(id)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -194,7 +194,7 @@ defmodule Hulaaki.Decoder do
       message = Message.publish_complete(id)
       %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -210,7 +210,7 @@ defmodule Hulaaki.Decoder do
       message = Message.subscribe(id, topics, qoses)
       %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -245,7 +245,7 @@ defmodule Hulaaki.Decoder do
         message = Message.subscribe_ack(id, qoses)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -276,7 +276,7 @@ defmodule Hulaaki.Decoder do
         message = Message.unsubscribe(id, topics)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -308,7 +308,7 @@ defmodule Hulaaki.Decoder do
         message = Message.unsubscribe_ack(id)
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -321,7 +321,7 @@ defmodule Hulaaki.Decoder do
         message = Message.ping_request
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -334,7 +334,7 @@ defmodule Hulaaki.Decoder do
         message = Message.ping_response
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
@@ -347,7 +347,7 @@ defmodule Hulaaki.Decoder do
         message = Message.disconnect
         %{message: message, remainder: remainder}
 
-      {:error, _} ->
+      {:partial, _} ->
         %{message: nil, remainder: payload_bytes}
     end
   end
