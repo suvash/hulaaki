@@ -1,0 +1,1 @@
+According to https://mosquitto.org/man/mosquitto-tls-7.html

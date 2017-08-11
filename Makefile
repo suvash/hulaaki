@@ -3,7 +3,6 @@
 
 RUN_SERVICE:=hulaaki
 MQTT_SERVICE:=mqtt_server
-MQTT_TLS_SERVICE:=mqtt_server_tls
 
 run:
 	$(if $(CMD), docker-compose run $(RUN_SERVICE) $(CMD), $(error -- CMD must be set))
@@ -14,8 +13,11 @@ bash: run
 test: CMD=mix test
 test: run
 
-start-servers:
-	docker-compose up -d $(MQTT_SERVICE) $(MQTT_TLS_SERVICE)
+start:
+	docker-compose up -d $(MQTT_SERVICE)
+
+tail-logs:
+	docker-compose logs -f $(MQTT_SERVICE)
 
 stop:
 	docker-compose down
