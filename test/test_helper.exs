@@ -11,7 +11,12 @@ defmodule TestConfig do
     port
   end
 
+  def mqtt_tls_port do
+    {port, _} = ( System.get_env("MQTT_TLS_PORT") || "8883" ) |> Integer.parse
+    port
+  end
+
   def mqtt_timeout do
-    500
+    2000
   end
 end
