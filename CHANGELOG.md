@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 - Handle `gen_tcp` connection failures instead of crashing
 - Add automatic ping to server (based on keep alive) and expect ping response with callbacks
 - Handle packet ids internally (for control packets with variable header)
+- Adds TLS/SSL support for the library
 
 ### Fixed
 - Replaces all occurences of 65_536 to 65_535 (max limit for 2 bytes)
