@@ -175,7 +175,7 @@ defmodule Hulaaki.ConnectionTest do
     pre_connect(pid1)
 
     id = :rand.uniform(65_535)
-    topics = ["qos1"]
+    topics = ["random-topic-8234"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
 
@@ -186,7 +186,7 @@ defmodule Hulaaki.ConnectionTest do
       pre_connect(pid2)
 
       id = :rand.uniform(65_535)
-      topic = "qos1"
+      topic = "random-topic-8234"
       message = "you better get this message on qos 1"
       dup = 0
       qos = 1
@@ -199,7 +199,7 @@ defmodule Hulaaki.ConnectionTest do
 
     assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
                                     message: "you better get this message on qos 1",
-                                    topic: "qos1", type: :PUBLISH}}, 500
+                                    topic: "random-topic-8234", type: :PUBLISH}}, 500
 
     post_disconnect(pid1)
   end
@@ -209,7 +209,7 @@ defmodule Hulaaki.ConnectionTest do
     pre_connect(pid1)
 
     id = :rand.uniform(65_535)
-    topics = ["qos1"]
+    topics = ["random-topic-2850"]
     qoses =  [1]
     message = Message.subscribe(id, topics, qoses)
 
@@ -220,7 +220,7 @@ defmodule Hulaaki.ConnectionTest do
       pre_connect(pid2)
 
       id = :rand.uniform(65_535)
-      topic = "qos1"
+      topic = "random-topic-2850"
       message = "you better get this message on qos 1"
       dup = 0
       qos = 1
@@ -233,7 +233,7 @@ defmodule Hulaaki.ConnectionTest do
 
     assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
                                     message: "you better get this message on qos 1",
-                                    topic: "qos1", type: :PUBLISH}}, 500
+                                    topic: "random-topic-2850", type: :PUBLISH}}, 500
 
     message = Message.publish_ack(id)
     Connection.publish_ack(pid1, message)
