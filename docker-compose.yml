@@ -1,0 +1,27 @@
+version: "3"
+services:
+
+  mqtt_server:
+    image: eclipse-mosquitto:1.4.12
+    restart: always
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/certs/:/etc/mosquitto/certs/
+    ports:
+      - "8083:1883"
+      - "8084:8883"
+
+  hulaaki:
+    build: .
+    command: mix test
+    restart: always
+    volumes:
+      - ./:/usr/src/app
+    depends_on:
+      - mqtt_server
+    links:
+      - mqtt_server:mqtt-host
+    environment:
+      MQTT_HOST: mqtt-host
+      MQTT_PORT: 1883
+      MQTT_TLS_PORT: 8883

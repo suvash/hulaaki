@@ -1,4 +1,4 @@
-defmodule Hulaaki.ConnectionTest do
+defmodule Hulaaki.ConnectionTCPTest do
   use ExUnit.Case
   alias Hulaaki.Connection
   alias Hulaaki.Message
@@ -23,7 +23,7 @@ defmodule Hulaaki.ConnectionTest do
 
   defp pre_connect(pid) do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
-    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: TestConfig.mqtt_timeout])
+    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: TestConfig.mqtt_timeout, ssl: false])
   end
 
   defp post_disconnect(pid) do
@@ -34,7 +34,7 @@ defmodule Hulaaki.ConnectionTest do
   test "failed tcp connection returns an error tuple", %{connection_pid: pid} do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
-    reply = Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: 7878, timeout: TestConfig.mqtt_timeout])
+    reply = Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: 7878, timeout: TestConfig.mqtt_timeout, ssl: false])
 
     assert {:error, :econnrefused} == reply
   end

@@ -1,4 +1,4 @@
-defmodule Hulaaki.ClientTest do
+defmodule Hulaaki.ClientSSLTest do
   use ExUnit.Case
   alias Hulaaki.Message
 
@@ -113,7 +113,8 @@ defmodule Hulaaki.ClientTest do
 
   defp pre_connect(pid) do
     options = [client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
-               host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: 200]
+               host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port,
+               timeout: TestConfig.mqtt_timeout, ssl: true]
     SampleClient.connect(pid, options)
   end
 
@@ -123,7 +124,8 @@ defmodule Hulaaki.ClientTest do
   end
 
   test "error message when sending connect on connection failure", %{client_pid: pid} do
-    options = [client_id: "some-name-1974", host: TestConfig.mqtt_host, port: 7878, timeout: 200]
+    options = [client_id: "some-name-1974", host: TestConfig.mqtt_host, port: 7878,
+               timeout: TestConfig.mqtt_timeout, ssl: true]
 
     reply = SampleClient.connect(pid, options)
 
@@ -133,7 +135,7 @@ defmodule Hulaaki.ClientTest do
   test "on_connect callback on sending connect", %{client_pid: pid} do
     pre_connect pid
 
-    assert_receive {:connect, %Message.Connect{}}
+    assert_receive {:connect, %Message.Connect{}}, 1_000
 
     post_disconnect pid
   end
@@ -141,7 +143,7 @@ defmodule Hulaaki.ClientTest do
   test "on_connect_ack callback on receiving connect_ack", %{client_pid: pid} do
     pre_connect pid
 
-    assert_receive {:connect_ack, %Message.ConnAck{}}
+    assert_receive {:connect_ack, %Message.ConnAck{}}, 1_000
 
     post_disconnect pid
   end
@@ -150,7 +152,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     SampleClient.disconnect(pid)
-    assert_receive {:disconnect, %Message.Disconnect{}}
+    assert_receive {:disconnect, %Message.Disconnect{}}, 1_000
 
     SampleClient.stop(pid)
   end
@@ -161,7 +163,7 @@ defmodule Hulaaki.ClientTest do
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 1, retain: 1]
     SampleClient.publish(pid, options)
-    assert_receive {:publish, %Message.Publish{}}
+    assert_receive {:publish, %Message.Publish{}}, 1_000
 
     post_disconnect pid
   end
@@ -172,7 +174,7 @@ defmodule Hulaaki.ClientTest do
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 0, retain: 1]
     SampleClient.publish(pid, options)
-    assert_receive {:publish, %Message.Publish{}}
+    assert_receive {:publish, %Message.Publish{}}, 1_000
 
     post_disconnect pid
   end
@@ -183,7 +185,7 @@ defmodule Hulaaki.ClientTest do
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 1, retain: 1]
     SampleClient.publish(pid, options)
-    assert_receive {:publish_ack, %Message.PubAck{}}
+    assert_receive {:publish_ack, %Message.PubAck{}}, 1_000
 
     post_disconnect pid
   end
@@ -194,7 +196,7 @@ defmodule Hulaaki.ClientTest do
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 2, retain: 1]
     SampleClient.publish(pid, options)
-    assert_receive {:publish_receive, %Message.PubRec{}}
+    assert_receive {:publish_receive, %Message.PubRec{}}, 1_000
 
     post_disconnect pid
   end
@@ -205,7 +207,7 @@ defmodule Hulaaki.ClientTest do
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 2, retain: 1]
     SampleClient.publish(pid, options)
-    assert_receive {:publish_release, %Message.PubRel{}}
+    assert_receive {:publish_release, %Message.PubRel{}}, 1_000
 
     post_disconnect pid
   end
@@ -216,7 +218,7 @@ defmodule Hulaaki.ClientTest do
     options = [topic: "nope", message: "a message",
                dup: 0, qos: 2, retain: 1]
     SampleClient.publish(pid, options)
-    assert_receive {:publish_complete, %Message.PubComp{}}
+    assert_receive {:publish_complete, %Message.PubComp{}}, 1_000
 
     post_disconnect pid
   end
@@ -226,7 +228,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [topics: ["a/b", "c/d"], qoses: [0, 1]]
     SampleClient.subscribe(pid, options)
-    assert_receive {:subscribe, %Message.Subscribe{}}
+    assert_receive {:subscribe, %Message.Subscribe{}}, 1_000
 
     post_disconnect pid
   end
@@ -236,7 +238,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [topics: ["a/b", "c/d"], qoses: [0, 1]]
     SampleClient.subscribe(pid, options)
-    assert_receive {:subscribe_ack, %Message.SubAck{}}
+    assert_receive {:subscribe_ack, %Message.SubAck{}}, 1_000
 
     post_disconnect pid
   end
@@ -246,7 +248,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [topics: ["a/d", "c/f"]]
     SampleClient.unsubscribe(pid, options)
-    assert_receive {:unsubscribe, %Message.Unsubscribe{}}
+    assert_receive {:unsubscribe, %Message.Unsubscribe{}}, 1_000
 
     post_disconnect pid
   end
@@ -256,7 +258,7 @@ defmodule Hulaaki.ClientTest do
 
     options = [topics: ["a/d", "c/f"]]
     SampleClient.unsubscribe(pid, options)
-    assert_receive {:unsubscribe_ack, %Message.UnsubAck{}}
+    assert_receive {:unsubscribe_ack, %Message.UnsubAck{}}, 1_000
 
     post_disconnect pid
   end
@@ -265,7 +267,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     SampleClient.ping(pid)
-    assert_receive {:ping, %Message.PingReq{}}
+    assert_receive {:ping, %Message.PingReq{}}, 1_000
 
     post_disconnect pid
   end
@@ -274,7 +276,7 @@ defmodule Hulaaki.ClientTest do
     pre_connect pid
 
     SampleClient.ping(pid)
-    assert_receive {:ping_response, %Message.PingResp{}}
+    assert_receive {:ping_response, %Message.PingResp{}}, 1_000
 
     post_disconnect pid
   end
@@ -282,8 +284,8 @@ defmodule Hulaaki.ClientTest do
   test "receives ping (and hence ping_response) after keep_alive timeout on idle connection" do
     {:ok, pid} = SampleClient.start_link(%{parent: self()})
 
-    options = [client_id: "some-name-6379", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port,
-               keep_alive: 2, timeout: 200]
+    options = [client_id: "some-name-6379", host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port,
+               keep_alive: 2, timeout: TestConfig.mqtt_timeout, ssl: true]
     SampleClient.connect(pid, options)
 
     assert_receive({:ping, %Message.PingReq{}}, 4_000)
@@ -295,8 +297,8 @@ defmodule Hulaaki.ClientTest do
   test "receives ping response timeout after the ping response timeout" do
     {:ok, pid} =  HackPingResponseClient.start_link(%{parent: self()})
 
-    options = [client_id: "ping-response-7402", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port,
-               keep_alive: 2, timeout: 200]
+    options = [client_id: "ping-response-7402", host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port,
+               keep_alive: 2, timeout: TestConfig.mqtt_timeout, ssl: true]
     HackPingResponseClient.connect(pid, options)
 
     assert_receive({:ping_response_timeout}, 8_000)
@@ -308,28 +310,28 @@ defmodule Hulaaki.ClientTest do
     {:ok, pid} =  PacketIdInspectClient.start_link(%{parent: self()})
 
     options = [client_id: "packet-inspect-9457", host: TestConfig.mqtt_host,
-               port: TestConfig.mqtt_port, timeout: 200]
+               port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true]
     PacketIdInspectClient.connect(pid, options)
 
     options = [topic: "qos0", message: "a message", dup: 0, qos: 0, retain: 1]
     PacketIdInspectClient.publish(pid, options)
-    assert_receive {:publish, %Message.Publish{id: nil}}
+    assert_receive {:publish, %Message.Publish{id: nil}}, 1_000
 
     options = [topic: "qos1", message: "a message", dup: 0, qos: 1, retain: 1]
     PacketIdInspectClient.publish(pid, options)
-    assert_receive {:publish, %Message.Publish{id: 1}}
+    assert_receive {:publish, %Message.Publish{id: 1}}, 1_000
 
     options = [topic: "qos1", message: "a message", dup: 0, qos: 1, retain: 1]
     PacketIdInspectClient.publish(pid, options)
-    assert_receive {:publish, %Message.Publish{id: 2}}
+    assert_receive {:publish, %Message.Publish{id: 2}}, 1_000
 
     options = [topics: ["topicA", "topicB"], qoses: [0, 1]]
     PacketIdInspectClient.subscribe(pid, options)
-    assert_receive {:subscribe, %Message.Subscribe{id: 3}}
+    assert_receive {:subscribe, %Message.Subscribe{id: 3}}, 1_000
 
     options = [topics: ["topicA", "topicB"]]
     SampleClient.unsubscribe(pid, options)
-    assert_receive {:unsubscribe, %Message.Unsubscribe{id: 4}}
+    assert_receive {:unsubscribe, %Message.Unsubscribe{id: 4}}, 1_000
 
     post_disconnect pid
   end
@@ -343,7 +345,8 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name-7592", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      options = [client_id: "another-name-7592", host: TestConfig.mqtt_host,
+                 port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true]
       SampleClient.connect(pid2, options)
 
       options = [topic: "awesome", message: "a message",
@@ -353,7 +356,7 @@ defmodule Hulaaki.ClientTest do
       post_disconnect pid2
     end
 
-    assert_receive {:subscribed_publish, %Message.Publish{}}
+    assert_receive {:subscribed_publish, %Message.Publish{}}, 1_000
 
     post_disconnect pid
   end
@@ -367,7 +370,9 @@ defmodule Hulaaki.ClientTest do
     spawn fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name-8234", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      options = [client_id: "another-name-8234", host: TestConfig.mqtt_host,
+                 port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true]
+
       SampleClient.connect(pid2, options)
 
       options = [topic: "awesome", message: "a message",
@@ -377,7 +382,7 @@ defmodule Hulaaki.ClientTest do
       post_disconnect pid2
     end
 
-    assert_receive {:subscribed_publish_ack, %Message.PubAck{}}
+    assert_receive {:subscribed_publish_ack, %Message.PubAck{}}, 1_000
 
     post_disconnect pid
   end

@@ -87,25 +87,16 @@ would do on other mix projects.
 As prefered by the author, you can also use the provided Makefile to
 run the tests. The only dependency required is Docker on your machine.
 ```
-# Make sure you have Docker running on your machine
+# Make sure you have Docker and Docker Compose running on your machine
 
-# Start the MQTT Server
-$ make mqtt-server-start
+# Start the MQTT servers (better to start separately to warm them up)
+$ make start-servers
 
-# Run the tests
+# Run tests
 $ make test
 
-# Stop the MQTT server after all is over
-$ make mqtt-server-stop
-
-# Cleanup Docker images when all is done
-# make clean
-
-# To cleanup everything, it helps if you understand how to use Docker a bit.
-# If not familiar and you want to stop and remove everything Docker related:
-$ docker stop $(docker ps -aq)
-$ docker rm $(docker ps -aq)
-$ docker rmi $(docker images -aq)
+# Stop and cleanup docker instances etc.
+# make stop
 ```
 
 ## Changelog

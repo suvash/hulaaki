@@ -14,12 +14,15 @@ install:
   - make
   - sudo make install
   - cd ..
+  - sudo cp -R ./mosquitto/certs/ /etc/mosquitto/certs/
+  - sudo cp ./mosquitto/mosquitto.conf /etc/mosquitto/mosquitto.conf
 before_script:
-  - mosquitto -d
+  - mosquitto -d -c /etc/mosquitto/mosquitto.conf
   - mix local.hex --force
   - mix local.rebar
   - MIX_ENV=test mix deps.get
 script:
+  - sleep 10
   - MIX_ENV=test mix test
 after_script:
   - MIX_ENV=test mix coveralls.travis

@@ -13,7 +13,7 @@ defmodule Hulaaki.Connection do
   """
   def start_link(client_pid)
   when is_pid(client_pid) do
-    GenServer.start_link(__MODULE__, %{client: client_pid, socket: nil})
+    GenServer.start_link(__MODULE__, %{client: client_pid, socket: nil, transport: nil})
   end
 
   @doc """
@@ -88,16 +88,17 @@ defmodule Hulaaki.Connection do
 
   @doc false
   def handle_call(:stop, _from, state) do
-    close_tcp_socket(state.socket)
+    close_socket(state.transport, state.socket)
     {:stop, :normal, :ok, state}
   end
 
   @doc false
   def handle_call({:connect, message, opts}, _from, state) do
-    case open_tcp_socket(opts) do
-      %{socket: socket} -> dispatch_message(socket, message)
+    case open_socket(opts) do
+      %{socket: socket, transport: transport} ->
+                           dispatch_message(transport, socket, message)
                            Kernel.send state.client, {:sent, message}
-                           {:reply, :ok, %{state | socket: socket} }
+                           {:reply, :ok, %{state | socket: socket, transport: transport}}
        {:error, reason} -> {:reply, {:error, reason}, state}
     end
 
@@ -105,14 +106,33 @@ defmodule Hulaaki.Connection do
 
   @doc false
   def handle_call({_, message}, _from, state) do
-    dispatch_message(state.socket, message)
+    dispatch_message(state.transport, state.socket, message)
     Kernel.send state.client, {:sent, message}
     {:reply, :ok, state}
   end
 
   @doc false
   def handle_info({:tcp, socket, data}, state) do
-    :inet.setopts(socket, active: :once)
+    handle_socket_data(socket, data, state)
+  end
+
+  @doc false
+  def handle_info({:ssl, socket, data}, state) do
+    handle_socket_data(socket, data, state)
+  end
+
+  @doc false
+  def handle_info({:tcp_closed, _socket}, state) do
+    {:stop, :shutdown, state}
+  end
+
+  @doc false
+  def handle_info({:ssl_closed, _socket}, state) do
+    {:stop, :shutdown, state}
+  end
+
+  defp handle_socket_data(socket, data, state) do
+    set_active_once(socket, state.transport)
     messages = decode_packets(data)
     Enum.each(messages,
       fn(message) ->
@@ -120,11 +140,6 @@ defmodule Hulaaki.Connection do
       end
     )
     {:noreply, state}
-  end
-
-  @doc false
-  def handle_info({:tcp_closed, _socket}, state) do
-    {:stop, :shutdown, state}
   end
 
   defp decode_packets(data) do
@@ -140,28 +155,44 @@ defmodule Hulaaki.Connection do
     end
   end
 
-  defp open_tcp_socket(opts) do
+  defp dispatch_message(transport, socket, message) do
+    packet = Packet.encode(message)
+    socket |> set_active_once(transport) |> transport.send(packet)
+  end
+
+  defp set_active_once(socket, transport) do
+    case transport do
+      :ssl -> :ssl.setopts(socket, active: :once)
+      :gen_tcp -> :inet.setopts(socket, active: :once)
+    end
+    socket
+  end
+
+  defp open_socket(opts) do
     timeout  = opts |> Keyword.fetch!(:timeout)
     host     = opts |> Keyword.fetch!(:host)
     host     = if is_binary(host), do: String.to_charlist(host), else: host
     port     = opts |> Keyword.fetch!(:port)
+    ssl      = opts |> Keyword.fetch!(:ssl)
+
     tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 
-    case :gen_tcp.connect(host, port, tcp_opts, timeout) do
-      {:ok, socket} -> %{socket: socket}
+    {transport, socket_opts} =
+      case ssl do
+        false -> {:gen_tcp, tcp_opts}
+        true -> {:ssl, tcp_opts}
+        ssl_opts -> {:ssl, tcp_opts ++ ssl_opts}
+      end
+
+    case transport.connect(host, port, socket_opts, timeout) do
+      {:ok, socket} -> %{transport: transport, socket: socket}
       {:error, reason} -> {:error, reason}
       _ -> {:error, :unknown}
     end
   end
 
-  defp close_tcp_socket(socket) do
-    socket |> :gen_tcp.close
-  end
-
-  defp dispatch_message(socket, message) do
-    packet = Packet.encode(message)
-    :inet.setopts(socket, active: :once)
-    socket |> :gen_tcp.send(packet)
+  defp close_socket(transport, socket) do
+    socket |> transport.close
   end
 
 end
