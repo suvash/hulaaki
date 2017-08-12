@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/suvash/hulaaki.svg?branch=master)](https://travis-ci.org/suvash/hulaaki?branch=master)
 [![Coverage Status](https://coveralls.io/repos/suvash/hulaaki/badge.svg?branch=master)](https://coveralls.io/r/suvash/hulaaki?branch=master)
+[![Hex.pm Project](https://img.shields.io/hexpm/v/hulaaki.svg)](https://hex.pm/packages/hulaaki)
 [![Inline docs](http://inch-ci.org/github/suvash/hulaaki.svg?branch=master)](http://inch-ci.org/github/suvash/hulaaki?branch=master)
 
 An Elixir library (driver) for clients communicating with MQTT
@@ -12,6 +13,11 @@ A quick tour of the features implemented right now:
 - SSL/TLS support available.
 - Automatic Ping based on keep alive timeout.
 - Internal packet id generation for control packets with variable header.
+
+## Naming
+
+Hulaaki(pronouced as who-laa-key) is the phonetic spelling of the word
+हुलाकी in Nepali, which translates to postman.
 
 ## Usage
 
@@ -74,13 +80,17 @@ $ iex -S mix
 ```
 
 Please check the inline documentation
-and [client_test.exs](test/hulaaki/client_test.exs) for more example
+and [client_tcp_test.exs](test/hulaaki/client_tcp_test.exs) for more example
 usage and test strategy.
+
+## Changelog
+
+Please check the [CHANGELOG.md](https://github.com/suvash/hulaaki/blob/master/CHANGELOG.md).
 
 ## Documentation
 
-Please refer to the inline documentation and tests to explore the
-documentation for now.
+Please refer to the inline documentation and client tests to explore
+the documentation for now.
 
 ## Contributing
 
@@ -99,7 +109,7 @@ run the tests. The only dependency required is Docker on your machine.
 # Make sure you have Docker and Docker Compose running on your machine
 
 # Start the MQTT servers (better to start separately to warm them up)
-$ make start-servers
+$ make start
 
 # Run tests
 $ make test
@@ -107,12 +117,3 @@ $ make test
 # Stop and cleanup docker instances etc.
 # make stop
 ```
-
-## Changelog
-
-Please check the [CHANGELOG.md](https://github.com/suvash/hulaaki/blob/master/CHANGELOG.md).
-
-## Naming
-
-Hulaaki(pronouced as who-laa-key) is the phonetic spelling of the word
-हुलाकी in Nepali, which translates to Postman in English.
