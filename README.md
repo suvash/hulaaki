@@ -4,7 +4,14 @@
 [![Coverage Status](https://coveralls.io/repos/suvash/hulaaki/badge.svg?branch=master)](https://coveralls.io/r/suvash/hulaaki?branch=master)
 [![Inline docs](http://inch-ci.org/github/suvash/hulaaki.svg?branch=master)](http://inch-ci.org/github/suvash/hulaaki?branch=master)
 
-Hulaaki is a client library for MQTT 3.1.1 entirely written in Elixir.
+An Elixir library (driver) for clients communicating with MQTT
+brokers(via the MQTT 3.1.1 protocol).
+
+A quick tour of the features implemented right now:
+- Qos 0 and Qos 1 support available. QoS 2 not supported yet.
+- SSL/TLS support available.
+- Automatic Ping based on keep alive timeout.
+- Internal packet id generation for control packets with variable header.
 
 ## Usage
 
@@ -25,7 +32,9 @@ callbacks that are intended to be overridden for required
 implementations. The callbacks are defined for each MQTT message that
 is being sent and received from the server.
 
-Add the following sample client to your project.
+Here's a [list of all the override-able callbacks to](lib/hulaaki/client.ex#L292-L318)use in your projects.
+
+An example is present below that overrides some callbacks.
 
 ```elixir
 defmodule SampleClient do
@@ -56,7 +65,7 @@ $ iex -S mix
 
 > {:ok, pid} = SampleClient.start_link(%{})
 
-> options = [client_id: "some-name-7490", host: "localhost", port: 1883]
+> options = [client_id: "some-name-7490", host: "localhost", port: 8883, ssl: true]
 
 > SampleClient.connect(pid, options)
 
@@ -64,14 +73,14 @@ $ iex -S mix
 
 ```
 
-Once you get the idea, feel free to check the inline documentation and
-[client_test.exs](test/hulaaki/client_test.exs) for more example usage
-and test strategy.
+Please check the inline documentation
+and [client_test.exs](test/hulaaki/client_test.exs) for more example
+usage and test strategy.
 
 ## Documentation
 
 Please refer to the inline documentation and tests to explore the
-documentation for now. This shall be improved over time.
+documentation for now.
 
 ## Contributing
 
