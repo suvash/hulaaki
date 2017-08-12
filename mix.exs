@@ -46,7 +46,9 @@ defmodule Hulaaki.Mixfile do
   end
 
   defp docs do
-    [source_ref: "v#{@version}", main: "readme", readme: "readme.md",
+    [main: "readme",
+     extras: [ "README.md" ],
+     source_ref: "v#{@version}",
      source_url: "https://github.com/suvash/hulaaki"]
   end
 end
