@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+
+## [0.1.0] - 2017-08-12
 ### Added
 - Added link to CHANGELOG in the README
 - Add instructions on using Makefile for running tests.
@@ -47,7 +50,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - First version of the project made public
 
-[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/suvash/hulaaki/compare/v0.0.4...v0.1.0
 [0.0.4]: https://github.com/suvash/hulaaki/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/suvash/hulaaki/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/suvash/hulaaki/compare/v0.0.1...v0.0.2

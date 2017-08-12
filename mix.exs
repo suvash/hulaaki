@@ -1,7 +1,7 @@
 defmodule Hulaaki.Mixfile do
   use Mix.Project
 
-  @version "0.0.4"
+  @version "0.1.0"
 
   def project do
     [app: :hulaaki,
@@ -34,7 +34,7 @@ defmodule Hulaaki.Mixfile do
 
   defp description do
     """
-    An MQTT 3.1.1 client library written in Elixir.
+    An Elixir library (driver) for clients communicating with MQTT brokers(via the MQTT 3.1.1 protocol).
     """
   end
 
