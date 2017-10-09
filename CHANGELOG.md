@@ -37,7 +37,7 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - Fixes all the Elixir warning in the new version.
 
-## [0.2.0] - 2015-08-30
+## [0.0.2] - 2015-08-30
 ### Added
 - Beginnings of MQTT spec tests
 
