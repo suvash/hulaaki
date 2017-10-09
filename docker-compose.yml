@@ -17,6 +17,7 @@ services:
     restart: always
     volumes:
       - ./:/usr/src/app
+      - /usr/src/app/deps
     depends_on:
       - mqtt_server
     links:

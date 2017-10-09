@@ -104,9 +104,14 @@ standard ports), you should just be able to run `mix test` as you
 would do on other mix projects.
 
 As prefered by the author, you can also use the provided Makefile to
-run the tests. The only dependency required is Docker on your machine.
+run the tests. In that case, you'll need the following on your machine
+- GNU Make ( Version 4.0 and up )
+- [Docker Engine](https://docs.docker.com/engine/installation/) ( Version 17.06.1 and hopefully upwards )
+- [Docker Compose](https://github.com/docker/compose/releases) ( Version 1.16.1 and hopefully upwards )
+
 ```
-# Make sure you have Docker and Docker Compose running on your machine
+# Get help
+$ make help
 
 # Start the MQTT servers (better to start separately to warm them up)
 $ make start

@@ -1,11 +1,15 @@
 FROM elixir:1.5.1
+ENV DEBIAN_FRONTEND="noninteractive"
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY ./mix.* /usr/src/app/
-RUN yes | mix do deps.get \
-    && yes | MIX_ENV=test mix do deps.get, deps.compile
+COPY mix.exs mix.lock /usr/src/app/
+COPY config /usr/src/app/config
+RUN mix local.hex --force \
+    && mix local.rebar --force \
+    && mix deps.get \
+    && mix deps.compile
 
 COPY . /usr/src/app
 CMD ["elixir"]
