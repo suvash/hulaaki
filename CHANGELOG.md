@@ -2,11 +2,13 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [0.1.1] - 2017-12-09
 ### Fixed
-- Fix `Makefile`, `Dockerfile`, `docker-compose.yml` and `README.md` for better development environment workflow.
-- Fix `extras` params in docs for `mix.exs`, so that docs are generated properly in `hex.pm`
 - Stop the connection properly when a client is stopped
 - Support Elixir 1.5.2
+- Fix `Makefile`, `Dockerfile`, `docker-compose.yml` and `README.md` for better development environment workflow.
+- Fix `extras` params in docs for `mix.exs`, so that docs are generated properly in `hex.pm`
 
 ## [0.1.0] - 2017-08-12
 ### Added
@@ -54,7 +56,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - First version of the project made public
 
-[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/suvash/hulaaki/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/suvash/hulaaki/compare/v0.0.4...v0.1.0
 [0.0.4]: https://github.com/suvash/hulaaki/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/suvash/hulaaki/compare/v0.0.2...v0.0.3
