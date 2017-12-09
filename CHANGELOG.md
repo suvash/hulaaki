@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - Fix `Makefile`, `Dockerfile`, `docker-compose.yml` and `README.md` for better development environment workflow.
 - Fix `extras` params in docs for `mix.exs`, so that docs are generated properly in `hex.pm`
+- Stop the connection properly when a client is stopped
+- Support Elixir 1.5.2
 
 ## [0.1.0] - 2017-08-12
 ### Added

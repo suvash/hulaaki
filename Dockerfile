@@ -1,4 +1,4 @@
-FROM elixir:1.5.1
+FROM elixir:1.5.2
 ENV DEBIAN_FRONTEND="noninteractive"
 
 RUN mkdir -p /usr/src/app
