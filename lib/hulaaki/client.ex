@@ -56,6 +56,10 @@ defmodule Hulaaki.Client do
       end
 
       def handle_call(:stop, _from, state) do
+        conn_pid = state.connection
+        if conn_pid && Process.alive?(conn_pid) do
+          Connection.stop(conn_pid)
+        end
         {:stop, :normal, :ok, state}
       end
 
