@@ -382,4 +382,27 @@ defmodule Hulaaki.ClientTCPTest do
     post_disconnect pid
   end
 
+  test "on_subscribed_publish_ack with qos 2, should not receive subscribed_publish_ack message", %{client_pid: pid} do
+    pre_connect pid
+
+    options = [topics: ["awesome"], qoses: [1]]
+    SampleClient.subscribe(pid, options)
+
+    spawn fn ->
+      {:ok, pid2} = SampleClient.start_link(%{parent: self()})
+
+      options = [client_id: "another-name-8234", host: TestConfig.mqtt_host, port: TestConfig.mqtt_port]
+      SampleClient.connect(pid2, options)
+
+      options = [topic: "awesome", message: "a message",
+                 dup: 0, qos: 1, retain: 2]
+      SampleClient.publish(pid2, options)
+
+      post_disconnect pid2
+    end
+
+    refute_received {:subscribed_publish_ack, %Message.PubAck{}}
+
+    post_disconnect pid
+  end
 end
