@@ -68,7 +68,7 @@ defmodule Hulaaki.Client do
       def handle_call({:connect, opts, conn_pid}, _from, state) do
         host          = opts |> Keyword.fetch!(:host)
         port          = opts |> Keyword.fetch!(:port)
-        timeout       = opts |> Keyword.get(:timeout, 100)
+        timeout       = opts |> Keyword.get(:timeout, 10*1000)
         ssl           = opts |> Keyword.get(:ssl, false)
 
         client_id     = opts |> Keyword.fetch!(:client_id)
