@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Updated
+- Default `timeout` for mqtt TCP connection increased to 10 seconds.
+- Added qos `case` matching for qos 2 to return `:noop`, to get rid of warnings.
 
 ## [0.1.1] - 2017-12-09
 ### Fixed
