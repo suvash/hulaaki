@@ -24,15 +24,19 @@ defmodule Hulaaki.EncoderTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_topic: will_topic,
-                                will_message: will_message,
-                                will_qos: will_qos,
-                                will_retain: will_retain,
-                                clean_session: clean_session,
-                                keep_alive: keep_alive}
+
+    message = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
     received = Encoder.encode_fixed_header(message)
     expected = <<1::size(4), 0::size(1), 0::size(2), 0::size(1)>> <> <<52>>
 
@@ -51,9 +55,16 @@ defmodule Hulaaki.EncoderTest do
     dup = 0
     qos = 2
     retain = 1
-    message = %Message.Publish{id: 203, topic: "test",
-                               message: "test", dup: dup,
-                               qos: qos, retain: retain}
+
+    message = %Message.Publish{
+      id: 203,
+      topic: "test",
+      message: "test",
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     received = Encoder.encode_fixed_header(message)
     expected = <<3::size(4), dup::size(1), qos::size(2), retain::size(1)>> <> <<12>>
 
@@ -94,9 +105,7 @@ defmodule Hulaaki.EncoderTest do
 
   test "encodes fixed header for Subscribe struct" do
     id = :rand.uniform(65_535)
-    message = %Message.Subscribe{id: id,
-                                  topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1, 2]}
+    message = %Message.Subscribe{id: id, topics: ["hello", "cool"], requested_qoses: [0, 1, 2]}
     received = Encoder.encode_fixed_header(message)
     expected = <<8::size(4), 0::size(1), 1::size(2), 0::size(1)>> <> <<17>>
 
@@ -163,22 +172,26 @@ defmodule Hulaaki.EncoderTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = %Message.Connect{client_id: client_id,
-                               username: username,
-                               password: password,
-                               will_topic: will_topic,
-                               will_message: will_message,
-                               will_qos: will_qos,
-                               will_retain: will_retain,
-                               clean_session: clean_session,
-                               keep_alive: keep_alive}
+
+    message = %Message.Connect{
+      client_id: client_id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
     received = Encoder.calculate_remaining_length(message)
     expected = 81
 
     assert expected == received
 
-    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
-                                 Encoder.encode_payload(message))
+    encoded_length =
+      byte_size(Encoder.encode_variable_header(message) <> Encoder.encode_payload(message))
 
     assert encoded_length == received
   end
@@ -192,8 +205,9 @@ defmodule Hulaaki.EncoderTest do
     expected = 29
 
     assert expected == received
-    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
-                                 Encoder.encode_payload(message))
+
+    encoded_length =
+      byte_size(Encoder.encode_variable_header(message) <> Encoder.encode_payload(message))
 
     assert encoded_length == received
   end
@@ -207,23 +221,25 @@ defmodule Hulaaki.EncoderTest do
     expected = 27
 
     assert expected == received
-    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
-                                 Encoder.encode_payload(message))
+
+    encoded_length =
+      byte_size(Encoder.encode_variable_header(message) <> Encoder.encode_payload(message))
 
     assert encoded_length == received
   end
 
   test "calculate remaining length for Subscribe struct" do
     id = :rand.uniform(65_535)
-    topics = ["hello","cool"]
+    topics = ["hello", "cool"]
     qoses = [0, 2]
     message = Message.subscribe(id, topics, qoses)
     received = Encoder.calculate_remaining_length(message)
     expected = 17
 
     assert expected == received
-    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
-                                 Encoder.encode_payload(message))
+
+    encoded_length =
+      byte_size(Encoder.encode_variable_header(message) <> Encoder.encode_payload(message))
 
     assert encoded_length == received
   end
@@ -236,8 +252,9 @@ defmodule Hulaaki.EncoderTest do
     expected = 6
 
     assert expected == received
-    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
-                                 Encoder.encode_payload(message))
+
+    encoded_length =
+      byte_size(Encoder.encode_variable_header(message) <> Encoder.encode_payload(message))
 
     assert encoded_length == received
   end
@@ -248,8 +265,9 @@ defmodule Hulaaki.EncoderTest do
     expected = 16
 
     assert expected == received
-    encoded_length = byte_size(Encoder.encode_variable_header(message) <>
-                                 Encoder.encode_payload(message))
+
+    encoded_length =
+      byte_size(Encoder.encode_variable_header(message) <> Encoder.encode_payload(message))
 
     assert encoded_length == received
   end
@@ -306,24 +324,30 @@ defmodule Hulaaki.EncoderTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_topic: will_topic,
-                                will_message: will_message,
-                                will_qos: will_qos,
-                                will_retain: will_retain,
-                                clean_session: clean_session,
-                                keep_alive: keep_alive}
+
+    message = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
     received = Encoder.encode_variable_header(message)
     username_flag = 1
     password_flag = 1
     will_flag = 0
-    expected = <<4::size(16)>> <> "MQTT" <> <<4::size(8)>> <>
-                 <<username_flag::size(1), password_flag::size(1),
-                   will_retain::size(1), will_qos::size(2),
-                   will_flag::size(1), clean_session::size(1), 0::size(1)>> <>
-                 <<keep_alive::size(16)>>
+
+    expected =
+      <<4::size(16)>> <>
+        "MQTT" <>
+        <<4::size(8)>> <>
+        <<username_flag::size(1), password_flag::size(1), will_retain::size(1), will_qos::size(2),
+          will_flag::size(1), clean_session::size(1), 0::size(1)>> <> <<keep_alive::size(16)>>
 
     assert expected == received
   end
@@ -331,8 +355,7 @@ defmodule Hulaaki.EncoderTest do
   test "encodes variable header for ConnAck struct" do
     session_present = 0
     return_code = 3
-    message = %Message.ConnAck{session_present: session_present,
-                                return_code: return_code}
+    message = %Message.ConnAck{session_present: session_present, return_code: return_code}
     received = Encoder.encode_variable_header(message)
     expected = <<0, 3>>
 
@@ -346,9 +369,16 @@ defmodule Hulaaki.EncoderTest do
     dup = 0
     qos = 2
     retain = 1
-    message = %Message.Publish{id: id, topic: topic,
-                                message: message, dup: dup,
-                                qos: qos, retain: retain}
+
+    message = %Message.Publish{
+      id: id,
+      topic: topic,
+      message: message,
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     received = Encoder.encode_variable_header(message)
     expected = <<byte_size(topic)::size(16)>> <> topic <> <<id::size(16)>>
 
@@ -361,9 +391,7 @@ defmodule Hulaaki.EncoderTest do
     dup = 0
     qos = 0
     retain = 1
-    message = %Message.Publish{topic: topic,
-                                message: message, dup: dup,
-                                qos: qos, retain: retain}
+    message = %Message.Publish{topic: topic, message: message, dup: dup, qos: qos, retain: retain}
     received = Encoder.encode_variable_header(message)
     expected = <<byte_size(topic)::size(16)>> <> topic
 
@@ -448,17 +476,22 @@ defmodule Hulaaki.EncoderTest do
     password = "pass"
     will_topic = "topic"
     will_message = "message"
-    message = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_message: will_message,
-                                will_topic: will_topic}
+
+    message = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_message: will_message,
+      will_topic: will_topic
+    }
+
     received = Encoder.encode_payload(message)
-    expected = <<0, 6, 99, 108, 105, 101, 110, 116>> <>
-                 <<0, 5, 116, 111, 112, 105, 99>> <>
-                 <<0, 7, 109, 101, 115, 115, 97, 103, 101>> <>
-                 <<0, 4, 117, 115, 101, 114>> <>
-                 <<0, 4, 112, 97, 115, 115>>
+
+    expected =
+      <<0, 6, 99, 108, 105, 101, 110, 116>> <>
+        <<0, 5, 116, 111, 112, 105, 99>> <>
+        <<0, 7, 109, 101, 115, 115, 97, 103, 101>> <>
+        <<0, 4, 117, 115, 101, 114>> <> <<0, 4, 112, 97, 115, 115>>
 
     assert expected == received
   end
@@ -466,19 +499,18 @@ defmodule Hulaaki.EncoderTest do
   test "encodes payload for Publish struct" do
     message = %Message.Publish{message: "this is awesome"}
     received = Encoder.encode_payload(message)
-    expected = <<116, 104, 105, 115>> <> <<32>> <>
-                 <<105, 115>> <> <<32>> <>
-                 <<97, 119, 101, 115, 111, 109, 101>>
+
+    expected =
+      <<116, 104, 105, 115>> <>
+        <<32>> <> <<105, 115>> <> <<32>> <> <<97, 119, 101, 115, 111, 109, 101>>
 
     assert expected == received
   end
 
   test "encodes payload for Subscribe struct" do
-    message = %Message.Subscribe{topics: ["hello", "really"],
-                                 requested_qoses: [1, 2]}
+    message = %Message.Subscribe{topics: ["hello", "really"], requested_qoses: [1, 2]}
     received = Encoder.encode_payload(message)
-    expected = <<0, 5, 104, 101, 108, 108, 111, 1>> <>
-                 <<0, 6, 114, 101, 97, 108, 108, 121, 2>>
+    expected = <<0, 5, 104, 101, 108, 108, 111, 1>> <> <<0, 6, 114, 101, 97, 108, 108, 121, 2>>
 
     assert expected == received
   end
@@ -492,7 +524,7 @@ defmodule Hulaaki.EncoderTest do
   end
 
   test "encodes payload for Unsubscribe struct" do
-    topics = [ "nice", "really"]
+    topics = ["nice", "really"]
     message = %Message.Unsubscribe{topics: topics}
     received = Encoder.encode_payload(message)
     expected = <<0, 4, 110, 105, 99, 101, 0, 6, 114, 101, 97, 108, 108, 121>>

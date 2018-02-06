@@ -37,5 +37,8 @@ bash: run-hulaaki ## Spawn a bash shell for hulaaki service
 test: CMD=mix test
 test: run-hulaaki ## Run the test for hulaaki service
 
+format: CMD=mix format
+format: run-hulaaki ## Run mix format on the library
+
 prune: ## Cleanup dangling/orphaned docker resources globally
 	docker system prune --volumes -f

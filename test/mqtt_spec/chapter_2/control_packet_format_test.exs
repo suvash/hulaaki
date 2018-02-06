@@ -9,9 +9,8 @@ defmodule MQTTSpec.Chapter2.ControlPacketFormatTest do
     retain = 0
     topic = "a/b"
     message = Message.publish(topic, "test", dup, qos, retain)
-    round_trip = message |> Packet.encode |> Packet.decode
+    round_trip = message |> Packet.encode() |> Packet.decode()
 
     assert round_trip.message.id == nil
   end
-
 end

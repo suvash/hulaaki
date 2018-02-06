@@ -52,11 +52,21 @@ defmodule Hulaaki.DecoderTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = Message.connect(id, username, password,
-                              will_topic, will_message, will_qos,
-                              will_retain, clean_session, keep_alive)
 
-    encoded_bytes = Packet.encode message
+    message =
+      Message.connect(
+        id,
+        username,
+        password,
+        will_topic,
+        will_message,
+        will_qos,
+        will_retain,
+        clean_session,
+        keep_alive
+      )
+
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -72,7 +82,7 @@ defmodule Hulaaki.DecoderTest do
     return_code = 3
     message = Message.connect_ack(session_present, return_code)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -92,7 +102,7 @@ defmodule Hulaaki.DecoderTest do
     retain = 1
     message = Message.publish(id, topic, message, dup, qos, retain)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -112,7 +122,7 @@ defmodule Hulaaki.DecoderTest do
     retain = 1
     message = Message.publish(id, topic, message, dup, qos, retain)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -127,7 +137,7 @@ defmodule Hulaaki.DecoderTest do
     id = :rand.uniform(65_535)
     message = Message.publish_ack(id)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -142,7 +152,7 @@ defmodule Hulaaki.DecoderTest do
     id = :rand.uniform(65_535)
     message = Message.publish_receive(id)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -157,7 +167,7 @@ defmodule Hulaaki.DecoderTest do
     id = :rand.uniform(65_535)
     message = Message.publish_release(id)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -172,7 +182,7 @@ defmodule Hulaaki.DecoderTest do
     id = :rand.uniform(65_535)
     message = Message.publish_complete(id)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -185,11 +195,11 @@ defmodule Hulaaki.DecoderTest do
 
   test "attempts to decode a subscribe message" do
     id = :rand.uniform(65_535)
-    topics = ["hello","cool"]
-    qoses = [0, 1 ]
+    topics = ["hello", "cool"]
+    qoses = [0, 1]
     message = Message.subscribe(id, topics, qoses)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -205,7 +215,7 @@ defmodule Hulaaki.DecoderTest do
     qoses = [0, 1, 2, 128]
     message = Message.subscribe_ack(id, qoses)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -218,10 +228,10 @@ defmodule Hulaaki.DecoderTest do
 
   test "attempts to decode a unsubscribe message" do
     id = :rand.uniform(65_535)
-    topics = ["hello","cool"]
+    topics = ["hello", "cool"]
     message = Message.unsubscribe(id, topics)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -236,7 +246,7 @@ defmodule Hulaaki.DecoderTest do
     id = :rand.uniform(65_535)
     message = Message.unsubscribe_ack(id)
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -248,9 +258,9 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a ping request message" do
-    message = Message.ping_request
+    message = Message.ping_request()
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -262,9 +272,9 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a ping response message" do
-    message = Message.ping_response
+    message = Message.ping_response()
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -276,9 +286,9 @@ defmodule Hulaaki.DecoderTest do
   end
 
   test "attempts to decode a disconnect message" do
-    message = Message.disconnect
+    message = Message.disconnect()
 
-    encoded_bytes = Packet.encode message
+    encoded_bytes = Packet.encode(message)
     %{message: decoded_message, remainder: rest} = Decoder.decode(encoded_bytes)
     assert decoded_message == message
     assert rest == <<>>
@@ -288,5 +298,4 @@ defmodule Hulaaki.DecoderTest do
     assert decoded_message == message
     assert rest == <<23, 43>>
   end
-
 end
