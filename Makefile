@@ -31,8 +31,8 @@ tail-logs: ## Tail the logs for MQTT service container
 run-hulaaki: ## Run a one-off command in a new hulaaki service container. Specify using CMD (eg. make run-web CMD=mix test)
 	$(if $(CMD), $(DOCKER_COMPOSE_RUN_HULAAKI) $(CMD), $(error -- CMD must be set))
 
-bash: CMD=/bin/bash
-bash: run-hulaaki ## Spawn a bash shell for hulaaki service
+sh: CMD=/bin/sh
+sh: run-hulaaki ## Spawn a bash shell for hulaaki service
 
 test: CMD=mix test
 test: run-hulaaki ## Run the test for hulaaki service

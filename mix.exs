@@ -26,10 +26,10 @@ defmodule Hulaaki.Mixfile do
   defp deps do
     [
       {:inch_ex, "~> 0.5.6", only: :docs},
-      {:earmark, "~> 1.2.3", only: [:dev, :docs]},
-      {:ex_doc, "~> 0.16.2", only: [:dev, :docs]},
+      {:earmark, "~> 1.2.4", only: [:dev, :docs]},
+      {:ex_doc, "~> 0.18.2", only: [:dev, :docs]},
       {:dialyze, "~> 0.2.1", only: :test},
-      {:excoveralls, "~> 0.7.2", only: [:dev, :test]}
+      {:excoveralls, "~> 0.8.1", only: [:dev, :test]}
     ]
   end
 
