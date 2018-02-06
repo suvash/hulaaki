@@ -9,8 +9,8 @@ defmodule Hulaaki.Client do
       alias Hulaaki.Connection
       alias Hulaaki.Message
 
-      def start_link(initial_state) do
-        GenServer.start_link(__MODULE__, initial_state)
+      def start_link(initial_state, opts \\ []) do
+        GenServer.start_link(__MODULE__, initial_state, opts)
       end
 
       def stop(pid) do
