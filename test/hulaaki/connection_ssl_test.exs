@@ -6,12 +6,12 @@ defmodule Hulaaki.ConnectionSSLTest do
   # How to test disconnect message
 
   defp client_name do
-    adjectives = [ "lazy", "funny", "bright", "boring", "crazy", "lonely" ]
-    nouns = [ "thermometer", "switch", "scale", "bulb", "heater", "microwave" ]
+    adjectives = ["lazy", "funny", "bright", "boring", "crazy", "lonely"]
+    nouns = ["thermometer", "switch", "scale", "bulb", "heater", "microwave"]
 
-    id = to_string :rand.uniform(100_000)
-    [adjective] = adjectives |> Enum.shuffle |> Enum.take(1)
-    [noun] = nouns |> Enum.shuffle |> Enum.take(1)
+    id = to_string(:rand.uniform(100_000))
+    [adjective] = adjectives |> Enum.shuffle() |> Enum.take(1)
+    [noun] = nouns |> Enum.shuffle() |> Enum.take(1)
 
     adjective <> "-" <> noun <> "-" <> id
   end
@@ -23,7 +23,15 @@ defmodule Hulaaki.ConnectionSSLTest do
 
   defp pre_connect(pid) do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
-    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true])
+
+    Connection.connect(
+      pid,
+      message,
+      host: TestConfig.mqtt_host(),
+      port: TestConfig.mqtt_tls_port(),
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: true
+    )
   end
 
   defp post_disconnect(pid) do
@@ -34,7 +42,15 @@ defmodule Hulaaki.ConnectionSSLTest do
   test "failed ssl connection returns an error tuple", %{connection_pid: pid} do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
-    reply = Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: 7878, timeout: TestConfig.mqtt_timeout, ssl: true])
+    reply =
+      Connection.connect(
+        pid,
+        message,
+        host: TestConfig.mqtt_host(),
+        port: 7878,
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: true
+      )
 
     assert {:error, :econnrefused} == reply
   end
@@ -42,9 +58,10 @@ defmodule Hulaaki.ConnectionSSLTest do
   test "connect receives ConnAck", %{connection_pid: pid} do
     pre_connect(pid)
 
-    assert_receive {:received, %Message.ConnAck{return_code: 0,
-                                    session_present: 0,
-                                    type: :CONNACK}}, 30_000
+    assert_receive {:received,
+                    %Message.ConnAck{return_code: 0, session_present: 0, type: :CONNACK}},
+                   30_000
+
     assert_receive {:sent, %Message.Connect{}}, 30_000
 
     post_disconnect(pid)
@@ -69,7 +86,9 @@ defmodule Hulaaki.ConnectionSSLTest do
     post_disconnect(pid)
   end
 
-  test "publish w. qos 2 receives PubRec, publish_release receives PubComp", %{connection_pid: pid} do
+  test "publish w. qos 2 receives PubRec, publish_release receives PubComp", %{
+    connection_pid: pid
+  } do
     pre_connect(pid)
 
     id = 2345
@@ -99,13 +118,15 @@ defmodule Hulaaki.ConnectionSSLTest do
     pre_connect(pid)
 
     id = 34875
-    topics = ["hello","cool"]
-    qoses =  [1, 2]
+    topics = ["hello", "cool"]
+    qoses = [1, 2]
     message = Message.subscribe(id, topics, qoses)
 
     Connection.subscribe(pid, message)
 
-    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}}, 30_000
+    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}},
+                   30_000
+
     assert_receive {:sent, %Message.Subscribe{}}, 30_000
 
     post_disconnect(pid)

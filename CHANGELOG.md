@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 ### Updated
+- Tested on Elixir 1.6
+- Formatted with `mix format` available in Elixir 1.6
 - Default `timeout` for mqtt TCP connection increased to 10 seconds.
 - Added qos `case` matching for qos 2 to return `:noop`, to get rid of warnings.
 

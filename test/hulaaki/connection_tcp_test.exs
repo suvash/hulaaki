@@ -6,12 +6,12 @@ defmodule Hulaaki.ConnectionTCPTest do
   # How to test disconnect message
 
   defp client_name do
-    adjectives = [ "lazy", "funny", "bright", "boring", "crazy", "lonely" ]
-    nouns = [ "thermometer", "switch", "scale", "bulb", "heater", "microwave" ]
+    adjectives = ["lazy", "funny", "bright", "boring", "crazy", "lonely"]
+    nouns = ["thermometer", "switch", "scale", "bulb", "heater", "microwave"]
 
-    id = to_string :rand.uniform(100_000)
-    [adjective] = adjectives |> Enum.shuffle |> Enum.take(1)
-    [noun] = nouns |> Enum.shuffle |> Enum.take(1)
+    id = to_string(:rand.uniform(100_000))
+    [adjective] = adjectives |> Enum.shuffle() |> Enum.take(1)
+    [noun] = nouns |> Enum.shuffle() |> Enum.take(1)
 
     adjective <> "-" <> noun <> "-" <> id
   end
@@ -23,7 +23,15 @@ defmodule Hulaaki.ConnectionTCPTest do
 
   defp pre_connect(pid) do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
-    Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: TestConfig.mqtt_port, timeout: TestConfig.mqtt_timeout, ssl: false])
+
+    Connection.connect(
+      pid,
+      message,
+      host: TestConfig.mqtt_host(),
+      port: TestConfig.mqtt_port(),
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: false
+    )
   end
 
   defp post_disconnect(pid) do
@@ -34,7 +42,15 @@ defmodule Hulaaki.ConnectionTCPTest do
   test "failed tcp connection returns an error tuple", %{connection_pid: pid} do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
-    reply = Connection.connect(pid, message, [host: TestConfig.mqtt_host, port: 7878, timeout: TestConfig.mqtt_timeout, ssl: false])
+    reply =
+      Connection.connect(
+        pid,
+        message,
+        host: TestConfig.mqtt_host(),
+        port: 7878,
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: false
+      )
 
     assert {:error, :econnrefused} == reply
   end
@@ -42,9 +58,10 @@ defmodule Hulaaki.ConnectionTCPTest do
   test "connect receives ConnAck", %{connection_pid: pid} do
     pre_connect(pid)
 
-    assert_receive {:received, %Message.ConnAck{return_code: 0,
-                                    session_present: 0,
-                                    type: :CONNACK}}, 500
+    assert_receive {:received,
+                    %Message.ConnAck{return_code: 0, session_present: 0, type: :CONNACK}},
+                   500
+
     assert_receive {:sent, %Message.Connect{}}, 500
 
     post_disconnect(pid)
@@ -69,7 +86,9 @@ defmodule Hulaaki.ConnectionTCPTest do
     post_disconnect(pid)
   end
 
-  test "publish w. qos 2 receives PubRec, publish_release receives PubComp", %{connection_pid: pid} do
+  test "publish w. qos 2 receives PubRec, publish_release receives PubComp", %{
+    connection_pid: pid
+  } do
     pre_connect(pid)
 
     id = 2345
@@ -99,13 +118,15 @@ defmodule Hulaaki.ConnectionTCPTest do
     pre_connect(pid)
 
     id = 34875
-    topics = ["hello","cool"]
-    qoses =  [1, 2]
+    topics = ["hello", "cool"]
+    qoses = [1, 2]
     message = Message.subscribe(id, topics, qoses)
 
     Connection.subscribe(pid, message)
 
-    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}}, 500
+    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}},
+                   500
+
     assert_receive {:sent, %Message.Subscribe{}}, 500
 
     post_disconnect(pid)
@@ -143,12 +164,12 @@ defmodule Hulaaki.ConnectionTCPTest do
 
     id = :rand.uniform(65_535)
     topics = ["qos0"]
-    qoses =  [0]
+    qoses = [0]
     message = Message.subscribe(id, topics, qoses)
 
     Connection.subscribe(pid1, message)
 
-    spawn fn ->
+    spawn(fn ->
       {:ok, pid2} = Connection.start_link(self())
       pre_connect(pid2)
 
@@ -161,11 +182,18 @@ defmodule Hulaaki.ConnectionTCPTest do
       Connection.publish(pid2, message0)
 
       post_disconnect(pid2)
-    end
+    end)
 
-    assert_receive {:received, %Message.Publish{dup: 0,qos: 0, retain: 0,
-                                    message: "you better get this message on qos 0",
-                                    topic: "qos0", type: :PUBLISH}}, 500
+    assert_receive {:received,
+                    %Message.Publish{
+                      dup: 0,
+                      qos: 0,
+                      retain: 0,
+                      message: "you better get this message on qos 0",
+                      topic: "qos0",
+                      type: :PUBLISH
+                    }},
+                   500
 
     post_disconnect(pid1)
   end
@@ -176,12 +204,12 @@ defmodule Hulaaki.ConnectionTCPTest do
 
     id = :rand.uniform(65_535)
     topics = ["random-topic-8234"]
-    qoses =  [1]
+    qoses = [1]
     message = Message.subscribe(id, topics, qoses)
 
     Connection.subscribe(pid1, message)
 
-    spawn fn ->
+    spawn(fn ->
       {:ok, pid2} = Connection.start_link(self())
       pre_connect(pid2)
 
@@ -195,11 +223,19 @@ defmodule Hulaaki.ConnectionTCPTest do
       Connection.publish(pid2, message1)
 
       post_disconnect(pid2)
-    end
+    end)
 
-    assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
-                                    message: "you better get this message on qos 1",
-                                    topic: "random-topic-8234", type: :PUBLISH}}, 500
+    assert_receive {:received,
+                    %Message.Publish{
+                      id: 1,
+                      dup: 0,
+                      qos: 1,
+                      retain: 0,
+                      message: "you better get this message on qos 1",
+                      topic: "random-topic-8234",
+                      type: :PUBLISH
+                    }},
+                   500
 
     post_disconnect(pid1)
   end
@@ -210,12 +246,12 @@ defmodule Hulaaki.ConnectionTCPTest do
 
     id = :rand.uniform(65_535)
     topics = ["random-topic-2850"]
-    qoses =  [1]
+    qoses = [1]
     message = Message.subscribe(id, topics, qoses)
 
     Connection.subscribe(pid1, message)
 
-    spawn fn ->
+    spawn(fn ->
       {:ok, pid2} = Connection.start_link(self())
       pre_connect(pid2)
 
@@ -229,11 +265,19 @@ defmodule Hulaaki.ConnectionTCPTest do
       Connection.publish(pid2, message1)
 
       post_disconnect(pid2)
-    end
+    end)
 
-    assert_receive {:received, %Message.Publish{id: 1, dup: 0,qos: 1, retain: 0,
-                                    message: "you better get this message on qos 1",
-                                    topic: "random-topic-2850", type: :PUBLISH}}, 500
+    assert_receive {:received,
+                    %Message.Publish{
+                      id: 1,
+                      dup: 0,
+                      qos: 1,
+                      retain: 0,
+                      message: "you better get this message on qos 1",
+                      topic: "random-topic-2850",
+                      type: :PUBLISH
+                    }},
+                   500
 
     message = Message.publish_ack(id)
     Connection.publish_ack(pid1, message)
@@ -242,5 +286,4 @@ defmodule Hulaaki.ConnectionTCPTest do
 
     post_disconnect(pid1)
   end
-
 end

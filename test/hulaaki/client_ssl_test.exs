@@ -6,71 +6,71 @@ defmodule Hulaaki.ClientSSLTest do
     use Hulaaki.Client
 
     def on_connect(message: message, state: state) do
-      Kernel.send state.parent, {:connect, message}
+      Kernel.send(state.parent, {:connect, message})
     end
 
     def on_connect_ack(message: message, state: state) do
-      Kernel.send state.parent, {:connect_ack, message}
+      Kernel.send(state.parent, {:connect_ack, message})
     end
 
     def on_publish(message: message, state: state) do
-      Kernel.send state.parent, {:publish, message}
+      Kernel.send(state.parent, {:publish, message})
     end
 
     def on_subscribed_publish(message: message, state: state) do
-      Kernel.send state.parent, {:subscribed_publish, message}
+      Kernel.send(state.parent, {:subscribed_publish, message})
     end
 
     def on_subscribed_publish_ack(message: message, state: state) do
-      Kernel.send state.parent, {:subscribed_publish_ack, message}
+      Kernel.send(state.parent, {:subscribed_publish_ack, message})
     end
 
     def on_publish_receive(message: message, state: state) do
-      Kernel.send state.parent, {:publish_receive, message}
+      Kernel.send(state.parent, {:publish_receive, message})
     end
 
     def on_publish_release(message: message, state: state) do
-      Kernel.send state.parent, {:publish_release, message}
+      Kernel.send(state.parent, {:publish_release, message})
     end
 
     def on_publish_complete(message: message, state: state) do
-      Kernel.send state.parent, {:publish_complete, message}
+      Kernel.send(state.parent, {:publish_complete, message})
     end
 
     def on_publish_ack(message: message, state: state) do
-      Kernel.send state.parent, {:publish_ack, message}
+      Kernel.send(state.parent, {:publish_ack, message})
     end
 
     def on_subscribe(message: message, state: state) do
-      Kernel.send state.parent, {:subscribe, message}
+      Kernel.send(state.parent, {:subscribe, message})
     end
 
     def on_subscribe_ack(message: message, state: state) do
-      Kernel.send state.parent, {:subscribe_ack, message}
+      Kernel.send(state.parent, {:subscribe_ack, message})
     end
 
     def on_unsubscribe(message: message, state: state) do
-      Kernel.send state.parent, {:unsubscribe, message}
+      Kernel.send(state.parent, {:unsubscribe, message})
     end
 
     def on_unsubscribe_ack(message: message, state: state) do
-      Kernel.send state.parent, {:unsubscribe_ack, message}
+      Kernel.send(state.parent, {:unsubscribe_ack, message})
     end
 
     def on_ping(message: message, state: state) do
-      Kernel.send state.parent, {:ping, message}
+      Kernel.send(state.parent, {:ping, message})
     end
 
     def on_ping_response(message: message, state: state) do
-      Kernel.send state.parent, {:ping_response, message}
+      Kernel.send(state.parent, {:ping_response, message})
     end
 
     def on_ping_response_timeout(message: message, state: state) do
-      Kernel.send state.parent, {:ping_response_timeout, message}
+      Kernel.send(state.parent, {:ping_response_timeout, message})
     end
 
     def on_disconnect(message: message, state: state) do
-      Kernel.send state.parent, {:disconnect, message}
+      Kernel.send(state.parent, {:disconnect, message})
     end
   end
 
@@ -78,7 +78,7 @@ defmodule Hulaaki.ClientSSLTest do
     use Hulaaki.Client
 
     def on_ping(message: message, state: state) do
-      Kernel.send state.parent, {:ping, message}
+      Kernel.send(state.parent, {:ping, message})
     end
 
     def on_ping_response(_) do
@@ -86,7 +86,7 @@ defmodule Hulaaki.ClientSSLTest do
     end
 
     def on_ping_response_timeout(message: _, state: state) do
-      Kernel.send state.parent, {:ping_response_timeout}
+      Kernel.send(state.parent, {:ping_response_timeout})
     end
   end
 
@@ -94,15 +94,15 @@ defmodule Hulaaki.ClientSSLTest do
     use Hulaaki.Client
 
     def on_publish(message: message, state: state) do
-      Kernel.send state.parent, {:publish, message}
+      Kernel.send(state.parent, {:publish, message})
     end
 
     def on_subscribe(message: message, state: state) do
-      Kernel.send state.parent, {:subscribe, message}
+      Kernel.send(state.parent, {:subscribe, message})
     end
 
     def on_unsubscribe(message: message, state: state) do
-      Kernel.send state.parent, {:unsubscribe, message}
+      Kernel.send(state.parent, {:unsubscribe, message})
     end
   end
 
@@ -112,9 +112,14 @@ defmodule Hulaaki.ClientSSLTest do
   end
 
   defp pre_connect(pid) do
-    options = [client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
-               host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port,
-               timeout: TestConfig.mqtt_timeout, ssl: true]
+    options = [
+      client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
+      host: TestConfig.mqtt_host(),
+      port: TestConfig.mqtt_tls_port(),
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: true
+    ]
+
     SampleClient.connect(pid, options)
   end
 
@@ -124,8 +129,13 @@ defmodule Hulaaki.ClientSSLTest do
   end
 
   test "error message when sending connect on connection failure", %{client_pid: pid} do
-    options = [client_id: "some-name-1974", host: TestConfig.mqtt_host, port: 7878,
-               timeout: TestConfig.mqtt_timeout, ssl: true]
+    options = [
+      client_id: "some-name-1974",
+      host: TestConfig.mqtt_host(),
+      port: 7878,
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: true
+    ]
 
     reply = SampleClient.connect(pid, options)
 
@@ -133,23 +143,23 @@ defmodule Hulaaki.ClientSSLTest do
   end
 
   test "on_connect callback on sending connect", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     assert_receive {:connect, %Message.Connect{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_connect_ack callback on receiving connect_ack", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     assert_receive {:connect_ack, %Message.ConnAck{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_disconnect callback on sending disconnect", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     SampleClient.disconnect(pid)
     assert_receive {:disconnect, %Message.Disconnect{}}, 1_000
@@ -158,159 +168,173 @@ defmodule Hulaaki.ClientSSLTest do
   end
 
   test "on_publish callback on sending publish", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
-    options = [topic: "nope", message: "a message",
-               dup: 0, qos: 1, retain: 1]
+    options = [topic: "nope", message: "a message", dup: 0, qos: 1, retain: 1]
     SampleClient.publish(pid, options)
     assert_receive {:publish, %Message.Publish{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_publish callback on sending publish w. qos 0", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
-    options = [topic: "nope", message: "a message",
-               dup: 0, qos: 0, retain: 1]
+    options = [topic: "nope", message: "a message", dup: 0, qos: 0, retain: 1]
     SampleClient.publish(pid, options)
     assert_receive {:publish, %Message.Publish{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_publish_ack callback on receiving publish_ack", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
-    options = [topic: "nope", message: "a message",
-               dup: 0, qos: 1, retain: 1]
+    options = [topic: "nope", message: "a message", dup: 0, qos: 1, retain: 1]
     SampleClient.publish(pid, options)
     assert_receive {:publish_ack, %Message.PubAck{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_publish_receive callback on receiving publish_receive", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
-    options = [topic: "nope", message: "a message",
-               dup: 0, qos: 2, retain: 1]
+    options = [topic: "nope", message: "a message", dup: 0, qos: 2, retain: 1]
     SampleClient.publish(pid, options)
     assert_receive {:publish_receive, %Message.PubRec{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_publish_release callback on sending publish_release", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
-    options = [topic: "nope", message: "a message",
-               dup: 0, qos: 2, retain: 1]
+    options = [topic: "nope", message: "a message", dup: 0, qos: 2, retain: 1]
     SampleClient.publish(pid, options)
     assert_receive {:publish_release, %Message.PubRel{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_publish_complete callback on receiving publish_complete", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
-    options = [topic: "nope", message: "a message",
-               dup: 0, qos: 2, retain: 1]
+    options = [topic: "nope", message: "a message", dup: 0, qos: 2, retain: 1]
     SampleClient.publish(pid, options)
     assert_receive {:publish_complete, %Message.PubComp{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_subscribe callback on sending subscribe", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     options = [topics: ["a/b", "c/d"], qoses: [0, 1]]
     SampleClient.subscribe(pid, options)
     assert_receive {:subscribe, %Message.Subscribe{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_subscribe_ack callback on receiving subscribe_ack", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     options = [topics: ["a/b", "c/d"], qoses: [0, 1]]
     SampleClient.subscribe(pid, options)
     assert_receive {:subscribe_ack, %Message.SubAck{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_unsubscribe callback on sending unsubscribe", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     options = [topics: ["a/d", "c/f"]]
     SampleClient.unsubscribe(pid, options)
     assert_receive {:unsubscribe, %Message.Unsubscribe{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_unsubscribe_ack callback on receiving unsubscribe_ack", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     options = [topics: ["a/d", "c/f"]]
     SampleClient.unsubscribe(pid, options)
     assert_receive {:unsubscribe_ack, %Message.UnsubAck{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_ping callback on sending ping", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     SampleClient.ping(pid)
     assert_receive {:ping, %Message.PingReq{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "on_ping_response callback on receiving ping_resp", %{client_pid: pid} do
-    pre_connect pid
+    pre_connect(pid)
 
     SampleClient.ping(pid)
     assert_receive {:ping_response, %Message.PingResp{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "receives ping (and hence ping_response) after keep_alive timeout on idle connection" do
     {:ok, pid} = SampleClient.start_link(%{parent: self()})
 
-    options = [client_id: "some-name-6379", host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port,
-               keep_alive: 2, timeout: TestConfig.mqtt_timeout, ssl: true]
+    options = [
+      client_id: "some-name-6379",
+      host: TestConfig.mqtt_host(),
+      port: TestConfig.mqtt_tls_port(),
+      keep_alive: 2,
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: true
+    ]
+
     SampleClient.connect(pid, options)
 
     assert_receive({:ping, %Message.PingReq{}}, 4_000)
     assert_receive({:ping_response, %Message.PingResp{}}, 4_000)
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "receives ping response timeout after the ping response timeout" do
-    {:ok, pid} =  HackPingResponseClient.start_link(%{parent: self()})
+    {:ok, pid} = HackPingResponseClient.start_link(%{parent: self()})
 
-    options = [client_id: "ping-response-7402", host: TestConfig.mqtt_host, port: TestConfig.mqtt_tls_port,
-               keep_alive: 2, timeout: TestConfig.mqtt_timeout, ssl: true]
+    options = [
+      client_id: "ping-response-7402",
+      host: TestConfig.mqtt_host(),
+      port: TestConfig.mqtt_tls_port(),
+      keep_alive: 2,
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: true
+    ]
+
     HackPingResponseClient.connect(pid, options)
 
     assert_receive({:ping_response_timeout}, 8_000)
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
   test "packet id is incremented internally" do
-    {:ok, pid} =  PacketIdInspectClient.start_link(%{parent: self()})
+    {:ok, pid} = PacketIdInspectClient.start_link(%{parent: self()})
 
-    options = [client_id: "packet-inspect-9457", host: TestConfig.mqtt_host,
-               port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true]
+    options = [
+      client_id: "packet-inspect-9457",
+      host: TestConfig.mqtt_host(),
+      port: TestConfig.mqtt_tls_port(),
+      timeout: TestConfig.mqtt_timeout(),
+      ssl: true
+    ]
+
     PacketIdInspectClient.connect(pid, options)
 
     options = [topic: "qos0", message: "a message", dup: 0, qos: 0, retain: 1]
@@ -333,58 +357,69 @@ defmodule Hulaaki.ClientSSLTest do
     SampleClient.unsubscribe(pid, options)
     assert_receive {:unsubscribe, %Message.Unsubscribe{id: 4}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
-  test "on_subscribed_publish callback on receiving publish on subscribed topic", %{client_pid: pid} do
-    pre_connect pid
+  test "on_subscribed_publish callback on receiving publish on subscribed topic", %{
+    client_pid: pid
+  } do
+    pre_connect(pid)
 
     options = [topics: ["awesome"], qoses: [0]]
     SampleClient.subscribe(pid, options)
 
-    spawn fn ->
+    spawn(fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name-7592", host: TestConfig.mqtt_host,
-                 port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true]
+      options = [
+        client_id: "another-name-7592",
+        host: TestConfig.mqtt_host(),
+        port: TestConfig.mqtt_tls_port(),
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: true
+      ]
+
       SampleClient.connect(pid2, options)
 
-      options = [topic: "awesome", message: "a message",
-                 dup: 0, qos: 0, retain: 1]
+      options = [topic: "awesome", message: "a message", dup: 0, qos: 0, retain: 1]
       SampleClient.publish(pid2, options)
 
-      post_disconnect pid2
-    end
+      post_disconnect(pid2)
+    end)
 
     assert_receive {:subscribed_publish, %Message.Publish{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
 
-  test "on_subscribed_publish_ack callback on sending publish ack after receiving publish on a subscribed topic", %{client_pid: pid} do
-    pre_connect pid
+  test "on_subscribed_publish_ack callback on sending publish ack after receiving publish on a subscribed topic",
+       %{client_pid: pid} do
+    pre_connect(pid)
 
     options = [topics: ["awesome"], qoses: [1]]
     SampleClient.subscribe(pid, options)
 
-    spawn fn ->
+    spawn(fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
-      options = [client_id: "another-name-8234", host: TestConfig.mqtt_host,
-                 port: TestConfig.mqtt_tls_port, timeout: TestConfig.mqtt_timeout, ssl: true]
+      options = [
+        client_id: "another-name-8234",
+        host: TestConfig.mqtt_host(),
+        port: TestConfig.mqtt_tls_port(),
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: true
+      ]
 
       SampleClient.connect(pid2, options)
 
-      options = [topic: "awesome", message: "a message",
-                 dup: 0, qos: 1, retain: 1]
+      options = [topic: "awesome", message: "a message", dup: 0, qos: 1, retain: 1]
       SampleClient.publish(pid2, options)
 
-      post_disconnect pid2
-    end
+      post_disconnect(pid2)
+    end)
 
     assert_receive {:subscribed_publish_ack, %Message.PubAck{}}, 1_000
 
-    post_disconnect pid
+    post_disconnect(pid)
   end
-
 end

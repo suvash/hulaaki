@@ -12,18 +12,31 @@ defmodule Hulaaki.MessageTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    expected = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_topic: will_topic,
-                                will_message: will_message,
-                                will_qos: will_qos,
-                                will_retain: will_retain,
-                                clean_session: clean_session,
-                                keep_alive: keep_alive}
-    received = Message.connect(id, username, password,
-                               will_topic, will_message, will_qos,
-                               will_retain, clean_session, keep_alive)
+
+    expected = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
+    received =
+      Message.connect(
+        id,
+        username,
+        password,
+        will_topic,
+        will_message,
+        will_qos,
+        will_retain,
+        clean_session,
+        keep_alive
+      )
 
     assert expected == received
   end
@@ -31,8 +44,7 @@ defmodule Hulaaki.MessageTest do
   test "connect_ack builds a ConnAck message struct" do
     session_present = 0
     return_code = 3
-    expected = %Message.ConnAck{session_present: session_present,
-                                return_code: return_code}
+    expected = %Message.ConnAck{session_present: session_present, return_code: return_code}
     received = Message.connect_ack(session_present, return_code)
 
     assert expected == received
@@ -45,9 +57,16 @@ defmodule Hulaaki.MessageTest do
     dup = 0
     qos = 2
     retain = 1
-    expected = %Message.Publish{id: id, topic: topic,
-                                message: message, dup: dup,
-                                qos: qos, retain: retain}
+
+    expected = %Message.Publish{
+      id: id,
+      topic: topic,
+      message: message,
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     received = Message.publish(id, topic, message, dup, qos, retain)
 
     assert expected == received
@@ -60,9 +79,15 @@ defmodule Hulaaki.MessageTest do
     dup = 0
     qos = 0
     retain = 1
-    expected = %Message.Publish{topic: topic,
-                                message: message, dup: dup,
-                                qos: qos, retain: retain}
+
+    expected = %Message.Publish{
+      topic: topic,
+      message: message,
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     received_1 = Message.publish(id, topic, message, dup, qos, retain)
     received_2 = Message.publish(topic, message, dup, qos, retain)
 
@@ -105,15 +130,12 @@ defmodule Hulaaki.MessageTest do
   test "subscribe build a Subscribe message struct" do
     # topics and req_qoses must have equal length
     id = :rand.uniform(65_535)
-    topics = ["hello","cool"]
+    topics = ["hello", "cool"]
     qoses = [0, 1]
-    expected = %Message.Subscribe{id: id,
-                                  topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1]}
+    expected = %Message.Subscribe{id: id, topics: ["hello", "cool"], requested_qoses: [0, 1]}
     received = Message.subscribe(id, topics, qoses)
 
     assert expected == received
-
   end
 
   test "subscribe_ack builds a SubAck message struct" do
@@ -127,7 +149,7 @@ defmodule Hulaaki.MessageTest do
 
   test "unsubscribe builds a Unsubscribe message struct" do
     id = :rand.uniform(65_535)
-    topics = [1,2,"hello","cool"]
+    topics = [1, 2, "hello", "cool"]
     expected = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Message.unsubscribe(id, topics)
 
@@ -144,21 +166,21 @@ defmodule Hulaaki.MessageTest do
 
   test "ping_request builds a PingReq message struct" do
     expected = %Message.PingReq{}
-    received = Message.ping_request
+    received = Message.ping_request()
 
     assert expected == received
   end
 
   test "ping_response builds a PingResponse message struct" do
     expected = %Message.PingResp{}
-    received = Message.ping_response
+    received = Message.ping_response()
 
     assert expected == received
   end
 
   test "disconnect builds a Disconnect message struct" do
     expected = %Message.Disconnect{}
-    received = Message.disconnect
+    received = Message.disconnect()
 
     assert expected == received
   end

@@ -4,7 +4,7 @@ defmodule HulaakiTest do
   alias Hulaaki.Packet
 
   test "Packet protocol encode is implemented for String" do
-    binary = <<1,23,44,2,5>>
+    binary = <<1, 23, 44, 2, 5>>
     assert binary == Packet.encode(binary)
   end
 
@@ -18,22 +18,27 @@ defmodule HulaakiTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_topic: will_topic,
-                                will_message: will_message,
-                                will_qos: will_qos,
-                                will_retain: will_retain,
-                                clean_session: clean_session,
-                                keep_alive: keep_alive}
+
+    message = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
     received = Packet.encode(message)
-    expected = <<16, 52, 0, 4, 77, 81, 84, 84, 4, 224>> <>
-                 <<0, 10, 0, 14, 116, 101, 115, 116, 45, 99, 108, 105>> <>
-                 <<101, 110, 116, 45, 105, 100>> <>
-                 <<0, 9, 116, 101, 115, 116, 45, 117, 115, 101, 114>> <>
-                 <<0, 13, 116, 101, 115, 116, 45, 112, 97, 115, 115>> <>
-                 <<119, 111, 114, 100>>
+
+    expected =
+      <<16, 52, 0, 4, 77, 81, 84, 84, 4, 224>> <>
+        <<0, 10, 0, 14, 116, 101, 115, 116, 45, 99, 108, 105>> <>
+        <<101, 110, 116, 45, 105, 100>> <>
+        <<0, 9, 116, 101, 115, 116, 45, 117, 115, 101, 114>> <>
+        <<0, 13, 116, 101, 115, 116, 45, 112, 97, 115, 115>> <> <<119, 111, 114, 100>>
 
     assert expected == received
   end
@@ -48,15 +53,19 @@ defmodule HulaakiTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_topic: will_topic,
-                                will_message: will_message,
-                                will_qos: will_qos,
-                                will_retain: will_retain,
-                                clean_session: clean_session,
-                                keep_alive: keep_alive}
+
+    message = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
     assert %{message: message, remainder: <<>>} == Packet.decode(message)
   end
 
@@ -70,15 +79,19 @@ defmodule HulaakiTest do
     will_retain = 1
     clean_session = 0
     keep_alive = 10
-    message = %Message.Connect{client_id: id,
-                                username: username,
-                                password: password,
-                                will_topic: will_topic,
-                                will_message: will_message,
-                                will_qos: will_qos,
-                                will_retain: will_retain,
-                                clean_session: clean_session,
-                                keep_alive: keep_alive}
+
+    message = %Message.Connect{
+      client_id: id,
+      username: username,
+      password: password,
+      will_topic: will_topic,
+      will_message: will_message,
+      will_qos: will_qos,
+      will_retain: will_retain,
+      clean_session: clean_session,
+      keep_alive: keep_alive
+    }
+
     encoded_bytes = Packet.encode(message)
 
     decoded_message = Packet.decode(encoded_bytes)
@@ -88,8 +101,7 @@ defmodule HulaakiTest do
   test "Packet protocol encode is implemented for ConnAck message" do
     session_present = 0
     return_code = 3
-    message = %Message.ConnAck{session_present: session_present,
-                                return_code: return_code}
+    message = %Message.ConnAck{session_present: session_present, return_code: return_code}
     received = Packet.encode(message)
     expected = <<32, 2, 0, 3>>
 
@@ -99,16 +111,14 @@ defmodule HulaakiTest do
   test "Packet protocol decode is implemented for ConnAck message" do
     session_present = 0
     return_code = 3
-    message = %Message.ConnAck{session_present: session_present,
-                                return_code: return_code}
+    message = %Message.ConnAck{session_present: session_present, return_code: return_code}
     assert %{message: message, remainder: <<>>} == Packet.decode(message)
   end
 
   test "Packet protocol decode is implemented for encoded ConnAck bytes" do
     session_present = 0
     return_code = 3
-    message = %Message.ConnAck{session_present: session_present,
-                                return_code: return_code}
+    message = %Message.ConnAck{session_present: session_present, return_code: return_code}
     encoded_bytes = Packet.encode(message)
 
     decoded_message = Packet.decode(encoded_bytes)
@@ -119,12 +129,18 @@ defmodule HulaakiTest do
     dup = 1
     qos = 1
     retain = 0
-    message = %Message.Publish{id: 203, topic: "test",
-                               message: "test", dup: dup,
-                               qos: qos, retain: retain}
+
+    message = %Message.Publish{
+      id: 203,
+      topic: "test",
+      message: "test",
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     received = Packet.encode(message)
-    expected = <<58, 12, 0, 4, 116, 101, 115, 116, 0, 203>> <>
-                 <<116, 101, 115, 116>>
+    expected = <<58, 12, 0, 4, 116, 101, 115, 116, 0, 203>> <> <<116, 101, 115, 116>>
 
     assert expected == received
   end
@@ -133,9 +149,16 @@ defmodule HulaakiTest do
     dup = 1
     qos = 1
     retain = 0
-    message = %Message.Publish{id: 203, topic: "test",
-                               message: "test", dup: dup,
-                               qos: qos, retain: retain}
+
+    message = %Message.Publish{
+      id: 203,
+      topic: "test",
+      message: "test",
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     assert %{message: message, remainder: <<>>} == Packet.decode(message)
   end
 
@@ -143,9 +166,16 @@ defmodule HulaakiTest do
     dup = 1
     qos = 1
     retain = 0
-    message = %Message.Publish{id: 203, topic: "test",
-                               message: "test", dup: dup,
-                               qos: qos, retain: retain}
+
+    message = %Message.Publish{
+      id: 203,
+      topic: "test",
+      message: "test",
+      dup: dup,
+      qos: qos,
+      retain: retain
+    }
+
     encoded_bytes = Packet.encode(message)
 
     decoded_message = Packet.decode(encoded_bytes)
@@ -250,29 +280,24 @@ defmodule HulaakiTest do
 
   test "Packet protocol encode is implemented for Subscribe message" do
     id = 7_675
-    message = %Message.Subscribe{id: id,
-                                  topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1]}
+    message = %Message.Subscribe{id: id, topics: ["hello", "cool"], requested_qoses: [0, 1]}
     received = Packet.encode(message)
-    expected = <<130, 17, 29, 251, 0, 5, 104, 101, 108, 108>> <>
-                 <<111, 0, 0, 4, 99, 111, 111, 108, 1>>
+
+    expected =
+      <<130, 17, 29, 251, 0, 5, 104, 101, 108, 108>> <> <<111, 0, 0, 4, 99, 111, 111, 108, 1>>
 
     assert expected == received
   end
 
   test "Packet protocol decode is implemented for Subscribe message" do
     id = 7_675
-    message = %Message.Subscribe{id: id,
-                                  topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1]}
+    message = %Message.Subscribe{id: id, topics: ["hello", "cool"], requested_qoses: [0, 1]}
     assert %{message: message, remainder: <<>>} == Packet.decode(message)
   end
 
   test "Packet protocol decode is implemented for encoded Subscribe bytes" do
     id = 7_675
-    message = %Message.Subscribe{id: id,
-                                  topics: ["hello", "cool"],
-                                  requested_qoses: [0, 1]}
+    message = %Message.Subscribe{id: id, topics: ["hello", "cool"], requested_qoses: [0, 1]}
     encoded_bytes = Packet.encode(message)
 
     decoded_message = Packet.decode(encoded_bytes)
@@ -307,8 +332,7 @@ defmodule HulaakiTest do
     id = 19_234
     message = %Message.Unsubscribe{id: id, topics: ["hello", "cool"]}
     received = Packet.encode(message)
-    expected = <<162, 15, 75, 34, 0, 5, 104, 101, 108, 108>> <>
-                 <<111, 0, 4, 99, 111, 111, 108>>
+    expected = <<162, 15, 75, 34, 0, 5, 104, 101, 108, 108>> <> <<111, 0, 4, 99, 111, 111, 108>>
 
     assert expected == received
   end
