@@ -414,31 +414,38 @@ defmodule Hulaaki.ClientTCPTest do
     post_disconnect(pid)
   end
 
-  test "on_subscribed_publish_ack with qos 2, should not receive subscribed_publish_ack message",
+  test "when qos 2, subscribed_publish and subscribed_publish_ack aren't called back, essential a :noop",
        %{client_pid: pid} do
     pre_connect(pid)
 
-    options = [topics: ["awesome"], qoses: [1]]
+    options = [topics: ["qos-1-topic", "qos-2-topic"], qoses: [1, 2]]
     SampleClient.subscribe(pid, options)
 
     spawn(fn ->
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-8234",
+        client_id: "another-name-7629",
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_port()
       ]
 
       SampleClient.connect(pid2, options)
 
-      options = [topic: "awesome", message: "a message", dup: 0, qos: 1, retain: 2]
-      SampleClient.publish(pid2, options)
+      options_qos_1 = [topic: "qos-1-topic", message: "qos 1 here", dup: 0, qos: 1, retain: 0]
+      SampleClient.publish(pid2, options_qos_1)
+
+      options_qos_2 = [topic: "qos-2-topic", message: "qos 2 here", dup: 0, qos: 2, retain: 0]
+      SampleClient.publish(pid2, options_qos_2)
 
       post_disconnect(pid2)
     end)
 
-    refute_received {:subscribed_publish_ack, %Message.PubAck{}}
+    assert_receive {:subscribed_publish, %Message.Publish{id: 1, message: "qos 1 here"}}
+    assert_receive {:subscribed_publish_ack, %Message.PubAck{id: 1}}
+
+    refute_receive {:subscribed_publish, %Message.Publish{message: "qos 2 here"}}
+    refute_receive {:subscribed_publish_ack, %Message.PubAck{id: 2}}
 
     post_disconnect(pid)
   end
