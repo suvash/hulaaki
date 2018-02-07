@@ -28,7 +28,7 @@ Add Hulaaki to your project dependencies in `mix.exs`
 
 ```elixir
 def deps do
-  [{:hulaaki, "~> 0.1.1"} ]
+  [{:hulaaki, "~> 0.1.2"} ]
 end
 ```
 

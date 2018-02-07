@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [0.1.2] - 2018-02-07
 ### Updated
 - Tested on Elixir 1.6
 - Formatted with `mix format` available in Elixir 1.6
@@ -61,7 +63,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - First version of the project made public
 
-[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/suvash/hulaaki/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/suvash/hulaaki/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/suvash/hulaaki/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/suvash/hulaaki/compare/v0.0.4...v0.1.0
 [0.0.4]: https://github.com/suvash/hulaaki/compare/v0.0.3...v0.0.4
