@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Updated
+- Updated dependencies (only for dev and test)
+
+### Removed
+- Dialyze and related annotations, since they weren't really used.
 
 ## [0.1.2] - 2018-02-07
 ### Updated
