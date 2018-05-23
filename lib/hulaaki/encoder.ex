@@ -6,11 +6,6 @@ defmodule Hulaaki.Encoder do
   Provides functions for encoding Message structs to bytes(binary)
   """
 
-  @type dup :: 0 | 1
-  @type qos :: 0 | 1 | 2
-  @type retain :: 0 | 1
-  @type packet_value :: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
-
   @doc """
   Encodes the fixed header (as specified in MQTT spec) for a given Message struct
   """
@@ -151,14 +146,12 @@ defmodule Hulaaki.Encoder do
     message_id_length + topics_length
   end
 
-  @spec encode_fixed_header_first_byte(packet_value, dup, qos, retain) :: binary
   defp encode_fixed_header_first_byte(packet_value, dup, qos, retain)
        when packet_value > 0 and packet_value < 15 and (dup == 0 or dup == 1) and
               (qos == 0 or qos == 1 or qos == 2) and (retain == 0 or retain == 1) do
     <<packet_value::size(4), dup::size(1), qos::size(2), retain::size(1)>>
   end
 
-  @spec encode_fixed_header_second_byte(number) :: binary
   defp encode_fixed_header_second_byte(remaining_length)
        when remaining_length >= 0 and remaining_length <= 268_435_455 do
     encode_fixed_header_remaining_length(remaining_length)
@@ -168,14 +161,12 @@ defmodule Hulaaki.Encoder do
   Encodes remaining length using a variable length
   encoding scheme specified in MQTT 3.1.1 spec section 2.2.3
   """
-  @spec encode_fixed_header_remaining_length(number) :: binary
   def encode_fixed_header_remaining_length(0), do: <<0>>
 
   def encode_fixed_header_remaining_length(number) when number > 0 do
     encode_fixed_header_remaining_length(number, <<>>)
   end
 
-  @spec encode_fixed_header_remaining_length(number, binary) :: binary
   defp encode_fixed_header_remaining_length(number, accumulator) do
     divisor = 128
     dividend = div(number, divisor)

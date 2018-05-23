@@ -21,18 +21,6 @@ defmodule Hulaaki.Message do
       * `keep_alive`    : An integer representing the keep alive value in seconds.
     """
 
-    @type t :: %__MODULE__{
-            client_id: String.t(),
-            username: String.t(),
-            password: String.t(),
-            will_topic: String.t(),
-            will_message: String.t(),
-            will_qos: 0 | 1 | 2,
-            will_retain: 0 | 1,
-            clean_session: 0 | 1,
-            keep_alive: integer,
-            type: atom
-          }
     defstruct [
       :client_id,
       :username,
@@ -89,7 +77,6 @@ defmodule Hulaaki.Message do
       * `return_code`     : An integer of value either 0,1,2,3,4,5 representing the return code.
     """
 
-    @type t :: %__MODULE__{session_present: 0 | 1, return_code: 1 | 2 | 3 | 4 | 5, type: atom}
     defstruct [:session_present, :return_code, type: :CONNACK]
   end
 
@@ -116,15 +103,6 @@ defmodule Hulaaki.Message do
       * `retain`    : An integer of value either 0,1 representing the retain bit.
     """
 
-    @type t :: %__MODULE__{
-            id: non_neg_integer,
-            topic: String.t(),
-            message: String.t(),
-            dup: 0 | 1,
-            qos: 0 | 1 | 2,
-            retain: 0 | 1,
-            type: atom
-          }
     defstruct [:id, :topic, :message, :dup, :qos, :retain, type: :PUBLISH]
   end
 
@@ -168,7 +146,6 @@ defmodule Hulaaki.Message do
       * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBACK]
   end
 
@@ -188,7 +165,6 @@ defmodule Hulaaki.Message do
       * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBREC]
   end
 
@@ -208,7 +184,6 @@ defmodule Hulaaki.Message do
       * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBREL]
   end
 
@@ -228,7 +203,6 @@ defmodule Hulaaki.Message do
       * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :PUBCOMP]
   end
 
@@ -250,12 +224,6 @@ defmodule Hulaaki.Message do
       * `requested_qoses` : A list of integer of value 0,1,2 representing qoses.
     """
 
-    @type t :: %__MODULE__{
-            id: non_neg_integer,
-            topics: list(String.t()),
-            requested_qoses: list(0 | 1 | 2),
-            type: atom
-          }
     defstruct [:id, :topics, :requested_qoses, type: :SUBSCRIBE]
   end
 
@@ -281,7 +249,6 @@ defmodule Hulaaki.Message do
       * `granted_qoses` : A list of integer of value 0,1,2,128 representing qoses.
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, granted_qoses: list(0 | 1 | 2 | 128), type: atom}
     defstruct [:id, :granted_qoses, type: :SUBACK]
   end
 
@@ -306,7 +273,6 @@ defmodule Hulaaki.Message do
       * `topics`    : A list of string(binary) representing various topics.
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, topics: list(String.t()), type: atom}
     defstruct [:id, :topics, type: :UNSUBSCRIBE]
   end
 
@@ -328,7 +294,6 @@ defmodule Hulaaki.Message do
       * `packet_id` : An integer of value upto 65535 (2 bytes) representing packet identifier
     """
 
-    @type t :: %__MODULE__{id: non_neg_integer, type: atom}
     defstruct [:id, type: :UNSUBACK]
   end
 
@@ -345,7 +310,6 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki PingReq
     """
 
-    @type t :: %__MODULE__{type: atom}
     defstruct type: :PINGREQ
   end
 
@@ -361,7 +325,6 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki PingResp
     """
 
-    @type t :: %__MODULE__{type: atom}
     defstruct type: :PINGRESP
   end
 
@@ -377,7 +340,6 @@ defmodule Hulaaki.Message do
     Struct for Hulaaki Disconnect
     """
 
-    @type t :: %__MODULE__{type: atom}
     defstruct type: :DISCONNECT
   end
 
