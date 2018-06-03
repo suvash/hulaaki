@@ -4,3 +4,7 @@
 /deps
 erl_crash.dump
 *.ez
+
+# Ignore JetBrains IDE family (IntelliJ, PyCharm, etc.) project files
+*.iml
+.idea/
