@@ -134,6 +134,11 @@ defmodule Hulaaki.Connection do
     {:stop, :shutdown, state}
   end
 
+  @doc false
+  def handle_info({:websocket_closed, _socket}, state) do
+    {:stop, :shutdown, state}
+  end
+
   defp handle_socket_data(socket, data, state) do
     set_active_once(socket, state.transport)
     {messages, remainder} = decode_packets(state.remainder <> data)
@@ -169,6 +174,7 @@ defmodule Hulaaki.Connection do
     case transport do
       :ssl -> :ssl.setopts(socket, active: :once)
       :gen_tcp -> :inet.setopts(socket, active: :once)
+      Hulaaki.WebSocket -> IO.puts("Maybe do something?")
     end
 
     socket
@@ -180,14 +186,17 @@ defmodule Hulaaki.Connection do
     host = if is_binary(host), do: String.to_charlist(host), else: host
     port = opts |> Keyword.fetch!(:port)
     ssl = opts |> Keyword.fetch!(:ssl)
+    websockets = opts |> Keyword.fetch!(:websockets)
 
     tcp_opts = [:binary, {:active, :once}, {:packet, :raw}]
 
     {transport, socket_opts} =
-      case ssl do
-        false -> {:gen_tcp, tcp_opts}
-        true -> {:ssl, tcp_opts}
-        ssl_opts -> {:ssl, tcp_opts ++ ssl_opts}
+      case {websockets, ssl} do
+        {false, false} -> {:gen_tcp, tcp_opts}
+        {false, true} -> {:ssl, tcp_opts}
+        {false, ssl_opts} -> {:ssl, tcp_opts ++ ssl_opts}
+        {true, _} -> {Hulaaki.WebSocket, [secure: ssl]}
+        {websocket_opts, _} -> {Hulaaki.WebSocket, websocket_opts ++ [secure: ssl]}
       end
 
     case transport.connect(host, port, socket_opts, timeout) do
