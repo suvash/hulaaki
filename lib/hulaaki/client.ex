@@ -73,6 +73,7 @@ defmodule Hulaaki.Client do
         port = opts |> Keyword.fetch!(:port)
         timeout = opts |> Keyword.get(:timeout, 10 * 1000)
         ssl = opts |> Keyword.get(:ssl, false)
+        websockets = opts |> Keyword.get(:websockets, false)
 
         client_id = opts |> Keyword.fetch!(:client_id)
         username = opts |> Keyword.get(:username, "")
@@ -102,7 +103,13 @@ defmodule Hulaaki.Client do
 
         state = Map.merge(%{connection: conn_pid}, state)
 
-        connect_opts = [host: host, port: port, timeout: timeout, ssl: ssl]
+        connect_opts = [
+          host: host,
+          port: port,
+          timeout: timeout,
+          ssl: ssl,
+          websockets: websockets
+        ]
 
         case state.connection |> Connection.connect(message, connect_opts) do
           :ok ->
