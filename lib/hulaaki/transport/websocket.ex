@@ -47,4 +47,7 @@ defmodule Hulaaki.Transport.WebSocket do
   end
 
   def set_active_once(conn), do: conn
+
+  def packet_message, do: :gun
+  def closing_message, do: :gun_down
 end
