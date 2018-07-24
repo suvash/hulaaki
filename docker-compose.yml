@@ -10,6 +10,8 @@ services:
     ports:
       - "8083:1883"
       - "8084:8883"
+      - "8085:1884"
+      - "8086:1885"
 
   hulaaki:
     build: .
@@ -26,3 +28,4 @@ services:
       MQTT_HOST: mqtt-host
       MQTT_PORT: 1883
       MQTT_TLS_PORT: 8883
+      MQTT_WEBSOCKET_PORT: 1884
