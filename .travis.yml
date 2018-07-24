@@ -8,6 +8,8 @@ matrix:
       elixir: 1.5.3
     - otp_release: 20.2
       elixir: 1.6.0
+    - otp_release: 21.0
+      elixir: 1.7
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get -y install libc-ares-dev libssl-dev uuid-dev cmake

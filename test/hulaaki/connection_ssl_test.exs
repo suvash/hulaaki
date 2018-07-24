@@ -24,14 +24,15 @@ defmodule Hulaaki.ConnectionSSLTest do
   defp pre_connect(pid) do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
-    Connection.connect(
-      pid,
-      message,
-      host: TestConfig.mqtt_host(),
-      port: TestConfig.mqtt_tls_port(),
-      timeout: TestConfig.mqtt_timeout(),
-      ssl: true
-    )
+    :ok =
+      Connection.connect(
+        pid,
+        message,
+        host: TestConfig.mqtt_host(),
+        port: TestConfig.mqtt_tls_port(),
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: TestConfig.ssl_options()
+      )
   end
 
   defp post_disconnect(pid) do
@@ -49,7 +50,7 @@ defmodule Hulaaki.ConnectionSSLTest do
         host: TestConfig.mqtt_host(),
         port: 7878,
         timeout: TestConfig.mqtt_timeout(),
-        ssl: true
+        ssl: TestConfig.ssl_options()
       )
 
     assert {:error, :econnrefused} == reply

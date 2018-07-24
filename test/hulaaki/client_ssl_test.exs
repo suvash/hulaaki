@@ -117,7 +117,7 @@ defmodule Hulaaki.ClientSSLTest do
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_tls_port(),
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: TestConfig.ssl_options()
     ]
 
     :ok = SampleClient.connect(pid, options)
@@ -134,7 +134,7 @@ defmodule Hulaaki.ClientSSLTest do
       host: TestConfig.mqtt_host(),
       port: 7878,
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: TestConfig.ssl_options()
     ]
 
     reply = SampleClient.connect(pid, options)
@@ -294,7 +294,7 @@ defmodule Hulaaki.ClientSSLTest do
       port: TestConfig.mqtt_tls_port(),
       keep_alive: 2,
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: TestConfig.ssl_options()
     ]
 
     SampleClient.connect(pid, options)
@@ -314,7 +314,7 @@ defmodule Hulaaki.ClientSSLTest do
       port: TestConfig.mqtt_tls_port(),
       keep_alive: 2,
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: TestConfig.ssl_options()
     ]
 
     HackPingResponseClient.connect(pid, options)
@@ -332,7 +332,7 @@ defmodule Hulaaki.ClientSSLTest do
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_tls_port(),
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: TestConfig.ssl_options()
     ]
 
     PacketIdInspectClient.connect(pid, options)
@@ -376,7 +376,7 @@ defmodule Hulaaki.ClientSSLTest do
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_tls_port(),
         timeout: TestConfig.mqtt_timeout(),
-        ssl: true
+        ssl: TestConfig.ssl_options()
       ]
 
       SampleClient.connect(pid2, options)
@@ -407,7 +407,7 @@ defmodule Hulaaki.ClientSSLTest do
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_tls_port(),
         timeout: TestConfig.mqtt_timeout(),
-        ssl: true
+        ssl: TestConfig.ssl_options()
       ]
 
       SampleClient.connect(pid2, options)

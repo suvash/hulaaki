@@ -1,6 +1,17 @@
 ExUnit.start()
 
 defmodule TestConfig do
+
+  def ssl_options do
+    case :erlang.system_info(:otp_release) do
+      '21' -> [
+        ciphers: [
+          %{cipher: :"3des_ede_cbc", key_exchange: :rsa, mac: :sha, prf: :default_prf}
+        ]
+      ]
+      _ -> []
+    end
+  end
   def mqtt_host do
     System.get_env("MQTT_HOST") || "localhost"
   end
