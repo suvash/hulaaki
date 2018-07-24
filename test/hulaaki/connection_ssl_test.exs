@@ -3,6 +3,12 @@ defmodule Hulaaki.ConnectionSSLTest do
   alias Hulaaki.Connection
   alias Hulaaki.Message
 
+  @ssl_options [
+    ciphers: [
+      %{cipher: :"3des_ede_cbc", key_exchange: :rsa, mac: :sha, prf: :default_prf}
+    ]
+  ]
+
   # How to test disconnect message
 
   defp client_name do
@@ -24,14 +30,15 @@ defmodule Hulaaki.ConnectionSSLTest do
   defp pre_connect(pid) do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
-    Connection.connect(
-      pid,
-      message,
-      host: TestConfig.mqtt_host(),
-      port: TestConfig.mqtt_tls_port(),
-      timeout: TestConfig.mqtt_timeout(),
-      ssl: true
-    )
+    :ok =
+      Connection.connect(
+        pid,
+        message,
+        host: TestConfig.mqtt_host(),
+        port: TestConfig.mqtt_tls_port(),
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: @ssl_options
+      )
   end
 
   defp post_disconnect(pid) do
@@ -49,7 +56,7 @@ defmodule Hulaaki.ConnectionSSLTest do
         host: TestConfig.mqtt_host(),
         port: 7878,
         timeout: TestConfig.mqtt_timeout(),
-        ssl: true
+        ssl: @ssl_options
       )
 
     assert {:error, :econnrefused} == reply

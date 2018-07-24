@@ -20,7 +20,7 @@ defmodule Hulaaki.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :gun]]
   end
 
   defp deps do
@@ -28,7 +28,8 @@ defmodule Hulaaki.Mixfile do
       {:inch_ex, "~> 0.5", only: :docs},
       {:earmark, "~> 1.2", only: [:dev, :docs]},
       {:ex_doc, "~> 0.18", only: [:dev, :docs]},
-      {:excoveralls, "~> 0.8", only: [:dev, :test]}
+      {:excoveralls, "~> 0.8", only: [:dev, :test]},
+      {:gun, github: "ninenines/gun", tag: "1.0.0-rc.1"}
     ]
   end
 
