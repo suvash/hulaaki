@@ -1,3 +1,4 @@
+---
 version: "3"
 services:
 
@@ -8,8 +9,10 @@ services:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto/certs/:/etc/mosquitto/certs/
     ports:
-      - "8083:1883"
-      - "8084:8883"
+      - '1883:1883'
+      - '8883:8883'
+      - '1884:1884'
+      - '8884:8884'
 
   hulaaki:
     build: .
@@ -23,4 +26,6 @@ services:
     environment:
       MQTT_HOST: mqtt-server
       MQTT_PORT: 1883
+      MQTT_WS_PORT: 1884
       MQTT_TLS_PORT: 8883
+      MQTT_WS_TLS_PORT: 8884
