@@ -11,10 +11,10 @@ matrix:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get -y install libc-ares-dev libssl-dev uuid-dev
-  - wget http://mosquitto.org/files/source/mosquitto-1.4.tar.gz
+  - wget http://mirror.switch.ch/eclipse/mosquitto/source/mosquitto-1.4.12.tar.gz
 install:
-  - tar xvzf mosquitto-1.4.tar.gz
-  - cd mosquitto-1.4
+  - tar xvzf mosquitto-1.4.12.tar.gz
+  - cd mosquitto-1.4.12
   - make
   - sudo make install
   - cd ..
