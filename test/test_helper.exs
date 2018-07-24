@@ -26,6 +26,11 @@ defmodule TestConfig do
     port
   end
 
+  def mqtt_websocket_port do
+    {port, _} = (System.get_env("MQTT_WEBSOCKET_PORT") || "1884") |> Integer.parse()
+    port
+  end
+
   def mqtt_timeout do
     2000
   end
