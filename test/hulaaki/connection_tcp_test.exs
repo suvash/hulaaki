@@ -24,14 +24,15 @@ defmodule Hulaaki.ConnectionTCPTest do
   defp pre_connect(pid) do
     message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
 
-    Connection.connect(
-      pid,
-      message,
-      host: TestConfig.mqtt_host(),
-      port: TestConfig.mqtt_port(),
-      timeout: TestConfig.mqtt_timeout(),
-      ssl: false
-    )
+    :ok =
+      Connection.connect(
+        pid,
+        message,
+        host: TestConfig.mqtt_host(),
+        port: TestConfig.mqtt_port(),
+        timeout: TestConfig.mqtt_timeout(),
+        ssl: false
+      )
   end
 
   defp post_disconnect(pid) do

@@ -120,7 +120,7 @@ defmodule Hulaaki.ClientSSLTest do
       ssl: true
     ]
 
-    SampleClient.connect(pid, options)
+    :ok = SampleClient.connect(pid, options)
   end
 
   defp post_disconnect(pid) do

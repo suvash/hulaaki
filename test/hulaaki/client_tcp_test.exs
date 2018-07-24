@@ -119,7 +119,7 @@ defmodule Hulaaki.ClientTCPTest do
       timeout: 200
     ]
 
-    SampleClient.connect(pid, options)
+    :ok = SampleClient.connect(pid, options)
   end
 
   defp post_disconnect(pid) do
