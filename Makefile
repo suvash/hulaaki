@@ -1,5 +1,5 @@
 .DEFAULT_GOAL:=help
-SHELL:=/bin/bash
+SHELL:=/usr/bin/env bash
 
 HULAAKI_SERVICE:=hulaaki
 MQTT_SERVICE:=mqtt_server
