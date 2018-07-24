@@ -115,32 +115,17 @@ defmodule Hulaaki.Connection do
   end
 
   @doc false
-  def handle_info({:tcp, socket, data}, state) do
-    handle_socket_data(socket, data, state)
-  end
+  def handle_info(message, state) do
+    packet = state.transport.packet_message()
+    closing = state.transport.closing_message()
 
-  @doc false
-  def handle_info({:ssl, socket, data}, state) do
-    handle_socket_data(socket, data, state)
-  end
+    case message |> Tuple.to_list() do
+      [^packet, socket, data | _] ->
+        handle_socket_data(socket, data, state)
 
-  def handle_info({:websocket, socket, data}, state) do
-    handle_socket_data(socket, data, state)
-  end
-
-  @doc false
-  def handle_info({:tcp_closed, _socket}, state) do
-    {:stop, :shutdown, state}
-  end
-
-  @doc false
-  def handle_info({:ssl_closed, _socket}, state) do
-    {:stop, :shutdown, state}
-  end
-
-  @doc false
-  def handle_info({:gun_down, _, _, _, _, _}, state) do
-    {:stop, :shutdown, state}
+      [^closing, _] ->
+        {:stop, :shutdown, state}
+    end
   end
 
   defp handle_socket_data(socket, data, state) do

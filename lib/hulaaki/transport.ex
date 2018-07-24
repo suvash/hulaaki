@@ -8,4 +8,6 @@ defmodule Hulaaki.Transport do
   @callback send(socket :: socket, packet :: packet) :: :ok | {:error, any}
   @callback close(socket :: socket) :: :ok | {:error, any}
   @callback set_active_once(socket :: socket) :: :ok | {:error, any}
+  @callback packet_message() :: atom()
+  @callback closing_message() :: atom()
 end

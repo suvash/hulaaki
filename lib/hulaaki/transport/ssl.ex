@@ -15,4 +15,7 @@ defmodule Hulaaki.Transport.Ssl do
     :ssl.setopts(socket, active: :once)
     socket
   end
+
+  def packet_message, do: :ssl
+  def closing_message, do: :ssl_closed
 end

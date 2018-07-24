@@ -15,4 +15,7 @@ defmodule Hulaaki.Transport.Tcp do
     :inet.setopts(socket, active: :once)
     socket
   end
+
+  def packet_message, do: :tcp
+  def closing_message, do: :tcp_closed
 end
