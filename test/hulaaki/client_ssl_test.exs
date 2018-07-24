@@ -2,6 +2,12 @@ defmodule Hulaaki.ClientSSLTest do
   use ExUnit.Case
   alias Hulaaki.Message
 
+  @ssl_options [
+    ciphers: [
+      %{cipher: :"3des_ede_cbc", key_exchange: :rsa, mac: :sha, prf: :default_prf}
+    ]
+  ]
+
   defmodule SampleClient do
     use Hulaaki.Client
 
@@ -117,7 +123,7 @@ defmodule Hulaaki.ClientSSLTest do
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_tls_port(),
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: @ssl_options
     ]
 
     :ok = SampleClient.connect(pid, options)
@@ -134,7 +140,7 @@ defmodule Hulaaki.ClientSSLTest do
       host: TestConfig.mqtt_host(),
       port: 7878,
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: @ssl_options
     ]
 
     reply = SampleClient.connect(pid, options)
@@ -294,7 +300,7 @@ defmodule Hulaaki.ClientSSLTest do
       port: TestConfig.mqtt_tls_port(),
       keep_alive: 2,
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: @ssl_options
     ]
 
     SampleClient.connect(pid, options)
@@ -314,7 +320,7 @@ defmodule Hulaaki.ClientSSLTest do
       port: TestConfig.mqtt_tls_port(),
       keep_alive: 2,
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: @ssl_options
     ]
 
     HackPingResponseClient.connect(pid, options)
@@ -332,7 +338,7 @@ defmodule Hulaaki.ClientSSLTest do
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_tls_port(),
       timeout: TestConfig.mqtt_timeout(),
-      ssl: true
+      ssl: @ssl_options
     ]
 
     PacketIdInspectClient.connect(pid, options)
@@ -376,7 +382,7 @@ defmodule Hulaaki.ClientSSLTest do
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_tls_port(),
         timeout: TestConfig.mqtt_timeout(),
-        ssl: true
+        ssl: @ssl_options
       ]
 
       SampleClient.connect(pid2, options)
@@ -407,7 +413,7 @@ defmodule Hulaaki.ClientSSLTest do
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_tls_port(),
         timeout: TestConfig.mqtt_timeout(),
-        ssl: true
+        ssl: @ssl_options
       ]
 
       SampleClient.connect(pid2, options)
