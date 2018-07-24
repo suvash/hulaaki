@@ -2,7 +2,7 @@
 SHELL:=/usr/bin/env bash
 
 HULAAKI_SERVICE:=hulaaki
-MQTT_SERVICE:=mqtt_server
+MQTT_SERVICE:=mqtt-server
 
 DOCKER_COMPOSE:=docker-compose -f docker-compose.yml
 DOCKER_COMPOSE_RUN_HULAAKI:=$(DOCKER_COMPOSE) run --rm $(HULAAKI_SERVICE)
