@@ -1,28 +1,15 @@
 defmodule Hulaaki.ConnectionSSLTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Hulaaki.Connection
   alias Hulaaki.Message
 
-  # How to test disconnect message
-
-  defp client_name do
-    adjectives = ["lazy", "funny", "bright", "boring", "crazy", "lonely"]
-    nouns = ["thermometer", "switch", "scale", "bulb", "heater", "microwave"]
-
-    id = to_string(:rand.uniform(100_000))
-    [adjective] = adjectives |> Enum.shuffle() |> Enum.take(1)
-    [noun] = nouns |> Enum.shuffle() |> Enum.take(1)
-
-    adjective <> "-" <> noun <> "-" <> id
-  end
-
   setup do
-    {:ok, pid} = Connection.start_link(self())
+    {:ok, pid} = Connection.start(self())
     {:ok, connection_pid: pid}
   end
 
   defp pre_connect(pid) do
-    message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
+    message = Message.connect(TestHelper.random_name(), "", "", "", "", 0, 0, 0, 100)
 
     :ok =
       Connection.connect(
@@ -41,7 +28,7 @@ defmodule Hulaaki.ConnectionSSLTest do
   end
 
   test "failed ssl connection returns an error tuple", %{connection_pid: pid} do
-    message = Message.connect(client_name(), "", "", "", "", 0, 0, 0, 100)
+    message = Message.connect(TestHelper.random_name(), "", "", "", "", 0, 0, 0, 100)
 
     reply =
       Connection.connect(
@@ -60,10 +47,9 @@ defmodule Hulaaki.ConnectionSSLTest do
     pre_connect(pid)
 
     assert_receive {:received,
-                    %Message.ConnAck{return_code: 0, session_present: 0, type: :CONNACK}},
-                   30_000
+                    %Message.ConnAck{return_code: 0, session_present: 0, type: :CONNACK}}
 
-    assert_receive {:sent, %Message.Connect{}}, 30_000
+    assert_receive {:sent, %Message.Connect{}}
 
     post_disconnect(pid)
   end
@@ -81,8 +67,8 @@ defmodule Hulaaki.ConnectionSSLTest do
 
     Connection.publish(pid, message)
 
-    assert_receive {:received, %Message.PubAck{id: 1122, type: :PUBACK}}, 30_000
-    assert_receive {:sent, %Message.Publish{}}, 30_000
+    assert_receive {:received, %Message.PubAck{id: 1122, type: :PUBACK}}
+    assert_receive {:sent, %Message.Publish{}}
 
     post_disconnect(pid)
   end
@@ -102,15 +88,15 @@ defmodule Hulaaki.ConnectionSSLTest do
 
     Connection.publish(pid, publish_message)
 
-    assert_receive {:received, %Message.PubRec{id: 2345, type: :PUBREC}}, 30_000
-    assert_receive {:sent, %Message.Publish{}}, 30_000
+    assert_receive {:received, %Message.PubRec{id: 2345, type: :PUBREC}}
+    assert_receive {:sent, %Message.Publish{}}
 
     publish_release_message = Message.publish_release(id)
 
     Connection.publish_release(pid, publish_release_message)
 
-    assert_receive {:received, %Message.PubComp{id: 2345, type: :PUBCOMP}}, 30_000
-    assert_receive {:sent, %Message.PubRel{}}, 30_000
+    assert_receive {:received, %Message.PubComp{id: 2345, type: :PUBCOMP}}
+    assert_receive {:sent, %Message.PubRel{}}
 
     post_disconnect(pid)
   end
@@ -125,10 +111,8 @@ defmodule Hulaaki.ConnectionSSLTest do
 
     Connection.subscribe(pid, message)
 
-    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}},
-                   30_000
-
-    assert_receive {:sent, %Message.Subscribe{}}, 30_000
+    assert_receive {:received, %Message.SubAck{granted_qoses: [1, 2], id: 34875, type: :SUBACK}}
+    assert_receive {:sent, %Message.Subscribe{}}
 
     post_disconnect(pid)
   end
@@ -142,8 +126,8 @@ defmodule Hulaaki.ConnectionSSLTest do
 
     Connection.unsubscribe(pid, message)
 
-    assert_receive {:received, %Message.UnsubAck{id: 19234, type: :UNSUBACK}}, 30_000
-    assert_receive {:sent, %Message.Unsubscribe{}}, 30_000
+    assert_receive {:received, %Message.UnsubAck{id: 19234, type: :UNSUBACK}}
+    assert_receive {:sent, %Message.Unsubscribe{}}
 
     post_disconnect(pid)
   end
@@ -153,8 +137,8 @@ defmodule Hulaaki.ConnectionSSLTest do
 
     Connection.ping(pid)
 
-    assert_receive {:received, %Message.PingResp{type: :PINGRESP}}, 30_000
-    assert_receive {:sent, %Message.PingReq{}}, 30_000
+    assert_receive {:received, %Message.PingResp{type: :PINGRESP}}
+    assert_receive {:sent, %Message.PingReq{}}
 
     post_disconnect(pid)
   end

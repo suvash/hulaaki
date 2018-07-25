@@ -1,5 +1,5 @@
 defmodule HulaakiTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Hulaaki.Message
   alias Hulaaki.Packet
 

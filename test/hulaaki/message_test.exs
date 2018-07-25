@@ -1,5 +1,5 @@
 defmodule Hulaaki.MessageTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Hulaaki.Message
 
   test "connect build a Connect message struct" do

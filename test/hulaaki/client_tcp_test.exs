@@ -1,5 +1,5 @@
 defmodule Hulaaki.ClientTCPTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Hulaaki.Message
 
   defmodule SampleClient do
@@ -113,10 +113,10 @@ defmodule Hulaaki.ClientTCPTest do
 
   defp pre_connect(pid) do
     options = [
-      client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_port(),
-      timeout: 200
+      timeout: TestConfig.mqtt_timeout()
     ]
 
     :ok = SampleClient.connect(pid, options)
@@ -129,10 +129,10 @@ defmodule Hulaaki.ClientTCPTest do
 
   test "error message when sending connect on connection failure", %{client_pid: pid} do
     options = [
-      client_id: "some-name-1974",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: 7878,
-      timeout: 200
+      timeout: TestConfig.mqtt_timeout()
     ]
 
     reply = SampleClient.connect(pid, options)
@@ -287,11 +287,11 @@ defmodule Hulaaki.ClientTCPTest do
     {:ok, pid} = SampleClient.start_link(%{parent: self()})
 
     options = [
-      client_id: "some-name-6379",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_port(),
       keep_alive: 2,
-      timeout: 200
+      timeout: TestConfig.mqtt_timeout()
     ]
 
     SampleClient.connect(pid, options)
@@ -306,11 +306,11 @@ defmodule Hulaaki.ClientTCPTest do
     {:ok, pid} = HackPingResponseClient.start_link(%{parent: self()})
 
     options = [
-      client_id: "ping-response-7402",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_port(),
       keep_alive: 2,
-      timeout: 200
+      timeout: TestConfig.mqtt_timeout()
     ]
 
     HackPingResponseClient.connect(pid, options)
@@ -324,10 +324,10 @@ defmodule Hulaaki.ClientTCPTest do
     {:ok, pid} = PacketIdInspectClient.start_link(%{parent: self()})
 
     options = [
-      client_id: "packet-inspect-9457",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_port(),
-      timeout: 200
+      timeout: TestConfig.mqtt_timeout()
     ]
 
     PacketIdInspectClient.connect(pid, options)
@@ -367,7 +367,7 @@ defmodule Hulaaki.ClientTCPTest do
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-7592",
+        client_id: TestHelper.random_name(),
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_port()
       ]
@@ -396,7 +396,7 @@ defmodule Hulaaki.ClientTCPTest do
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-8234",
+        client_id: TestHelper.random_name(),
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_port()
       ]
@@ -425,7 +425,7 @@ defmodule Hulaaki.ClientTCPTest do
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-7629",
+        client_id: TestHelper.random_name(),
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_port()
       ]

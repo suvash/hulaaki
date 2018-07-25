@@ -1,5 +1,5 @@
 defmodule Hulaaki.EncoderTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Hulaaki.Encoder
   alias Hulaaki.Message
 

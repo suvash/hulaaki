@@ -1,5 +1,5 @@
 defmodule Hulaaki.ClientWebsocketTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Hulaaki.Message
 
   defmodule SampleClient do
@@ -113,10 +113,10 @@ defmodule Hulaaki.ClientWebsocketTest do
 
   defp pre_connect(pid) do
     options = [
-      client_id: "some-name" <> Integer.to_string(:rand.uniform(10_000)),
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_websocket_port(),
-      timeout: 2000,
+      timeout: TestConfig.mqtt_timeout(),
       transport: Hulaaki.Transport.WebSocket,
       transport_opts: []
     ]
@@ -131,7 +131,7 @@ defmodule Hulaaki.ClientWebsocketTest do
 
   test "error message when sending connect on connection failure", %{client_pid: pid} do
     options = [
-      client_id: "some-name-1974",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: 7878,
       timeout: 200,
@@ -141,7 +141,7 @@ defmodule Hulaaki.ClientWebsocketTest do
 
     reply = SampleClient.connect(pid, options)
 
-    assert {:error, :timeout} == reply
+    assert {:error, :econnrefused} == reply
   end
 
   test "on_connect callback on sending connect", %{client_pid: pid} do
@@ -155,7 +155,7 @@ defmodule Hulaaki.ClientWebsocketTest do
   test "on_connect_ack callback on receiving connect_ack", %{client_pid: pid} do
     pre_connect(pid)
 
-    assert_receive {:connect_ack, %Message.ConnAck{}}, 500
+    assert_receive {:connect_ack, %Message.ConnAck{}}
 
     post_disconnect(pid)
   end
@@ -291,11 +291,11 @@ defmodule Hulaaki.ClientWebsocketTest do
     {:ok, pid} = SampleClient.start_link(%{parent: self()})
 
     options = [
-      client_id: "some-name-6379",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_websocket_port(),
       keep_alive: 2,
-      timeout: 2000,
+      timeout: TestConfig.mqtt_timeout(),
       transport: Hulaaki.Transport.WebSocket,
       transport_opts: []
     ]
@@ -312,11 +312,11 @@ defmodule Hulaaki.ClientWebsocketTest do
     {:ok, pid} = HackPingResponseClient.start_link(%{parent: self()})
 
     options = [
-      client_id: "ping-response-7402",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_websocket_port(),
       keep_alive: 2,
-      timeout: 2000,
+      timeout: TestConfig.mqtt_timeout(),
       transport: Hulaaki.Transport.WebSocket,
       transport_opts: []
     ]
@@ -332,10 +332,10 @@ defmodule Hulaaki.ClientWebsocketTest do
     {:ok, pid} = PacketIdInspectClient.start_link(%{parent: self()})
 
     options = [
-      client_id: "packet-inspect-9457",
+      client_id: TestHelper.random_name(),
       host: TestConfig.mqtt_host(),
       port: TestConfig.mqtt_websocket_port(),
-      timeout: 2000,
+      timeout: TestConfig.mqtt_timeout(),
       transport: Hulaaki.Transport.WebSocket,
       transport_opts: []
     ]
@@ -377,7 +377,7 @@ defmodule Hulaaki.ClientWebsocketTest do
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-7592",
+        client_id: TestHelper.random_name(),
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_websocket_port(),
         transport: Hulaaki.Transport.WebSocket,
@@ -408,7 +408,7 @@ defmodule Hulaaki.ClientWebsocketTest do
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-8234",
+        client_id: TestHelper.random_name(),
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_websocket_port(),
         transport: Hulaaki.Transport.WebSocket,
@@ -439,7 +439,7 @@ defmodule Hulaaki.ClientWebsocketTest do
       {:ok, pid2} = SampleClient.start_link(%{parent: self()})
 
       options = [
-        client_id: "another-name-7629",
+        client_id: TestHelper.random_name(),
         host: TestConfig.mqtt_host(),
         port: TestConfig.mqtt_websocket_port(),
         transport: Hulaaki.Transport.WebSocket,
