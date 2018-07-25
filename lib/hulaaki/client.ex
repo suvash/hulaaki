@@ -5,7 +5,7 @@ defmodule Hulaaki.Client do
   """
   defmacro __using__(_) do
     quote location: :keep do
-      use GenServer
+      use GenServer, restart: :transient
       alias Hulaaki.Connection
       alias Hulaaki.Message
 
@@ -18,8 +18,7 @@ defmodule Hulaaki.Client do
       end
 
       def connect(pid, opts) do
-        {:ok, conn_pid} = Connection.start_link(pid)
-        GenServer.call(pid, {:connect, opts, conn_pid})
+        GenServer.call(pid, {:connect, opts})
       end
 
       def publish(pid, opts) do
@@ -57,10 +56,9 @@ defmodule Hulaaki.Client do
       end
 
       def handle_call(:stop, _from, state) do
-        conn_pid = state.connection
-
-        if conn_pid && Process.alive?(conn_pid) do
-          Connection.stop(conn_pid)
+        case state.connection do
+          nil -> nil
+          conn_pid -> Connection.stop(conn_pid)
         end
 
         {:stop, :normal, :ok, state}
@@ -68,7 +66,7 @@ defmodule Hulaaki.Client do
 
       # collection options for host port ?
 
-      def handle_call({:connect, opts, conn_pid}, _from, state) do
+      def handle_call({:connect, opts}, _from, state) do
         host = opts |> Keyword.fetch!(:host)
         port = opts |> Keyword.fetch!(:port)
         timeout = opts |> Keyword.get(:timeout, 10 * 1000)
@@ -102,7 +100,15 @@ defmodule Hulaaki.Client do
             keep_alive
           )
 
-        state = Map.merge(%{connection: conn_pid}, state)
+        conn_pid =
+          case DynamicSupervisor.start_child(Connection.Supervisor, {Connection, self()}) do
+            {:ok, pid} -> pid
+            {:error, {:already_started, pid}} -> pid
+          end
+
+        Process.monitor(conn_pid)
+
+        state = Map.merge(state, %{connection: conn_pid})
 
         connect_opts = [
           host: host,
@@ -282,7 +288,7 @@ defmodule Hulaaki.Client do
       end
 
       def handle_info({:sent, %Message.Disconnect{} = message}, state) do
-        state = reset_keep_alive_timer(state)
+        state = cancel_keep_alive_timer(state)
         on_disconnect(message: message, state: state)
         {:noreply, state}
       end
@@ -294,6 +300,18 @@ defmodule Hulaaki.Client do
 
       def handle_info({:ping_response_timeout}, state) do
         on_ping_response_timeout(message: nil, state: state)
+        {:noreply, state}
+      end
+
+      def handle_info({:connection_down, reason}, state) do
+        state = cancel_keep_alive_timer(state)
+        on_connection_down(reason: reason, state: state)
+        {:noreply, state}
+      end
+
+      def handle_info({:DOWN, _, :process, conn_pid, reason}, %{connection: conn_pid} = state) do
+        state = cancel_keep_alive_timer(state)
+        on_connection_down(reason: reason, state: state)
         {:noreply, state}
       end
 
@@ -321,6 +339,11 @@ defmodule Hulaaki.Client do
           Process.send_after(self(), {:ping_response_timeout}, ping_response_timeout_interval)
 
         %{state | ping_response_timer_ref: ping_response_timer_ref}
+      end
+
+      defp cancel_keep_alive_timer(%{keep_alive_timer_ref: keep_alive_timer_ref} = state) do
+        if keep_alive_timer_ref, do: Process.cancel_timer(keep_alive_timer_ref)
+        %{state | keep_alive_timer_ref: nil}
       end
 
       defp cancel_ping_response_timer(%{ping_response_timer_ref: ping_response_timer_ref} = state) do
@@ -355,6 +378,7 @@ defmodule Hulaaki.Client do
       def on_ping_response(message: message, state: state), do: true
       def on_ping_response_timeout(message: message, state: state), do: true
       def on_disconnect(message: message, state: state), do: true
+      def on_connection_down(reason: reason, state: state), do: true
 
       defoverridable on_connect: 1,
                      on_connect_ack: 1,
@@ -372,7 +396,8 @@ defmodule Hulaaki.Client do
                      on_ping: 1,
                      on_ping_response: 1,
                      on_ping_response_timeout: 1,
-                     on_disconnect: 1
+                     on_disconnect: 1,
+                     on_connection_down: 1
     end
   end
 end

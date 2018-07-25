@@ -1,5 +1,5 @@
 defmodule Hulaaki.Connection do
-  use GenServer
+  use GenServer, restart: :transient
   alias Hulaaki.Message
   alias Hulaaki.Packet
 
@@ -15,6 +15,11 @@ defmodule Hulaaki.Connection do
   def start_link(client_pid)
       when is_pid(client_pid) do
     GenServer.start_link(__MODULE__, %{client: client_pid, socket: nil, transport: nil})
+  end
+
+  def start(client_pid)
+      when is_pid(client_pid) do
+    GenServer.start(__MODULE__, %{client: client_pid, socket: nil, transport: nil})
   end
 
   @doc """
@@ -78,13 +83,15 @@ defmodule Hulaaki.Connection do
   """
   def stop(pid) do
     GenServer.call(pid, :stop)
+  catch
+    _, _ -> :ok
   end
 
   ## GenServer callbacks
 
   @doc false
   def init(state) do
-    state = state |> Map.put(:remainder, "")
+    state = state |> Map.put(:remainder, "") |> Map.put(:connected, false)
     {:ok, state}
   end
 
@@ -100,11 +107,18 @@ defmodule Hulaaki.Connection do
       %{socket: socket, transport: transport} ->
         dispatch_message(transport, socket, message)
         Kernel.send(state.client, {:sent, message})
-        {:reply, :ok, %{state | socket: socket, transport: transport}}
+        {:reply, :ok, %{state | socket: socket, transport: transport, connected: true}}
 
       {:error, reason} ->
         {:reply, {:error, reason}, state}
     end
+  end
+
+  @doc false
+  def handle_call({:disconnect, message}, _from, state) do
+    dispatch_message(state.transport, state.socket, message)
+    Kernel.send(state.client, {:sent, message})
+    {:reply, :ok, %{state | connected: false}}
   end
 
   @doc false
@@ -119,12 +133,20 @@ defmodule Hulaaki.Connection do
     packet = state.transport.packet_message()
     closing = state.transport.closing_message()
 
-    case message |> Tuple.to_list() do
-      [^packet, socket, data | _] ->
+    case message do
+      {^packet, socket, data} ->
         handle_socket_data(socket, data, state)
 
-      [^closing, _] ->
-        {:stop, :shutdown, state}
+      {^closing, _} ->
+        state =
+          if state.connected do
+            Kernel.send(state.client, {:connection_down, closing})
+            %{state | connected: false}
+          else
+            state
+          end
+
+        {:noreply, state}
     end
   end
 
