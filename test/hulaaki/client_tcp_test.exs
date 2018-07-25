@@ -107,7 +107,7 @@ defmodule Hulaaki.ClientTCPTest do
   end
 
   setup do
-    {:ok, pid} = SampleClient.start_link(%{parent: self()})
+    {:ok, pid} = SampleClient.start(%{parent: self()})
     {:ok, client_pid: pid}
   end
 
@@ -154,6 +154,18 @@ defmodule Hulaaki.ClientTCPTest do
     assert_receive {:connect_ack, %Message.ConnAck{}}
 
     post_disconnect(pid)
+  end
+
+  test "monitor client and receive :DOWN signal when connection killed", %{client_pid: pid} do
+    pre_connect(pid)
+
+    Process.monitor(pid)
+
+    %{connection: connection} = :sys.get_state(pid)
+
+    Process.exit(connection, :stop)
+
+    assert_receive {:DOWN, _ref, :process, ^pid, :stop}
   end
 
   test "on_disconnect callback on sending disconnect", %{client_pid: pid} do

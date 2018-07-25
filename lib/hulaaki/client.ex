@@ -9,6 +9,10 @@ defmodule Hulaaki.Client do
       alias Hulaaki.Connection
       alias Hulaaki.Message
 
+      def start(initial_state) do
+        GenServer.start(__MODULE__, initial_state)
+      end
+
       def start_link(initial_state) do
         GenServer.start_link(__MODULE__, initial_state)
       end
@@ -18,8 +22,7 @@ defmodule Hulaaki.Client do
       end
 
       def connect(pid, opts) do
-        {:ok, conn_pid} = Connection.start_link(pid)
-        GenServer.call(pid, {:connect, opts, conn_pid})
+        GenServer.call(pid, {:connect, opts})
       end
 
       def publish(pid, opts) do
@@ -68,7 +71,8 @@ defmodule Hulaaki.Client do
 
       # collection options for host port ?
 
-      def handle_call({:connect, opts, conn_pid}, _from, state) do
+      def handle_call({:connect, opts}, _from, state) do
+        {:ok, conn_pid} = Connection.start_link(self())
         host = opts |> Keyword.fetch!(:host)
         port = opts |> Keyword.fetch!(:port)
         timeout = opts |> Keyword.get(:timeout, 10 * 1000)
