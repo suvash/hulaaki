@@ -58,8 +58,12 @@ defmodule Hulaaki.Client do
 
       def handle_call(:stop, _from, state) do
         case state.connection do
-          nil -> nil
-          conn_pid -> Connection.stop(conn_pid)
+          nil ->
+            nil
+
+          conn_pid ->
+            Connection.stop(conn_pid)
+            Supervisor.delete_child(Connection.Supervisor, state.client_id)
         end
 
         {:stop, :normal, :ok, state}
@@ -101,15 +105,11 @@ defmodule Hulaaki.Client do
             keep_alive
           )
 
-        conn_pid =
-          case DynamicSupervisor.start_child(Connection.Supervisor, {Connection, self()}) do
-            {:ok, pid} -> pid
-            {:error, {:already_started, pid}} -> pid
-          end
+        {:ok, conn_pid} = start_connection(client_id)
 
         Process.monitor(conn_pid)
 
-        state = Map.merge(state, %{connection: conn_pid})
+        state = Map.merge(state, %{connection: conn_pid, client_id: client_id})
 
         connect_opts = [
           host: host,
@@ -314,8 +314,12 @@ defmodule Hulaaki.Client do
         {:noreply, state}
       end
 
-      def handle_info({:DOWN, _, :process, conn_pid, reason}, %{connection: conn_pid} = state) do
+      def handle_info(
+            {:DOWN, _, :process, conn_pid, reason},
+            %{connection: conn_pid, client_id: client_id} = state
+          ) do
         state = cancel_keep_alive_timer(state)
+        Supervisor.delete_child(Connection.Supervisor, client_id)
         on_connection_down(reason: reason, state: state)
         {:noreply, state}
       end
@@ -362,6 +366,19 @@ defmodule Hulaaki.Client do
 
       defp update_packet_id(%{packet_id: packet_id} = state) do
         %{state | packet_id: packet_id + 1}
+      end
+
+      defp start_connection(client_id) do
+        child_spec = %{
+          id: client_id,
+          start: {Connection, :start_link, [self()]},
+          restart: :transient
+        }
+
+        case Supervisor.start_child(Connection.Supervisor, child_spec) do
+          {:ok, pid} -> {:ok, pid}
+          {:error, {:already_started, pid}} -> {:ok, pid}
+        end
       end
 
       ## Overrideable callbacks
