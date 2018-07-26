@@ -96,36 +96,43 @@ defmodule Hulaaki.Connection do
   end
 
   @doc false
-  def handle_call(:stop, _from, state) do
-    close_socket(state.transport, state.socket)
-    {:stop, :normal, :ok, state}
-  end
-
-  @doc false
   def handle_call({:connect, message, opts}, _from, state) do
     case open_socket(opts) do
       %{socket: socket, transport: transport} ->
-        dispatch_message(transport, socket, message)
-        Kernel.send(state.client, {:sent, message})
-        {:reply, :ok, %{state | socket: socket, transport: transport, connected: true}}
+        state =
+          state
+          |> Map.put(:transport, transport)
+          |> Map.put(:socket, socket)
+          |> Map.put(:soconnectedcket, true)
+
+        result = dispatch_message(state, message)
+        {:reply, result, state}
 
       {:error, reason} ->
         {:reply, {:error, reason}, state}
     end
   end
 
+  def handle_call(_, _from, %{transport: nil} = state) do
+    {:reply, {:error, :not_connected}, state}
+  end
+
+  @doc false
+  def handle_call(:stop, _from, state) do
+    close_socket(state.transport, state.socket)
+    {:stop, :normal, :ok, state}
+  end
+
   @doc false
   def handle_call({:disconnect, message}, _from, state) do
-    dispatch_message(state.transport, state.socket, message)
-    Kernel.send(state.client, {:sent, message})
-    {:reply, :ok, %{state | connected: false}}
+    result = dispatch_message(state, message)
+    {:reply, result, %{state | connected: false}}
   end
 
   @doc false
   def handle_call({_, message}, _from, state) do
-    dispatch_message(state.transport, state.socket, message)
-    Kernel.send(state.client, {:sent, message})
-    {:reply, :ok, state}
+    result = dispatch_message(state, message)
+    {:reply, result, state}
   end
 
   @doc false
@@ -176,9 +183,20 @@ defmodule Hulaaki.Connection do
     end
   end
 
-  defp dispatch_message(transport, socket, message) do
+  defp dispatch_message(%{transport: transport, socket: socket, client: client}, message) do
     packet = Packet.encode(message)
-    socket |> set_active_once(transport) |> transport.send(packet)
+
+    socket
+    |> set_active_once(transport)
+    |> transport.send(packet)
+    |> case do
+      :ok ->
+        Kernel.send(client, {:sent, message})
+        :ok
+
+      error ->
+        error
+    end
   end
 
   defp set_active_once(socket, transport) do

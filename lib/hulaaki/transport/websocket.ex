@@ -22,8 +22,15 @@ defmodule Hulaaki.Transport.WebSocket do
     end
   end
 
-  def send(%{ws: ws} = _socket, packet) do
-    :ok = Socket.Web.send(ws, {:binary, packet})
+  def send(%{ws: ws, pid: pid} = _socket, packet) do
+    case Socket.Web.send(ws, {:binary, packet}) do
+      :ok ->
+        :ok
+
+      {:error, :closed} ->
+        GenServer.stop(pid, :normal)
+        {:error, :closed}
+    end
   end
 
   def close(%{ws: ws, pid: pid} = _socket) do

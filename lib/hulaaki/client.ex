@@ -51,6 +51,7 @@ defmodule Hulaaki.Client do
           |> Map.put(:keep_alive_timer_ref, nil)
           |> Map.put(:ping_response_timeout_interval, nil)
           |> Map.put(:ping_response_timer_ref, nil)
+          |> Map.put(:connection, nil)
 
         {:ok, state}
       end
@@ -131,6 +132,10 @@ defmodule Hulaaki.Client do
           {:error, reason} ->
             {:reply, {:error, reason}, state}
         end
+      end
+
+      def handle_call(_, _from, %{connection: nil} = state) do
+        {:reply, {:error, :not_connected}, state}
       end
 
       def handle_call({:publish, opts}, _from, state) do
