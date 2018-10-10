@@ -91,6 +91,7 @@ defmodule Hulaaki.Connection do
 
   @doc false
   def init(state) do
+    Process.flag(:trap_exit, true)
     state = state |> Map.put(:remainder, "") |> Map.put(:connected, false)
     {:ok, state}
   end
@@ -113,14 +114,18 @@ defmodule Hulaaki.Connection do
     end
   end
 
-  def handle_call(_, _from, %{transport: nil} = state) do
-    {:reply, {:error, :not_connected}, state}
+  @doc false
+  def handle_call(:stop, _from, %{transport: transport} = state) do
+    unless is_nil(transport) do
+      close_socket(state.transport, state.socket)
+    end
+
+    {:stop, :normal, :ok, state}
   end
 
   @doc false
-  def handle_call(:stop, _from, state) do
-    close_socket(state.transport, state.socket)
-    {:stop, :normal, :ok, state}
+  def handle_call(_, _from, %{transport: nil} = state) do
+    {:reply, {:error, :not_connected}, state}
   end
 
   @doc false
@@ -133,6 +138,11 @@ defmodule Hulaaki.Connection do
   def handle_call({_, message}, _from, state) do
     result = dispatch_message(state, message)
     {:reply, result, state}
+  end
+
+  @doc false
+  def handle_info({:EXIT, _, reason}, state) do
+    {:stop, {:shutdown, reason}, state}
   end
 
   @doc false

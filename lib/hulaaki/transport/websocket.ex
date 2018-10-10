@@ -14,7 +14,7 @@ defmodule Hulaaki.Transport.WebSocket do
            ),
          socket <- %{ws: ws, conn: conn, pid: nil},
          {:ok, pid} <- start_link(socket) do
-      Process.link(pid)
+      Process.monitor(pid)
       {:ok, %{socket | pid: pid}}
     else
       {:error, "connection refused"} -> {:error, :econnrefused}
@@ -45,6 +45,7 @@ defmodule Hulaaki.Transport.WebSocket do
   end
 
   def init(state) do
+    Process.flag(:trap_exit, true)
     GenServer.cast(self(), :receive)
     {:ok, %{state | pid: self()}}
   end
@@ -63,6 +64,11 @@ defmodule Hulaaki.Transport.WebSocket do
       error ->
         {:stop, error, state}
     end
+  end
+
+  def handle_info({:EXIT, _, reason}, %{ws: ws} = state) do
+    Socket.Web.close(ws)
+    {:stop, {:shutdown, reason}, state}
   end
 
   def packet_message, do: :websocket

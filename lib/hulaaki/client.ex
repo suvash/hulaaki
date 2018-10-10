@@ -107,7 +107,7 @@ defmodule Hulaaki.Client do
 
         {:ok, conn_pid} = start_connection(client_id)
 
-        Process.monitor(conn_pid)
+        conn_ref = Process.monitor(conn_pid)
 
         state = Map.merge(state, %{connection: conn_pid, client_id: client_id})
 
@@ -130,6 +130,8 @@ defmodule Hulaaki.Client do
              }}
 
           {:error, reason} ->
+            Process.demonitor(conn_ref)
+            stop_connection(conn_pid, client_id)
             {:reply, {:error, reason}, state}
         end
       end
@@ -379,6 +381,11 @@ defmodule Hulaaki.Client do
           {:ok, pid} -> {:ok, pid}
           {:error, {:already_started, pid}} -> {:ok, pid}
         end
+      end
+
+      defp stop_connection(conn_pid, client_id) do
+        Connection.stop(conn_pid)
+        Supervisor.delete_child(Connection.Supervisor, client_id)
       end
 
       ## Overrideable callbacks
