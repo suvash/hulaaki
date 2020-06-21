@@ -1,4 +1,6 @@
-# Hulaaki (हुलाकी)
+# DEPRECATED : Hulaaki (हुलाकी)
+
+Further DEVELOPMENT of this library has now been STOPPED. Please consider looking into other alternatives. (such as [tortoise](https://github.com/gausby/tortoise))
 
 [![Build Status](https://travis-ci.org/suvash/hulaaki.svg?branch=master)](https://travis-ci.org/suvash/hulaaki?branch=master)
 [![Coverage Status](https://coveralls.io/repos/suvash/hulaaki/badge.svg?branch=master)](https://coveralls.io/r/suvash/hulaaki?branch=master)
